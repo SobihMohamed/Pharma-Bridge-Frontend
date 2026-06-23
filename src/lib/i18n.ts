@@ -19,16 +19,17 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'ar', // Default language
+    lng: 'en', // Enforce English
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false, // React already safe from xss
     },
   });
 
-i18n.on('languageChanged', (lng) => {
-  document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
-  document.documentElement.lang = lng;
+i18n.on('languageChanged', () => {
+  // Enforce English (LTR) globally
+  document.documentElement.dir = 'ltr';
+  document.documentElement.lang = 'en';
 });
 
 export default i18n;

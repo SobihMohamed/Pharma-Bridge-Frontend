@@ -7,10 +7,11 @@ import MainLayout from "@/components/layouts/MainLayout";
 import NotFound from "@/pages/NotFound";
 
 // Lazy-loaded pages
-const IndexPage = React.lazy(() => import("@/pages/Index"));
+const PatientHomePage = React.lazy(() => import("@/features/dashboard/pages/PatientHomePage"));
 const LoginPage = React.lazy(() => import("@/features/auth/pages/LoginPage"));
 const RegisterPage = React.lazy(() => import("@/features/auth/pages/RegisterPage"));
 const RequestsPage = React.lazy(() => import("@/features/prescription-requests/pages/RequestsPage"));
+const NewRequestPage = React.lazy(() => import("@/features/prescription-requests/pages/NewRequestPage"));
 const RequestDetailsPage = React.lazy(() => import("@/features/prescription-requests/pages/RequestDetailsPage"));
 const OrdersPage = React.lazy(() => import("@/features/orders/pages/OrdersPage"));
 const OrderDetailsPage = React.lazy(() => import("@/features/orders/pages/OrderDetailsPage"));
@@ -47,7 +48,7 @@ export const router = createBrowserRouter([
           <ProtectedRoute>
             <RoleGuard allowedRoles={["Patient"]}>
               <SuspenseWrapper>
-                <IndexPage />
+                <PatientHomePage />
               </SuspenseWrapper>
             </RoleGuard>
           </ProtectedRoute>
@@ -60,6 +61,18 @@ export const router = createBrowserRouter([
             <RoleGuard allowedRoles={["Patient"]}>
               <SuspenseWrapper>
                 <RequestsPage />
+              </SuspenseWrapper>
+            </RoleGuard>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "requests/new",
+        element: (
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={["Patient"]}>
+              <SuspenseWrapper>
+                <NewRequestPage />
               </SuspenseWrapper>
             </RoleGuard>
           </ProtectedRoute>
