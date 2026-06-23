@@ -1,19 +1,12 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { Pill, Bell, Menu, X, User, ChevronDown, LogOut, Settings } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/store/authStore';
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const { i18n } = useTranslation();
   const clearAuth = useAuthStore((state) => state.clearAuth);
-
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'ar' ? 'en' : 'ar';
-    i18n.changeLanguage(newLang);
-  };
 
   const handleLogout = () => {
     clearAuth();
@@ -38,7 +31,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8 space-x-reverse mx-8">
+          <div className="hidden md:flex items-center space-x-8 mx-8">
             {navLinks.map((link) => (
               <NavLink
                 key={link.name}
@@ -55,20 +48,12 @@ export default function Navbar() {
           </div>
 
           {/* Right Side Actions */}
-          <div className="hidden md:flex items-center space-x-4 space-x-reverse">
+          <div className="hidden md:flex items-center space-x-4">
             
-            {/* Language Toggle */}
-            <button
-              onClick={toggleLanguage}
-              className="text-sm font-medium text-gray-600 hover:text-teal-600 transition-colors px-2 py-1 rounded-md hover:bg-gray-100"
-            >
-              {i18n.language === 'ar' ? 'EN' : 'عربي'}
-            </button>
-
             {/* Notifications */}
             <button className="relative p-2 text-gray-600 hover:text-teal-600 hover:bg-gray-100 rounded-full transition-colors">
               <Bell className="h-5 w-5" />
-              <span className="absolute top-1 end-1 h-2 w-2 bg-red-500 rounded-full border border-white"></span>
+              <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full border border-white"></span>
             </button>
 
             {/* Profile Dropdown */}
@@ -87,20 +72,20 @@ export default function Navbar() {
 
               {/* Dropdown Menu */}
               {isProfileDropdownOpen && (
-                <div className="absolute end-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5">
                   <Link to="/profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    <User className="h-4 w-4 me-2 text-gray-400" />
+                    <User className="h-4 w-4 mr-2 text-gray-400" />
                     Profile
                   </Link>
                   <Link to="/settings" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    <Settings className="h-4 w-4 me-2 text-gray-400" />
+                    <Settings className="h-4 w-4 mr-2 text-gray-400" />
                     Settings
                   </Link>
                   <button 
                     onClick={handleLogout}
                     className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                   >
-                    <LogOut className="h-4 w-4 me-2" />
+                    <LogOut className="h-4 w-4 mr-2" />
                     Sign out
                   </button>
                 </div>
@@ -112,7 +97,7 @@ export default function Navbar() {
           <div className="md:hidden flex items-center gap-2">
             <button className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
               <Bell className="h-5 w-5" />
-              <span className="absolute top-1 end-1 h-2 w-2 bg-red-500 rounded-full border border-white"></span>
+              <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full border border-white"></span>
             </button>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -139,7 +124,7 @@ export default function Navbar() {
           ))}
           <div className="border-t border-gray-100 mt-4 pt-4 pb-2">
             <div className="flex items-center px-3 mb-4">
-              <div className="bg-teal-100 p-2 rounded-full text-teal-700 me-3">
+              <div className="bg-teal-100 p-2 rounded-full text-teal-700 mr-3">
                 <User className="h-5 w-5" />
               </div>
               <div>
@@ -154,17 +139,8 @@ export default function Navbar() {
               Profile
             </Link>
             <button
-              onClick={() => {
-                toggleLanguage();
-                setIsMobileMenuOpen(false);
-              }}
-              className="block w-full text-start px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-teal-600 hover:bg-teal-50"
-            >
-              Language: {i18n.language === 'ar' ? 'English' : 'عربي'}
-            </button>
-            <button
               onClick={handleLogout}
-              className="block w-full text-start px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 mt-2"
+              className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 mt-2"
             >
               Sign out
             </button>
