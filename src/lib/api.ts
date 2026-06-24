@@ -40,6 +40,15 @@ apiInstance.interceptors.response.use(
     if (status === 401) {
       useAuthStore.getState().clearAuth();
       window.location.href = "/login";
+    } else if (status === 429) {
+      import("sonner").then(({ toast }) => {
+        toast.error("You have exceeded the request limit. Please try again in 2 minutes.");
+      });
+      apiError = {
+        statusCode: 429,
+        message: "Too Many Requests",
+        errors: null,
+      };
     } else if (status === 400 && responseData) {
       apiError = {
         statusCode: 400,
