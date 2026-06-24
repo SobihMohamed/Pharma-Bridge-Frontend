@@ -9,3 +9,16 @@ export interface AuthModelDto {
 }
 
 export type UserRole = "Patient" | "PharmacyOwner" | "Admin";
+
+export interface RegisterDto {
+  displayName: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
+  role: UserRole;
+}
+
+export interface LoginDto {
+  email: string;
+  password: string;
+}
