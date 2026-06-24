@@ -22,3 +22,20 @@ export interface LoginDto {
   email: string;
   password: string;
 }
+
+export interface ForgetPasswordDto {
+  email: string;
+}
+
+export interface VerifyOtpDto {
+  email: string;
+  otp: string;
+}
+
+export interface ResetPasswordDto {
+  email: string;
+  otp: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+

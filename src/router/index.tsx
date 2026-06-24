@@ -10,6 +10,9 @@ import NotFound from "@/pages/NotFound";
 const PatientHomePage = React.lazy(() => import("@/features/dashboard/pages/PatientHomePage"));
 const LoginPage = React.lazy(() => import("@/features/auth/pages/LoginPage"));
 const RegisterPage = React.lazy(() => import("@/features/auth/pages/RegisterPage"));
+const ForgetPasswordPage = React.lazy(() => import("@/features/auth/pages/ForgetPasswordPage"));
+const VerifyOtpPage = React.lazy(() => import("@/features/auth/pages/VerifyOtpPage"));
+const ResetPasswordPage = React.lazy(() => import("@/features/auth/pages/ResetPasswordPage"));
 const RequestsPage = React.lazy(() => import("@/features/prescription-requests/pages/RequestsPage"));
 const NewRequestPage = React.lazy(() => import("@/features/prescription-requests/pages/NewRequestPage"));
 const RequestDetailsPage = React.lazy(() => import("@/features/prescription-requests/pages/RequestDetailsPage"));
@@ -215,16 +218,28 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/forgot-password",
-        element: <div>Forgot Password Placeholder</div>,
+        path: "/forget-password",
+        element: (
+          <SuspenseWrapper>
+            <ForgetPasswordPage />
+          </SuspenseWrapper>
+        ),
       },
       {
         path: "/verify-otp",
-        element: <div>Verify OTP Placeholder</div>,
+        element: (
+          <SuspenseWrapper>
+            <VerifyOtpPage />
+          </SuspenseWrapper>
+        ),
       },
       {
         path: "/reset-password",
-        element: <div>Reset Password Placeholder</div>,
+        element: (
+          <SuspenseWrapper>
+            <ResetPasswordPage />
+          </SuspenseWrapper>
+        ),
       },
     ],
   },
