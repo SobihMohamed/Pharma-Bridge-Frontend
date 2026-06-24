@@ -14,9 +14,9 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      token: null,
-      user: null,
-      isAuthenticated: false,
+      token: 'mock-token',
+      user: { name: 'Test Pharmacy', email: 'test@pharmacy.com', roles: ['PharmacyOwner'] },
+      isAuthenticated: true,
 
       setAuth: (data: AuthModelDto) => {
         set({
