@@ -1,29 +1,13 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import NewRequestForm from '../components/NewRequestForm';
-import { CreatePrescriptionRequestDto } from '../types';
+import { useCreateRequestMutation } from '../hooks/usePrescriptionRequestMutations';
 
 export default function NewRequestPage() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
+  const { mutate, isPending } = useCreateRequestMutation();
 
-  const handleCreateRequest = async (data: CreatePrescriptionRequestDto) => {
-    setIsSubmitting(true);
-    
-    // Simulate network latency for mock submission
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    
-    setIsSubmitting(false);
-    
-    // Success feedback
-    toast.success('Prescription request submitted successfully!', {
-      description: 'Pharmacies will review your request and send bids shortly.',
-    });
-    
-    // Redirect back to requests list
-    navigate('/requests');
+  const handleCreateRequest = (formData: FormData) => {
+    mutate(formData);
   };
 
   return (
@@ -38,12 +22,12 @@ export default function NewRequestPage() {
         </Link>
         <h1 className="text-3xl font-bold text-gray-900">Request New Prescription</h1>
         <p className="text-gray-500 mt-2">
-          Upload your prescription and choose your preferred delivery address to receive offers from nearby pharmacies.
+          Upload your prescription or type a medicine name, and choose your preferred delivery address to receive offers from nearby pharmacies.
         </p>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
-        <NewRequestForm onSubmit={handleCreateRequest} isLoading={isSubmitting} />
+        <NewRequestForm onSubmit={handleCreateRequest} isLoading={isPending} />
       </div>
     </div>
   );

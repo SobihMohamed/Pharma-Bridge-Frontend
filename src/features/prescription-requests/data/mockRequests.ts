@@ -3,7 +3,7 @@ import { PrescriptionRequestDto } from '../types';
 export const MOCK_REQUESTS: PrescriptionRequestDto[] = [
   {
     id: 'req_123',
-    status: 'Bidding',
+    status: 'HasBids',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
     imageUrl: 'https://images.unsplash.com/photo-1585435557343-3b092031a831?auto=format&fit=crop&q=80&w=800',
     notes: 'Please ensure generic alternatives are provided if original is not available.',
@@ -50,7 +50,7 @@ export const MOCK_REQUESTS: PrescriptionRequestDto[] = [
   },
   {
     id: 'req_125',
-    status: 'Completed',
+    status: 'Closed',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days ago
     imageUrl: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?auto=format&fit=crop&q=80&w=800',
     notes: 'Monthly diabetes medication.',
