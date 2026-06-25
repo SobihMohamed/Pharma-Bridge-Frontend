@@ -13,9 +13,8 @@ export default function RequestCard({ request }: RequestCardProps) {
     Closed: 'bg-green-100 text-green-800',
     Cancelled: 'bg-red-100 text-red-800',
   };
-
-  const hasBids = request.bids && request.bids.length > 0;
-  const pendingBidsCount = request.bids?.filter(b => b.status === 'Pending').length || 0;
+  const hasBids = request.bidsCount > 0;
+  const bidsCount = request.bidsCount;
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all group">
@@ -31,11 +30,13 @@ export default function RequestCard({ request }: RequestCardProps) {
             </div>
             <div>
               <h3 className="text-base font-bold text-gray-900">
-                Request #{request.id.toString().slice(-6).toUpperCase()}
+                {request.medicineName || "Prescription Image Attached"}
               </h3>
-              <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-0.5">
-                <Calendar className="w-3.5 h-3.5" />
-                <span>{new Date(request.createdAt).toLocaleDateString()}</span>
+              <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>{new Date(request.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -44,9 +45,13 @@ export default function RequestCard({ request }: RequestCardProps) {
           </span>
         </div>
 
-        <span className="text-xs text-gray-500">ID: {request.id.toString().slice(0, 8)}...</span>
+        <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-3">
+          <Store className="w-4 h-4 text-gray-400" />
+          <span>{request.deliveryArea}</span>
+        </div>
+
         <p className="text-sm text-gray-600 line-clamp-2 mb-4 h-10">
-          {request.notes || 'No additional notes provided.'}
+          {request.patientNotes || 'No additional notes provided.'}
         </p>
 
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
@@ -54,11 +59,11 @@ export default function RequestCard({ request }: RequestCardProps) {
             {hasBids ? (
               <div className="flex items-center gap-1.5 text-sm font-medium text-teal-600 bg-teal-50 px-2.5 py-1 rounded-md">
                 <Store className="w-4 h-4" />
-                {pendingBidsCount} {pendingBidsCount === 1 ? 'Offer' : 'Offers'} Received
+                {bidsCount} {bidsCount === 1 ? 'Offer' : 'Offers'}
               </div>
             ) : (
               <div className="text-sm font-medium text-gray-500 bg-gray-50 px-2.5 py-1 rounded-md">
-                Awaiting Offers
+                0 Offers
               </div>
             )}
           </div>

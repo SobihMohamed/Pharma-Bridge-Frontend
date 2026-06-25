@@ -23,12 +23,16 @@ export interface PrescriptionRequestDto {
   id: string | number;
   status: RequestStatus;
   createdAt: string;
+  expiresAt: string;
   imageUrl: string | null;
-  medicineName?: string | null;
-  notes?: string;
-  deliveryAddressId: string | number;
-  bids: BidDto[];
+  medicineName: string | null;
+  patientNotes?: string;
+  deliveryArea: string;
+  bidsCount: number;
 }
 
-export type PrescriptionRequestDetailsDto = PrescriptionRequestDto;
+export interface PrescriptionRequestDetailsDto extends PrescriptionRequestDto {
+  bids: BidDto[];
+  deliveryAddressId: string | number;
+}
 

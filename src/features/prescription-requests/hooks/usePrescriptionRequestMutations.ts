@@ -6,11 +6,13 @@ import { ApiError } from '@/types/api.types';
 
 export const useCreateRequestMutation = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (formData: FormData) => prescriptionRequestService.createRequest(formData),
     onSuccess: () => {
       toast.success('Prescription request created successfully!');
+      queryClient.invalidateQueries({ queryKey: ['patientRequests'] });
       navigate('/requests');
     },
     onError: (error: ApiError) => {
