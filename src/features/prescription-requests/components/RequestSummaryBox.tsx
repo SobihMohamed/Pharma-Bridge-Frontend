@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { FileText, Calendar, MapPin, ImageIcon, X } from 'lucide-react';
-import { PrescriptionRequestDto } from '../types';
+import { PrescriptionRequestDetailsDto } from '../types';
 
 interface RequestSummaryBoxProps {
-  request: PrescriptionRequestDto;
+  request: PrescriptionRequestDetailsDto;
 }
 
 export default function RequestSummaryBox({ request }: RequestSummaryBoxProps) {
@@ -59,11 +59,11 @@ export default function RequestSummaryBox({ request }: RequestSummaryBoxProps) {
             </div>
           )}
 
-          {request.notes && (
+          {request.patientNotes && (
             <div className="space-y-2">
               <h3 className="text-sm font-semibold text-gray-700">Patient Notes</h3>
               <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600 italic border border-gray-100">
-                "{request.notes}"
+                "{request.patientNotes}"
               </div>
             </div>
           )}
@@ -74,7 +74,7 @@ export default function RequestSummaryBox({ request }: RequestSummaryBoxProps) {
               Delivery Details
             </h3>
             <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600 border border-gray-100">
-              <p className="font-medium text-gray-900 mb-1">Address ID: {request.deliveryAddressId}</p>
+              <p className="font-medium text-gray-900 mb-1">{request.deliveryArea}</p>
               <p>Will be delivered to this requested location upon acceptance.</p>
             </div>
           </div>

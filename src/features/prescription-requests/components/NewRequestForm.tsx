@@ -1,6 +1,8 @@
-import React, { useState, useRef } from 'react';
-import { X, UploadCloud } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { X, UploadCloud, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
+import { usePatientAddressesQuery } from '../../profile/hooks/useAddressQueries';
 
 interface NewRequestFormProps {
   onSubmit: (formData: FormData) => void;
@@ -15,6 +17,19 @@ export default function NewRequestForm({ onSubmit, isLoading }: NewRequestFormPr
   const [deliveryAddressId, setDeliveryAddressId] = useState<number | ''>('');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: addresses, isLoading: isAddressesLoading } = usePatientAddressesQuery();
+
+  useEffect(() => {
+    if (addresses && addresses.length > 0 && deliveryAddressId === '') {
+      const defaultAddress = addresses.find(addr => addr.isDefault);
+      if (defaultAddress) {
+        setDeliveryAddressId(defaultAddress.id);
+      } else {
+        setDeliveryAddressId(addresses[0].id); // Fallback to first if no default
+      }
+    }
+  }, [addresses, deliveryAddressId]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -135,17 +150,41 @@ export default function NewRequestForm({ onSubmit, isLoading }: NewRequestFormPr
         <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
           Delivery Address <span className="text-red-500">*</span>
         </label>
+        
         <select
           id="address"
           value={deliveryAddressId}
           onChange={(e) => setDeliveryAddressId(Number(e.target.value))}
-          className="block w-full rounded-md border border-gray-300 px-4 py-3 text-gray-900 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm outline-none transition-colors bg-white"
+          disabled={isAddressesLoading || !addresses || addresses.length === 0}
+          className="block w-full rounded-md border border-gray-300 px-4 py-3 text-gray-900 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm outline-none transition-colors bg-white disabled:bg-gray-50 disabled:text-gray-500"
         >
-          <option value="" disabled>Select an address</option>
-          {/* Mocked Valid IDs */}
-          <option value={1}>Home - 123 Main St, Apt 4B</option>
-          <option value={2}>Work - 456 Business Blvd, Floor 2</option>
+          {isAddressesLoading ? (
+            <option value="" disabled>Loading addresses...</option>
+          ) : !addresses || addresses.length === 0 ? (
+            <option value="" disabled>No addresses found</option>
+          ) : (
+            <>
+              <option value="" disabled>Select an address</option>
+              {addresses.map((address) => (
+                <option key={address.id} value={address.id}>
+                  {address.addressLine} - {address.city}
+                </option>
+              ))}
+            </>
+          )}
         </select>
+
+        {!isAddressesLoading && (!addresses || addresses.length === 0) && (
+          <div className="mt-3 flex items-start gap-2 text-sm text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-100">
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+            <p>
+              You must add a delivery address in your Profile before submitting a request.{' '}
+              <Link to="/profile" className="font-bold underline hover:text-amber-700">
+                Go to Profile
+              </Link>
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Hidden File Input */}
@@ -161,7 +200,7 @@ export default function NewRequestForm({ onSubmit, isLoading }: NewRequestFormPr
       <div className="pt-4 border-t border-gray-100">
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || !addresses || addresses.length === 0}
           className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
         >
           {isLoading ? (
