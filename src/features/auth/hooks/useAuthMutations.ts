@@ -15,7 +15,7 @@ export const useRegisterMutation = () => {
     onSuccess: (data) => {
       setAuth(data);
       toast.success('Account Created Successfully');
-      navigate('/');
+      navigate('/profile');
     },
     onError: (error: ApiError) => {
       if (error.errors && error.errors.length > 0) {
@@ -36,8 +36,8 @@ export const useLoginMutation = () => {
     mutationFn: (data: LoginDto) => authService.login(data),
     onSuccess: (data) => {
       setAuth(data);
-      toast.success('Welcome back!');
-      navigate('/');
+      toast.success('Logged in successfully!');
+      navigate('/profile');
     },
     onError: (error: ApiError) => {
       if (error.errors && error.errors.length > 0) {

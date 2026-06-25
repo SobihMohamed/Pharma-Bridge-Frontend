@@ -7,10 +7,10 @@ interface RequestCardProps {
 }
 
 export default function RequestCard({ request }: RequestCardProps) {
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     Pending: 'bg-yellow-100 text-yellow-800',
-    Bidding: 'bg-blue-100 text-blue-800',
-    Completed: 'bg-green-100 text-green-800',
+    HasBids: 'bg-blue-100 text-blue-800',
+    Closed: 'bg-green-100 text-green-800',
     Cancelled: 'bg-red-100 text-red-800',
   };
 
@@ -31,7 +31,7 @@ export default function RequestCard({ request }: RequestCardProps) {
             </div>
             <div>
               <h3 className="text-base font-bold text-gray-900">
-                Request #{request.id.slice(-6).toUpperCase()}
+                Request #{request.id.toString().slice(-6).toUpperCase()}
               </h3>
               <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-0.5">
                 <Calendar className="w-3.5 h-3.5" />
@@ -44,6 +44,7 @@ export default function RequestCard({ request }: RequestCardProps) {
           </span>
         </div>
 
+        <span className="text-xs text-gray-500">ID: {request.id.toString().slice(0, 8)}...</span>
         <p className="text-sm text-gray-600 line-clamp-2 mb-4 h-10">
           {request.notes || 'No additional notes provided.'}
         </p>
