@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, MapPin } from 'lucide-react';
 import { useCreateAddressMutation } from '../hooks/useAddressMutations';
-import MapLocationPicker from './MapLocationPicker';
+import MapLocationPicker from '@/shared/components/MapLocationPicker';
 
 interface AddAddressModalProps {
   isOpen: boolean;
@@ -97,8 +97,7 @@ export default function AddAddressModal({ isOpen, onClose }: AddAddressModalProp
               Pin Location on Map <span className="text-red-500">*</span>
             </label>
             <MapLocationPicker 
-              location={location} 
-              onLocationSelect={(lat, lng) => setLocation({ lat, lng })} 
+              onLocationChange={(lat, lng) => setLocation({ lat, lng })} 
             />
           </div>
 

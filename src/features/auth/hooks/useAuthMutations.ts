@@ -15,7 +15,11 @@ export const useRegisterMutation = () => {
     onSuccess: (data) => {
       setAuth(data);
       toast.success('Account Created Successfully');
-      navigate('/profile');
+      if (data.roles?.includes('PharmacyOwner')) {
+        navigate('/pharmacy/register');
+      } else {
+        navigate('/profile');
+      }
     },
     onError: (error: ApiError) => {
       if (error.errors && error.errors.length > 0) {
@@ -37,7 +41,11 @@ export const useLoginMutation = () => {
     onSuccess: (data) => {
       setAuth(data);
       toast.success('Logged in successfully!');
-      navigate('/profile');
+      if (data.roles?.includes('PharmacyOwner')) {
+        navigate('/pharmacy/register');
+      } else {
+        navigate('/profile');
+      }
     },
     onError: (error: ApiError) => {
       if (error.errors && error.errors.length > 0) {
