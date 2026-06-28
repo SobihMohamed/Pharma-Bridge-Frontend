@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, MapPin } from 'lucide-react';
 import { useUpdateAddressMutation } from '../hooks/useAddressMutations';
-import MapLocationPicker from './MapLocationPicker';
+import MapLocationPicker from '@/shared/components/MapLocationPicker';
 import { PatientAddressDto } from '../types';
 
 interface EditAddressModalProps {
@@ -107,13 +107,12 @@ export default function EditAddressModal({ isOpen, onClose, address }: EditAddre
               Pin Location on Map <span className="text-red-500">*</span>
             </label>
             {/* The MapLocationPicker remounts due to conditional rendering in parent, 
-                so location will correctly set initial state */}
-            {location && (
-              <MapLocationPicker 
-                location={location} 
-                onLocationSelect={(lat, lng) => setLocation({ lat, lng })} 
-              />
-            )}
+                so it will re-initialize with the correct location for each edit */}
+            <MapLocationPicker 
+              initialLat={location?.lat}
+              initialLng={location?.lng}
+              onLocationChange={(lat, lng) => setLocation({ lat, lng })} 
+            />
           </div>
 
           <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg border border-gray-100">

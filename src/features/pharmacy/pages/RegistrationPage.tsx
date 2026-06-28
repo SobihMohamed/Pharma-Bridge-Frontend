@@ -1,147 +1,355 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
+import { UploadCloud, Building2, MapPin, Phone, Clock, FileBadge, X } from 'lucide-react';
+import { useRegisterPharmacyMutation } from '../hooks/usePharmacyMutations';
+import MapLocationPicker from '@/shared/components/MapLocationPicker';
+import { toast } from 'sonner';
 
 export default function RegistrationPage() {
+  const [formData, setFormData] = useState({
+    PharmacyName: '',
+    LicenseNumber: '',
+    ContactPhone: '',
+    Area: '',
+    TextAddress: '',
+    OpenTime: '08:00',
+    CloseTime: '22:00',
+    Is24Hours: false,
+  });
+
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [licenseImage, setLicenseImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { mutate: registerPharmacy, isPending } = useRegisterPharmacyMutation();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      const checked = e.target.checked;
+      setFormData((prev) => ({
+        ...prev,
+        [name]: checked,
+        ...(name === 'Is24Hours' && checked ? { OpenTime: '', CloseTime: '' } : {}),
+        ...(name === 'Is24Hours' && !checked ? { OpenTime: '08:00', CloseTime: '22:00' } : {}),
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLicenseImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearImage = () => {
+    setLicenseImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!location) {
+      toast.error('Please select your pharmacy location on the map.');
+      return;
+    }
+    if (!licenseImage) {
+      toast.error('Please upload your pharmacy license image.');
+      return;
+    }
+
+    registerPharmacy({
+      ...formData,
+      Latitude: location.lat,
+      Longitude: location.lng,
+      LicenseImage: licenseImage,
+    });
+  };
+
   return (
-    <div className="bg-surface-gray min-h-screen antialiased text-on-surface pb-12">
-      {/* Navbar for Registration */}
-      <nav className="bg-surface border-b border-border-light flex justify-between items-center h-16 px-6 w-full fixed top-0 z-50">
-        <div className="flex items-center gap-4">
-          <span className="material-symbols-outlined text-primary text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }}>local_pharmacy</span>
-          <span className="font-display-lg text-display-lg font-black text-primary tracking-tight">PHARMABRIDGE</span>
-        </div>
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3">
-            <span className="font-body-md text-body-md text-on-surface-variant hidden sm:block">Sarah Jenkins</span>
-            <div className="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high border border-border-light">
-              <img 
-                alt="User profile photo of Sarah Jenkins" 
-                className="w-full h-full object-cover" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKUd5xHTp40cDls_5a-7LlUGFVldz645T1AatFqc4mlekqO6dWP1HjgkQVpw5MGV-bJFpPAUMDv_Bbpdoci2tlG4JpqSgUFArUuAeKwvZgwbdc69VWMEvfnEY-dC93D0Yvdg70KZEAFpQzqapqgDnU_URVaomUvyxOPO43hRYirUoRxJJGV8L-JbPOwKz99h1BHvrCVgSrxkvmBGII6rc21dzc82x0KAoiTfK0fPlEEJk_QqCdRe0c36ek-WJf75in02tm_Nvs7bw"
+    <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      {/* Page Header */}
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Register Your Pharmacy</h1>
+        <p className="text-gray-500">
+          Join our network and start receiving prescription requests from patients nearby.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+
+        {/* ─── Card 1: Basic Information ─── */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-6">
+            <Building2 className="w-5 h-5 text-teal-600" />
+            Basic Information
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Pharmacy Name */}
+            <div>
+              <label htmlFor="PharmacyName" className="block text-sm font-medium text-gray-700 mb-1.5">
+                Pharmacy Name
+              </label>
+              <input
+                id="PharmacyName"
+                required
+                type="text"
+                name="PharmacyName"
+                value={formData.PharmacyName}
+                onChange={handleInputChange}
+                className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-shadow"
+                placeholder="e.g. El-Ezaby Pharmacy"
               />
+            </div>
+
+            {/* License Number */}
+            <div>
+              <label htmlFor="LicenseNumber" className="block text-sm font-medium text-gray-700 mb-1.5">
+                License Number
+              </label>
+              <input
+                id="LicenseNumber"
+                required
+                type="text"
+                name="LicenseNumber"
+                value={formData.LicenseNumber}
+                onChange={handleInputChange}
+                className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-shadow"
+                placeholder="e.g. L-12345678"
+              />
+            </div>
+
+            {/* Contact Phone */}
+            <div>
+              <label htmlFor="ContactPhone" className="block text-sm font-medium text-gray-700 mb-1.5">
+                Contact Phone
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Phone className="h-4 w-4 text-gray-400" />
+                </div>
+                <input
+                  id="ContactPhone"
+                  required
+                  type="tel"
+                  name="ContactPhone"
+                  value={formData.ContactPhone}
+                  onChange={handleInputChange}
+                  className="block w-full pl-10 rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-shadow"
+                  placeholder="010XXXXXXXX"
+                />
+              </div>
             </div>
           </div>
         </div>
-      </nav>
 
-      {/* Main Content */}
-      <main className="max-w-[800px] mx-auto pt-28 px-margin-mobile md:px-0">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="font-display-lg text-display-lg text-on-surface mb-2">Pharmacy Registration</h1>
-          <p className="font-body-lg text-body-lg text-on-surface-variant">Join PharmaBridge to manage your bids, orders, and nearby requests efficiently.</p>
-        </div>
+        {/* ─── Card 2: License Document Upload ─── */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-6">
+            <FileBadge className="w-5 h-5 text-teal-600" />
+            License Document
+          </h2>
 
-        {/* Form Container */}
-        <div className="bg-surface rounded-xl border border-border-light p-8 shadow-sm">
-          <form className="space-y-8" action="#" method="POST">
-            {/* Section: Basic Information */}
-            <div>
-              <h2 className="font-headline-sm text-headline-sm text-on-surface border-b border-border-light pb-2 mb-6">Basic Information</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Pharmacy Name */}
-                <div className="col-span-2">
-                  <label className="block font-label-md text-label-md text-on-surface-variant mb-2" htmlFor="pharmacyName">PHARMACY NAME</label>
-                  <input className="w-full border border-border-light rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors bg-surface-lowest" id="pharmacyName" name="pharmacyName" placeholder="e.g., City Center Pharmacy" type="text"/>
-                </div>
-                {/* License Number */}
-                <div>
-                  <label className="block font-label-md text-label-md text-on-surface-variant mb-2" htmlFor="licenseNumber">LICENSE NUMBER</label>
-                  <input className="w-full border border-border-light rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors bg-surface-lowest" id="licenseNumber" name="licenseNumber" placeholder="e.g., L-12345678" type="text"/>
-                </div>
-                {/* Contact Phone */}
-                <div>
-                  <label className="block font-label-md text-label-md text-on-surface-variant mb-2" htmlFor="contactPhone">CONTACT PHONE</label>
-                  <input className="w-full border border-border-light rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors bg-surface-lowest" id="contactPhone" name="contactPhone" placeholder="e.g., +1 (555) 123-4567" type="tel"/>
-                </div>
-                {/* License Image Dropzone */}
-                <div className="col-span-2">
-                  <label className="block font-label-md text-label-md text-on-surface-variant mb-2">LICENSE DOCUMENT</label>
-                  <div className="border-2 border-dashed border-border-light rounded-xl p-8 text-center bg-surface-gray hover:bg-surface-container-low transition-colors cursor-pointer group">
-                    <span className="material-symbols-outlined text-outline text-[48px] mb-4 group-hover:text-primary transition-colors">cloud_upload</span>
-                    <p className="font-headline-sm text-headline-sm text-on-surface mb-1">Drag and drop your license here</p>
-                    <p className="font-body-md text-body-md text-on-surface-variant mb-4">or click to browse from your computer</p>
-                    <button className="bg-surface-lowest border border-border-light text-primary font-label-md text-label-md px-6 py-2 rounded-lg hover:bg-surface-dim transition-colors" type="button">BROWSE FILES</button>
-                    <p className="font-body-sm text-body-sm text-outline mt-4">Supported formats: PDF, JPG, PNG (Max 5MB)</p>
-                  </div>
-                </div>
-              </div>
+          {!imagePreview ? (
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="flex flex-col items-center justify-center px-6 py-10 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-teal-400 bg-gray-50/50 hover:bg-teal-50/30 transition-all duration-200"
+            >
+              <UploadCloud className="h-12 w-12 text-teal-600/60 mb-3" />
+              <p className="text-sm text-gray-600">
+                <span className="font-semibold text-teal-600">Click to upload</span> or drag and drop
+              </p>
+              <p className="text-xs text-gray-400 mt-1">PNG, JPG, or PDF up to 10MB</p>
             </div>
-
-            {/* Section: Location & Operations */}
-            <div>
-              <h2 className="font-headline-sm text-headline-sm text-on-surface border-b border-border-light pb-2 mb-6 mt-8">Location &amp; Operations</h2>
-              <div className="space-y-6">
-                {/* Location Selection (Map Area) */}
-                <div>
-                  <label className="block font-label-md text-label-md text-on-surface-variant mb-2">PIN LOCATION</label>
-                  <div className="h-64 w-full bg-surface-container rounded-xl overflow-hidden border border-border-light relative group cursor-pointer">
-                    <img alt="Map Location Picker" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnZK7fh1OQuD5e92IW2pz-MPHvhiD0FtYrEbBLIAeyHVbSH4XPTBQhKwOfctLw11WXTJo9v96J7U9fNacSbirsIstBeYdqU6W8BQpQ0N43Qlp5lbUbLl84ZPrSgFW_57OYDgPjonWb8KogE5N1QDF8Eoc3dB25PB3jreXOgLQWHE-2mMn-X72kDGISd-2xK4uvNla_In-iw9OHKeWzgIxCnTmFKjNWWWimTXGzqboPeMyN4i6gi411lGWgpumAwEaDmxdxfHS-IEg"/>
-                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <button className="bg-surface px-4 py-2 rounded-lg shadow-sm border border-border-light font-label-md text-label-md text-primary flex items-center gap-2" type="button">
-                        <span className="material-symbols-outlined text-[18px]">location_searching</span>
-                        UPDATE LOCATION
-                      </button>
-                    </div>
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                      <span className="material-symbols-outlined text-status-red text-[40px]" style={{ fontVariationSettings: "'FILL' 1" }}>location_on</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Text Address */}
-                  <div className="col-span-2">
-                    <label className="block font-label-md text-label-md text-on-surface-variant mb-2" htmlFor="address">STREET ADDRESS</label>
-                    <input className="w-full border border-border-light rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors bg-surface-lowest" id="address" name="address" placeholder="123 Medical Plaza, Suite 100" type="text"/>
-                  </div>
-                  {/* Area/Region */}
-                  <div>
-                    <label className="block font-label-md text-label-md text-on-surface-variant mb-2" htmlFor="area">SERVICE AREA</label>
-                    <select className="w-full border border-border-light rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors bg-surface-lowest appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236c7a71%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]" id="area" name="area" defaultValue="">
-                      <option disabled value="">Select an area</option>
-                      <option value="north">North District</option>
-                      <option value="south">South District</option>
-                      <option value="east">East District</option>
-                      <option value="west">West District</option>
-                      <option value="central">Central Business District</option>
-                    </select>
-                  </div>
-                  {/* Operating Hours */}
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <label className="block font-label-md text-label-md text-on-surface-variant">OPERATING HOURS</label>
-                      <div className="flex items-center gap-2">
-                        <input className="rounded border-border-light text-primary focus:ring-primary bg-surface-lowest cursor-pointer" id="twentyFourHours" type="checkbox"/>
-                        <label className="font-body-sm text-body-sm text-on-surface-variant cursor-pointer" htmlFor="twentyFourHours">24 Hours</label>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="relative w-full">
-                        <input className="w-full border border-border-light rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors bg-surface-lowest" id="openTime" name="openTime" type="time" defaultValue="08:00"/>
-                      </div>
-                      <span className="text-outline">to</span>
-                      <div className="relative w-full">
-                        <input className="w-full border border-border-light rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors bg-surface-lowest" id="closeTime" name="closeTime" type="time" defaultValue="22:00"/>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Submission Area */}
-            <div className="pt-8 border-t border-border-light flex justify-end gap-4 items-center">
-              <button className="px-6 py-3 rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-gray transition-colors border border-transparent" type="button">
-                SAVE DRAFT
-              </button>
-              <button className="bg-primary-container text-on-primary px-8 py-3 rounded-lg font-label-md text-label-md hover:bg-primary transition-colors flex items-center gap-2 shadow-sm" type="submit">
-                <span className="material-symbols-outlined text-[18px]">check_circle</span>
-                SUBMIT REGISTRATION
+          ) : (
+            <div className="relative rounded-xl border border-gray-200 overflow-hidden bg-gray-50 h-52 flex items-center justify-center">
+              <img
+                src={imagePreview}
+                alt="License preview"
+                className="max-h-full max-w-full object-contain rounded-lg"
+              />
+              <button
+                type="button"
+                onClick={clearImage}
+                className="absolute top-3 right-3 p-1.5 bg-white/90 hover:bg-white text-gray-600 hover:text-red-500 rounded-full shadow-sm backdrop-blur-sm transition-colors"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
-          </form>
+          )}
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            accept="image/png,image/jpeg,image/jpg,application/pdf"
+            className="hidden"
+          />
         </div>
-      </main>
+
+        {/* ─── Card 3: Location & Operations ─── */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-6">
+            <MapPin className="w-5 h-5 text-teal-600" />
+            Location & Operations
+          </h2>
+
+          {/* Address fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label htmlFor="TextAddress" className="block text-sm font-medium text-gray-700 mb-1.5">
+                Street Address
+              </label>
+              <input
+                id="TextAddress"
+                required
+                type="text"
+                name="TextAddress"
+                value={formData.TextAddress}
+                onChange={handleInputChange}
+                className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-shadow"
+                placeholder="123 Medical Plaza, Suite 100"
+              />
+            </div>
+            <div>
+              <label htmlFor="Area" className="block text-sm font-medium text-gray-700 mb-1.5">
+                Area / Neighborhood
+              </label>
+              <input
+                id="Area"
+                required
+                type="text"
+                name="Area"
+                value={formData.Area}
+                onChange={handleInputChange}
+                className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-shadow"
+                placeholder="e.g. Nasr City"
+              />
+            </div>
+          </div>
+
+          {/* Map */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Pin Location on Map
+            </label>
+            <MapLocationPicker
+              initialLat={location?.lat}
+              initialLng={location?.lng}
+              onLocationChange={(lat, lng) => setLocation({ lat, lng })}
+            />
+            {location && (
+              <p className="text-xs text-gray-400 mt-2">
+                Coordinates: {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
+              </p>
+            )}
+          </div>
+
+          {/* Operating Hours */}
+          <div className="pt-6 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                <Clock className="w-4 h-4 text-teal-600" />
+                Operating Hours
+              </h3>
+
+              {/* Custom Switch Toggle */}
+              <label className="flex items-center cursor-pointer group">
+                <span className="text-sm font-medium text-gray-600 mr-3 group-hover:text-gray-900 transition-colors">
+                  Open 24 Hours
+                </span>
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    name="Is24Hours"
+                    checked={formData.Is24Hours}
+                    onChange={handleInputChange}
+                    className="sr-only"
+                  />
+                  <div
+                    className={`block w-11 h-6 rounded-full transition-colors duration-200 ${
+                      formData.Is24Hours ? 'bg-teal-600' : 'bg-gray-300'
+                    }`}
+                  />
+                  <div
+                    className={`absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full shadow-sm transition-transform duration-200 ${
+                      formData.Is24Hours ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </div>
+              </label>
+            </div>
+
+            <div
+              className={`grid grid-cols-1 sm:grid-cols-2 gap-6 transition-all duration-200 ${
+                formData.Is24Hours ? 'opacity-40 pointer-events-none' : ''
+              }`}
+            >
+              <div>
+                <label htmlFor="OpenTime" className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Opening Time
+                </label>
+                <input
+                  id="OpenTime"
+                  type="time"
+                  name="OpenTime"
+                  value={formData.OpenTime}
+                  disabled={formData.Is24Hours}
+                  required={!formData.Is24Hours}
+                  onChange={handleInputChange}
+                  className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-shadow disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label htmlFor="CloseTime" className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Closing Time
+                </label>
+                <input
+                  id="CloseTime"
+                  type="time"
+                  name="CloseTime"
+                  value={formData.CloseTime}
+                  disabled={formData.Is24Hours}
+                  required={!formData.Is24Hours}
+                  onChange={handleInputChange}
+                  className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-shadow disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ─── Submit ─── */}
+        <div className="flex justify-end pt-2 pb-8">
+          <button
+            type="submit"
+            disabled={isPending}
+            className="inline-flex justify-center items-center px-8 py-3 border border-transparent text-base font-semibold rounded-xl shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all w-full sm:w-auto min-w-[220px]"
+          >
+            {isPending ? (
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Submitting...
+              </div>
+            ) : (
+              'Submit Registration'
+            )}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
