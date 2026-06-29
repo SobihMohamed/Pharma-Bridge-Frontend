@@ -5,6 +5,7 @@ import { UserRole } from "@/types/auth.types";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import MainLayout from "@/components/layouts/MainLayout";
 import NotFound from "@/pages/NotFound";
+import { adminRoutes } from "@/features/admin/routes";
 
 // Lazy-loaded pages
 const PatientHomePage = React.lazy(() => import("@/features/dashboard/pages/PatientHomePage"));
@@ -186,18 +187,10 @@ export const router = createBrowserRouter([
           </SuspenseWrapper>
         ),
       },
-      {
-        path: "admin/*",
-        element: (
-          <ProtectedRoute>
-            <RoleGuard allowedRoles={["Admin"]}>
-              <div>Admin Dashboard Placeholder</div>
-            </RoleGuard>
-          </ProtectedRoute>
-        ),
-      },
     ],
   },
+  // Admin Routes (top-level — AdminLayout provides its own full-page layout)
+  adminRoutes,
   {
     element: <AuthLayout />,
     children: [
