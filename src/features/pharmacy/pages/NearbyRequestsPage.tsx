@@ -1,162 +1,163 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { MapPin, Clock, Search, Filter, AlertCircle, Pill } from 'lucide-react';
+import { useNearbyRequestsQuery } from '../hooks/useNearbyRequests';
+import { useSignalRNotifications } from '../hooks/useSignalRNotifications';
+import { useNavigate } from 'react-router-dom';
+import { ImageModal } from '@/shared/ui/ImageModal';
+import { TimeAgoText } from '@/shared/ui/TimeAgoText';
+import { usePagination } from '@/shared/hooks/usePagination';
+import { AppPagination } from '@/shared/ui/AppPagination';
 
 export default function NearbyRequestsPage() {
+  // Initialize real-time listener
+  useSignalRNotifications();
+  const navigate = useNavigate();
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+  const { pageIndex, setPageIndex, pageSize } = usePagination();
+  
+  // Fetch REST API data
+  const { data: paginatedData, isLoading, isError } = useNearbyRequestsQuery({
+    PageIndex: pageIndex,
+    PageSize: pageSize,
+  });
+
+
+
+  const getInitials = (name?: string | null) => {
+    if (!name) return 'PT';
+    return name.slice(0, 2).toUpperCase();
+  };
+
+  const requests = paginatedData?.data || [];
+  const totalCount = paginatedData?.totalCount || 0;
+  
+  const filteredRequests = requests.filter(req => 
+    !searchTerm || 
+    (req.medicineName && req.medicineName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (req.patientNotes && req.patientNotes.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   return (
-    <div className="pt-8 px-4 md:px-8 pb-12 max-w-container-max mx-auto">
+    <div className="pt-8 px-4 md:px-8 pb-12 max-w-7xl mx-auto">
       {/* Page Header & Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-4">
         <div>
-          <h1 className="font-headline-md text-headline-md text-on-surface mb-1">Nearby Requests</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant">Active patient prescriptions seeking fulfillment within your radius.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Nearby Requests</h1>
+          <p className="text-gray-500">Active patient prescriptions seeking fulfillment within your radius.</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
-            <input className="pl-9 pr-4 py-2 border border-border-light rounded-lg bg-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-sm w-full sm:w-64 transition-shadow" placeholder="Search medications..." type="text"/>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm w-full sm:w-64 shadow-sm" 
+              placeholder="Search medications..." 
+              type="text"
+            />
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-surface border border-border-light rounded-lg hover:bg-surface-gray transition-colors font-label-md text-on-surface whitespace-nowrap">
-            <span className="material-symbols-outlined text-[18px]">filter_list</span>
+          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700 whitespace-nowrap shadow-sm">
+            <Filter className="w-4 h-4" />
             Filter
           </button>
         </div>
       </div>
 
-      {/* Requests Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {/* Card 1 */}
-        <article className="bg-surface border border-border-light rounded-xl p-5 flex flex-col gap-5 hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)] transition-shadow">
-          <div className="flex justify-between items-start">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center font-label-md text-primary font-bold">JD</div>
-              <div>
-                <div className="font-label-md text-on-surface flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px] text-outline">near_me</span>
-                  2.4 km away
+      {isLoading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+        </div>
+      ) : isError ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Failed to load requests</h3>
+          <p className="text-gray-500">Please try refreshing the page.</p>
+        </div>
+      ) : filteredRequests.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-gray-200 rounded-2xl bg-white">
+          <Pill className="w-12 h-12 text-gray-300 mb-4" />
+          <h3 className="text-lg font-bold text-gray-900 mb-2">No requests found</h3>
+          <p className="text-gray-500">There are currently no matching prescription requests in your area.</p>
+        </div>
+      ) : (
+        /* Requests Grid */
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filteredRequests.map((req) => (
+            <article key={req.id} className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-5 hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-700 font-bold border border-teal-100">
+                    {getInitials(req.deliveryArea)}
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-gray-900 flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                      {req.deliveryArea || 'Nearby Area'}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      Submitted <TimeAgoText date={req.createdAt} />
+                    </div>
+                  </div>
                 </div>
-                <div className="font-body-sm text-on-surface-variant mt-0.5">Submitted 10m ago</div>
+                {req.status === 'Pending' && (
+                  <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 border border-blue-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 block"></span>
+                    New
+                  </span>
+                )}
               </div>
-            </div>
-            <span className="bg-surface-container-high text-secondary font-label-sm px-2.5 py-1 rounded-full flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-secondary block"></span>
-              New
-            </span>
-          </div>
-          <div>
-            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-2">Amoxicillin 500mg</h3>
-            <p className="font-body-sm text-body-sm text-on-surface-variant mb-3">30 capsules, Take 1 capsule three times a day. Insurance approved.</p>
-            <div className="flex gap-2 flex-wrap">
-              <span className="border border-border-light rounded px-2 py-0.5 font-label-sm text-outline-variant">Capsules</span>
-              <span className="border border-border-light rounded px-2 py-0.5 font-label-sm text-outline-variant">Antibiotic</span>
-            </div>
-          </div>
-          <div className="mt-auto pt-2">
-            <button className="w-full bg-primary text-on-primary font-label-md text-label-md py-2.5 rounded-lg hover:bg-surface-tint transition-colors">
-              View &amp; Bid
-            </button>
-          </div>
-        </article>
+              
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  {req.medicineName || 'Prescription Image Upload'}
+                </h3>
+                <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                  {req.patientNotes || 'No additional notes provided by the patient.'}
+                </p>
+                {req.imageUrl && (
+                  <div 
+                    onClick={() => setZoomedImage(req.imageUrl)}
+                    className="mt-2 mb-3 h-24 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+                  >
+                    <img 
+                      src={req.imageUrl} 
+                      alt="Prescription" 
+                      className="max-h-full max-w-full object-cover" 
+                    />
+                  </div>
+                )}
+              </div>
+              
+              <div className="mt-auto pt-4 border-t border-gray-100">
+                <button 
+                  onClick={() => navigate(`/pharmacy/requests/${req.id}/bid`)}
+                  className="w-full bg-teal-600 text-white font-medium text-sm py-2.5 rounded-lg hover:bg-teal-700 transition-colors shadow-sm"
+                >
+                  View & Submit Bid
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
 
-        {/* Card 2 */}
-        <article className="bg-surface border border-border-light rounded-xl p-5 flex flex-col gap-5 hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)] transition-shadow">
-          <div className="flex justify-between items-start">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center font-label-md text-primary font-bold">MP</div>
-              <div>
-                <div className="font-label-md text-on-surface flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px] text-outline">near_me</span>
-                  4.1 km away
-                </div>
-                <div className="font-body-sm text-on-surface-variant mt-0.5">Submitted 45m ago</div>
-              </div>
-            </div>
-            <span className="bg-status-amber/10 text-status-amber font-label-sm px-2.5 py-1 rounded-full flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-status-amber block"></span>
-              Expiring
-            </span>
-          </div>
-          <div>
-            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-2">Lisinopril 10mg</h3>
-            <p className="font-body-sm text-body-sm text-on-surface-variant mb-3">90 tablets, 3 month supply. Patient requires brand name if possible.</p>
-            <div className="flex gap-2 flex-wrap">
-              <span className="border border-border-light rounded px-2 py-0.5 font-label-sm text-outline-variant">Tablets</span>
-              <span className="border border-border-light rounded px-2 py-0.5 font-label-sm text-outline-variant">Blood Pressure</span>
-            </div>
-          </div>
-          <div className="mt-auto pt-2">
-            <button className="w-full bg-primary text-on-primary font-label-md text-label-md py-2.5 rounded-lg hover:bg-surface-tint transition-colors">
-              View &amp; Bid
-            </button>
-          </div>
-        </article>
+      {totalCount > pageSize && (
+         <AppPagination 
+           totalCount={totalCount} 
+           currentPage={pageIndex} 
+           pageSize={pageSize} 
+           onPageChange={setPageIndex} 
+         />
+      )}
 
-        {/* Card 3 */}
-        <article className="bg-surface border border-border-light rounded-xl p-5 flex flex-col gap-5 hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)] transition-shadow">
-          <div className="flex justify-between items-start">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center font-label-md text-primary font-bold">AS</div>
-              <div>
-                <div className="font-label-md text-on-surface flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px] text-outline">near_me</span>
-                  1.2 km away
-                </div>
-                <div className="font-body-sm text-on-surface-variant mt-0.5">Submitted 1h ago</div>
-              </div>
-            </div>
-            <span className="bg-surface-container-high text-secondary font-label-sm px-2.5 py-1 rounded-full flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-secondary block"></span>
-              New
-            </span>
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="font-headline-sm text-headline-sm text-on-surface">Ozempic 2mg</h3>
-              <span className="material-symbols-outlined text-status-red text-[16px]" title="Urgent Fulfillment Requested">priority_high</span>
-            </div>
-            <p className="font-body-sm text-body-sm text-on-surface-variant mb-3">1 pen (3mL). Urgent fill requested. Requires refrigeration.</p>
-            <div className="flex gap-2 flex-wrap">
-              <span className="border border-border-light rounded px-2 py-0.5 font-label-sm text-outline-variant">Injection</span>
-              <span className="border border-border-light rounded px-2 py-0.5 font-label-sm text-outline-variant">Cold Storage</span>
-            </div>
-          </div>
-          <div className="mt-auto pt-2">
-            <button className="w-full bg-primary text-on-primary font-label-md text-label-md py-2.5 rounded-lg hover:bg-surface-tint transition-colors">
-              View &amp; Bid
-            </button>
-          </div>
-        </article>
-
-        {/* Card 4 */}
-        <article className="bg-surface border border-border-light rounded-xl p-5 flex flex-col gap-5 hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)] transition-shadow">
-          <div className="flex justify-between items-start">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center font-label-md text-primary font-bold">RK</div>
-              <div>
-                <div className="font-label-md text-on-surface flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px] text-outline">near_me</span>
-                  8.5 km away
-                </div>
-                <div className="font-body-sm text-on-surface-variant mt-0.5">Submitted 2h ago</div>
-              </div>
-            </div>
-            <span className="bg-status-amber/10 text-status-amber font-label-sm px-2.5 py-1 rounded-full flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-status-amber block"></span>
-              Expiring
-            </span>
-          </div>
-          <div>
-            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-2">Atorvastatin 40mg</h3>
-            <p className="font-body-sm text-body-sm text-on-surface-variant mb-3">30 tablets, daily maintenance dose.</p>
-            <div className="flex gap-2 flex-wrap">
-              <span className="border border-border-light rounded px-2 py-0.5 font-label-sm text-outline-variant">Tablets</span>
-            </div>
-          </div>
-          <div className="mt-auto pt-2">
-            <button className="w-full bg-primary text-on-primary font-label-md text-label-md py-2.5 rounded-lg hover:bg-surface-tint transition-colors">
-              View &amp; Bid
-            </button>
-          </div>
-        </article>
-      </div>
+      {/* Full-screen Image Modal Overlay */}
+      <ImageModal 
+        imageUrl={zoomedImage} 
+        onClose={() => setZoomedImage(null)} 
+      />
     </div>
   );
 }

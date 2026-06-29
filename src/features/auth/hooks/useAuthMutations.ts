@@ -6,6 +6,39 @@ import { useAuthStore } from '../store/authStore';
 import { ApiError } from '@/types/api.types';
 import { RegisterDto, LoginDto, ForgetPasswordDto, VerifyOtpDto, ResetPasswordDto } from '@/types/auth.types';
 
+// Helper to extract and display backend validation errors
+const displayBackendErrors = (error: any, defaultMessage: string) => {
+  // Safely navigate the error object, handling both AxiosError structure and our ApiError structure
+  const backendErrors = error?.response?.data?.errors || error?.errors;
+  let errorMessages: string[] = [];
+
+  if (backendErrors) {
+    if (typeof backendErrors === 'object' && !Array.isArray(backendErrors)) {
+      // ASP.NET Core ValidationProblemDetails maps fields to arrays of strings
+      Object.values(backendErrors).forEach((messages: any) => {
+        if (Array.isArray(messages)) {
+          errorMessages.push(...messages);
+        } else if (typeof messages === 'string') {
+          errorMessages.push(messages);
+        }
+      });
+    } else if (Array.isArray(backendErrors)) {
+      // Fallback if errors is just a string array
+      errorMessages = backendErrors;
+    }
+  }
+
+  if (errorMessages.length > 0) {
+    // Display a clean, multi-line error Toast
+    toast.error('Validation Error', {
+      description: errorMessages.join('\n\n'),
+      duration: 6000,
+    });
+  } else {
+    toast.error(error?.message || defaultMessage);
+  }
+};
+
 export const useRegisterMutation = () => {
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
@@ -15,15 +48,14 @@ export const useRegisterMutation = () => {
     onSuccess: (data) => {
       setAuth(data);
       toast.success('Account Created Successfully');
-      navigate('/profile');
-    },
-    onError: (error: ApiError) => {
-      if (error.errors && error.errors.length > 0) {
-        // Display each validation error
-        error.errors.forEach(err => toast.error(err));
+      if (data.roles?.includes('PharmacyOwner')) {
+        navigate('/pharmacy/dashboard');
       } else {
-        toast.error(error.message || 'Registration failed. Please try again.');
+        navigate('/profile');
       }
+    },
+    onError: (error: any) => {
+      displayBackendErrors(error, 'Registration failed. Please try again.');
     }
   });
 };
@@ -37,14 +69,14 @@ export const useLoginMutation = () => {
     onSuccess: (data) => {
       setAuth(data);
       toast.success('Logged in successfully!');
-      navigate('/profile');
-    },
-    onError: (error: ApiError) => {
-      if (error.errors && error.errors.length > 0) {
-        error.errors.forEach(err => toast.error(err));
+      if (data.roles?.includes('PharmacyOwner')) {
+        navigate('/pharmacy/dashboard');
       } else {
-        toast.error(error.message || 'Login failed. Please check your credentials.');
+        navigate('/profile');
       }
+    },
+    onError: (error: any) => {
+      displayBackendErrors(error, 'Login failed. Please check your credentials.');
     }
   });
 };
@@ -58,12 +90,8 @@ export const useForgetPasswordMutation = () => {
       toast.success('OTP sent to your email');
       navigate('/verify-otp', { state: { email: variables.email } });
     },
-    onError: (error: ApiError) => {
-      if (error.errors && error.errors.length > 0) {
-        error.errors.forEach(err => toast.error(err));
-      } else {
-        toast.error(error.message || 'Failed to process request. Please try again.');
-      }
+    onError: (error: any) => {
+      displayBackendErrors(error, 'Failed to process request. Please try again.');
     }
   });
 };
@@ -77,8 +105,8 @@ export const useVerifyOtpMutation = () => {
       toast.success('OTP verified successfully');
       navigate('/reset-password', { state: { email: variables.email, otp: variables.otp } });
     },
-    onError: (error: ApiError) => {
-      toast.error(error.message || 'Invalid or incorrect OTP.');
+    onError: (error: any) => {
+      toast.error(error?.message || 'Invalid or incorrect OTP.');
     }
   });
 };
@@ -94,13 +122,8 @@ export const useResetPasswordMutation = () => {
       toast.success('Your password has changed successfully');
       navigate('/', { replace: true });
     },
-    onError: (error: ApiError) => {
-      if (error.errors && error.errors.length > 0) {
-        error.errors.forEach(err => toast.error(err));
-      } else {
-        toast.error(error.message || 'Failed to reset password. Please try again.');
-      }
+    onError: (error: any) => {
+      displayBackendErrors(error, 'Failed to reset password. Please try again.');
     }
   });
 };
-
