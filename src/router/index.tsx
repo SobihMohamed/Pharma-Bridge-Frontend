@@ -5,6 +5,7 @@ import { UserRole } from "@/types/auth.types";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import MainLayout from "@/components/layouts/MainLayout";
 import NotFound from "@/pages/NotFound";
+import GlobalError from "@/components/errors/GlobalError";
 
 // Lazy-loaded pages
 const PatientHomePage = React.lazy(() => import("@/features/dashboard/pages/PatientHomePage"));
@@ -32,9 +33,18 @@ const PharmacyBidDetailsPage = React.lazy(() => import("@/features/pharmacy/page
 const PharmacyOrdersPage = React.lazy(() => import("@/features/pharmacy/pages/OrdersPage"));
 const PharmacyOrderDetailsPage = React.lazy(() => import("@/features/pharmacy/pages/OrderDetailsPage"));
 const PharmacyProfilePage = React.lazy(() => import("@/features/pharmacy/pages/ProfilePage"));
-const PharmacyRegistrationPage = React.lazy(() => import("@/features/pharmacy/pages/RegistrationPage"));
+const PharmacyLiveRequestsPage = React.lazy(() => import("@/features/pharmacy/pages/LiveRequestsPage"));
 
-// Guards
+// ----------------------------------------------------------------------
+// Guards & Redirects
+// ----------------------------------------------------------------------
+
+const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<div className="flex items-center justify-center min-h-screen text-teal-600">Loading...</div>}>
+    {children}
+  </Suspense>
+);
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -48,26 +58,43 @@ const RoleGuard = ({ children, allowedRoles }: { children: React.ReactNode; allo
   return <>{children}</>;
 };
 
-const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
-);
+const RootRedirect = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const hasRole = useAuthStore((state) => state.hasRole);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (hasRole("PharmacyOwner")) {
+    return <Navigate to="/pharmacy/dashboard" replace />;
+  }
+
+  if (hasRole("Patient")) {
+    return (
+      <SuspenseWrapper>
+        <PatientHomePage />
+      </SuspenseWrapper>
+    );
+  }
+
+  // Fallback if role is unhandled
+  return <Navigate to="/unauthorized" replace />;
+};
+
+// ----------------------------------------------------------------------
+// Router Configuration
+// ----------------------------------------------------------------------
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <MainLayout />,
+    errorElement: <GlobalError />,
     children: [
       {
         index: true,
-        element: (
-          <ProtectedRoute>
-            <RoleGuard allowedRoles={["Patient"]}>
-              <SuspenseWrapper>
-                <PatientHomePage />
-              </SuspenseWrapper>
-            </RoleGuard>
-          </ProtectedRoute>
-        ),
+        element: <RootRedirect />,
       },
       {
         path: "requests",
@@ -166,10 +193,17 @@ export const router = createBrowserRouter([
       // Pharmacy Routes
       {
         path: "pharmacy",
-        element: <PharmacyLayout />,
+        element: (
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={["PharmacyOwner"]}>
+              <PharmacyLayout />
+            </RoleGuard>
+          </ProtectedRoute>
+        ),
         children: [
           { path: "dashboard", element: <SuspenseWrapper><PharmacyDashboardPage /></SuspenseWrapper> },
           { path: "requests", element: <SuspenseWrapper><PharmacyRequestsPage /></SuspenseWrapper> },
+          { path: "live-requests", element: <SuspenseWrapper><PharmacyLiveRequestsPage /></SuspenseWrapper> },
           { path: "requests/:id/bid", element: <SuspenseWrapper><PharmacySubmitBidPage /></SuspenseWrapper> },
           { path: "my-bids", element: <SuspenseWrapper><PharmacyMyBidsPage /></SuspenseWrapper> },
           { path: "my-bids/:id", element: <SuspenseWrapper><PharmacyBidDetailsPage /></SuspenseWrapper> },
@@ -177,14 +211,6 @@ export const router = createBrowserRouter([
           { path: "orders/:id", element: <SuspenseWrapper><PharmacyOrderDetailsPage /></SuspenseWrapper> },
           { path: "profile", element: <SuspenseWrapper><PharmacyProfilePage /></SuspenseWrapper> },
         ],
-      },
-      {
-        path: "pharmacy/register",
-        element: (
-          <SuspenseWrapper>
-            <PharmacyRegistrationPage />
-          </SuspenseWrapper>
-        ),
       },
       {
         path: "admin/*",
@@ -200,6 +226,7 @@ export const router = createBrowserRouter([
   },
   {
     element: <AuthLayout />,
+    errorElement: <GlobalError />,
     children: [
       {
         path: "/login",
@@ -245,7 +272,12 @@ export const router = createBrowserRouter([
   },
   {
     path: "/unauthorized",
-    element: <div>Unauthorized Access</div>,
+    element: (
+      <div className="min-h-screen flex items-center justify-center flex-col gap-4">
+        <h1 className="text-3xl font-bold text-gray-900">Unauthorized Access</h1>
+        <p className="text-gray-500">You do not have permission to view this page.</p>
+      </div>
+    ),
   },
   {
     path: "*",

@@ -1,5 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { LayoutDashboard, MapPin, Radio, Gavel, Package, Settings, LogOut } from 'lucide-react';
+import { useAuthStore } from '@/features/auth/store/authStore';
 
 interface PharmacySidebarProps {
   isOpen: boolean;
@@ -7,53 +9,70 @@ interface PharmacySidebarProps {
 }
 
 export const PharmacySidebar: React.FC<PharmacySidebarProps> = ({ isOpen, onClose }) => {
+  const clearAuth = useAuthStore(state => state.clearAuth);
+
   const navLinks = [
-    { to: '/pharmacy/dashboard', icon: 'dashboard', label: 'Dashboard' },
-    { to: '/pharmacy/requests', icon: 'location_on', label: 'Nearby Requests' },
-    { to: '/pharmacy/my-bids', icon: 'gavel', label: 'My Bids' },
-    { to: '/pharmacy/orders', icon: 'inventory_2', label: 'Orders' },
-    { to: '/pharmacy/profile', icon: 'settings', label: 'Profile Settings' },
+    { to: '/pharmacy/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/pharmacy/requests', icon: MapPin, label: 'Nearby Requests' },
+    { to: '/pharmacy/live-requests', icon: Radio, label: 'Live Requests' },
+    { to: '/pharmacy/my-bids', icon: Gavel, label: 'My Bids' },
+    { to: '/pharmacy/orders', icon: Package, label: 'Orders' },
+    { to: '/pharmacy/profile', icon: Settings, label: 'Profile Settings' },
   ];
 
   return (
     <aside 
-      className={`${isOpen ? 'flex' : 'hidden'} md:flex flex-col pt-8 pb-8 h-full bg-surface-gray dark:bg-on-background border-r border-border-light dark:border-outline-variant w-sidebar-width shrink-0 overflow-y-auto fixed md:relative z-50`}
+      className={`
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
+        md:translate-x-0 transition-transform duration-300 ease-in-out
+        fixed top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 z-50 flex flex-col shadow-sm
+      `}
     >
-      <div className="px-6 mb-8 mt-16 md:mt-0">
-        <h2 className="font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider mb-1">PHARMACY MENU</h2>
-        <p className="font-body-sm text-body-sm text-outline">Pharmacy Owner</p>
+      {/* Brand Area */}
+      <div className="h-16 flex items-center px-6 border-b border-gray-100 shrink-0">
+        <h1 className="text-xl font-black tracking-tight text-teal-600">
+          PHARMABRIDGE
+        </h1>
       </div>
       
-      <nav className="flex-1 flex flex-col gap-1">
-        {navLinks.map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            onClick={() => { if (isOpen) onClose(); }}
-            className={({ isActive }) => 
-              `flex items-center gap-3 px-4 py-3 transition-all duration-200 ease-in-out ${
-                isActive 
-                  ? 'bg-primary-container/10 text-primary font-bold border-r-4 border-primary' 
-                  : 'text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-inverse-surface'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <span className="material-symbols-outlined" style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>
-                  {link.icon}
-                </span>
-                <span className="font-label-md text-label-md">{link.label}</span>
-              </>
-            )}
-          </NavLink>
-        ))}
-      </nav>
+      {/* Scrollable Navigation */}
+      <div className="flex-1 overflow-y-auto py-6 flex flex-col gap-1.5 px-3">
+        <div className="px-3 mb-2">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Menu</p>
+        </div>
+        
+        <nav className="flex flex-col gap-1">
+          {navLinks.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              onClick={() => { if (isOpen) onClose(); }}
+              className={({ isActive }) => 
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 text-sm font-medium ${
+                  isActive 
+                    ? 'bg-teal-50 text-teal-700 border-l-4 border-teal-600 pl-2' 
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-l-4 border-transparent'
+                }`
+              }
+            >
+              <link.icon className="w-5 h-5 shrink-0" />
+              <span>{link.label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      </div>
       
-      <div className="mt-auto px-4">
-        <button className="w-full flex items-center gap-3 text-on-surface-variant dark:text-surface-variant px-4 py-3 hover:bg-surface-container dark:hover:bg-inverse-surface transition-all duration-200 ease-in-out rounded-lg">
-          <span className="material-symbols-outlined">logout</span>
-          <span className="font-label-md text-label-md">Logout</span>
+      {/* Footer Area */}
+      <div className="p-4 border-t border-gray-100 shrink-0">
+        <button 
+          onClick={() => {
+            clearAuth();
+            if (isOpen) onClose();
+          }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-600 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors"
+        >
+          <LogOut className="w-5 h-5 shrink-0" />
+          <span>Logout</span>
         </button>
       </div>
     </aside>

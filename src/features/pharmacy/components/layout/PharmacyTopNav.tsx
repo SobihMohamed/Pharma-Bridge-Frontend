@@ -1,36 +1,98 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Menu, Bell, LogOut, ChevronDown } from 'lucide-react';
+import { useAuthStore } from '@/features/auth/store/authStore';
 
 interface PharmacyTopNavProps {
   onMenuToggle: () => void;
 }
 
 export const PharmacyTopNav: React.FC<PharmacyTopNavProps> = ({ onMenuToggle }) => {
+  const { user, clearAuth } = useAuthStore();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const getInitials = (name: string) => {
+    if (!name) return 'U';
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
+
+  const displayName = user?.name || 'Pharmacy User';
+  const displayEmail = user?.email || 'user@pharmacy.com';
+
   return (
-    <header className="bg-surface dark:bg-on-background border-b border-border-light dark:border-outline-variant w-full fixed top-0 z-50">
-      <div className="flex justify-between items-center h-16 px-6 w-full max-w-container-max mx-auto">
-        <div className="flex items-center gap-4">
+    <header className="bg-white border-b border-gray-200 h-16 fixed top-0 right-0 left-0 md:left-64 z-40 transition-all">
+      <div className="flex justify-between items-center h-full px-6">
+        {/* Left Side: Mobile Menu Trigger */}
+        <div className="flex items-center">
           <button 
-            aria-label="Menu" 
             onClick={onMenuToggle}
-            className="md:hidden text-on-surface-variant hover:bg-surface-gray dark:hover:bg-inverse-surface p-2 rounded transition-colors"
+            className="md:hidden text-gray-500 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            aria-label="Open Menu"
           >
-            <span className="material-symbols-outlined">menu</span>
+            <Menu className="w-5 h-5" />
           </button>
-          <h1 className="font-display-lg text-display-lg font-black text-primary tracking-tight">PHARMABRIDGE</h1>
         </div>
+
+        {/* Right Side: Actions & Profile */}
         <div className="flex items-center gap-4">
-          <button aria-label="notifications" className="text-on-surface-variant dark:text-surface-variant hover:bg-surface-gray dark:hover:bg-inverse-surface p-2 rounded-full transition-colors opacity-80 duration-150">
-            <span className="material-symbols-outlined">notifications</span>
+          {/* Notifications */}
+          <button className="text-gray-400 hover:text-teal-600 p-2 rounded-full hover:bg-teal-50 transition-colors relative">
+            <Bell className="w-5 h-5" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
           </button>
-          <div className="flex items-center gap-2 cursor-pointer hover:bg-surface-gray dark:hover:bg-inverse-surface p-1 pr-3 rounded-full transition-colors">
-            <img 
-              alt="User profile photo of Sarah Jenkins"
-              className="w-8 h-8 rounded-full object-cover border border-border-light" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGSxQVXkm-OmqB6nWI4WaWg_psuyrhPbO3Cm0m4C6g9OqwxkiAgqwFMN6pEmYOY3aSoPa218UdjE1P3u_EMdB27erCnTWHendm1dxkFZHq6X-Ybgbi2W84ySCe9EGXbNB20dQGBj4Z_h9lJDsJSFFg1XNTk6oVNJvMlE5nQfUrReaInV7lbifsOb3miXFuKgsdX6kL3wNK94jfL2Uv2sahmhSNg_P3ICXlSkJ17E1dDElEveWQOVrW767M9yjXevj8TAqkece1iJA"
-            />
-            <span className="font-label-md text-label-md text-on-surface font-medium hidden sm:block">
-              Sarah Jenkins
-            </span>
+
+          {/* Profile Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button 
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-3 p-1 pr-2 rounded-full hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-1"
+            >
+              <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-sm border border-teal-200">
+                {getInitials(displayName)}
+              </div>
+              <span className="hidden sm:block text-sm font-medium text-gray-700">
+                {displayName}
+              </span>
+              <ChevronDown className={`hidden sm:block w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Dropdown Menu */}
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-1 overflow-hidden origin-top-right animate-in fade-in slide-in-from-top-2">
+                <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
+                  <p className="text-xs text-gray-500 truncate mt-0.5">{displayEmail}</p>
+                </div>
+                
+                <div className="p-1">
+                  <button 
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      clearAuth();
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Log out
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
