@@ -11,25 +11,31 @@ export const PharmacyLayout: React.FC = () => {
   };
 
   return (
-    <div className="bg-surface-gray min-h-screen text-on-surface font-body-md">
-      <PharmacyTopNav onMenuToggle={toggleMobileMenu} />
-      
-      <div className="flex max-w-container-max mx-auto w-full pt-16 h-screen overflow-hidden">
-        {/* Mobile menu overlay */}
-        {isMobileMenuOpen && (
-          <div 
-            className="fixed inset-0 bg-black/50 z-40 md:hidden"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-        )}
-
-        <PharmacySidebar 
-          isOpen={isMobileMenuOpen} 
-          onClose={() => setIsMobileMenuOpen(false)} 
+    <div className="min-h-screen bg-slate-50 font-sans text-gray-900">
+      {/* Mobile menu overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40 md:hidden transition-opacity"
+          onClick={() => setIsMobileMenuOpen(false)}
         />
+      )}
+
+      {/* Fixed Sidebar */}
+      <PharmacySidebar 
+        isOpen={isMobileMenuOpen} 
+        onClose={() => setIsMobileMenuOpen(false)} 
+      />
+      
+      {/* Main Content Area (offset by sidebar on desktop) */}
+      <div className="md:ml-64 min-h-screen flex flex-col">
+        {/* Fixed TopNav (left aligned to sidebar edge on desktop) */}
+        <PharmacyTopNav onMenuToggle={toggleMobileMenu} />
         
-        <main className="flex-1 bg-surface-gray overflow-y-auto w-full">
-          <Outlet />
+        {/* Scrollable Main View */}
+        <main className="flex-1 w-full pt-16 p-4 md:p-8">
+          <div className="max-w-6xl mx-auto">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
