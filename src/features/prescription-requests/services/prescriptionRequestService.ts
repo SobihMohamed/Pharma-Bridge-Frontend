@@ -38,5 +38,10 @@ export const prescriptionRequestService = {
     
     // In `authService.ts` we did: `const response = await api.post<AuthModelDto>(...); return response.data;`. So `response` is actually the `ApiResponse<AuthModelDto>`, and we accessed `.data`.
     return (response as any).data;
+  },
+
+  respondToBid: async ({ bidId, status }: { bidId: number; status: 'Accepted' | 'Rejected' }): Promise<string> => {
+    const response = await api.patch(`/api/bids/${bidId}/status?status=${status}`);
+    return (response as any).message || 'Success';
   }
 };
