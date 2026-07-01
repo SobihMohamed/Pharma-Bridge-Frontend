@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, Bell, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, LogOut, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/store/authStore';
+import { NotificationBell } from '@/shared/ui/Notifications/NotificationBell';
 
 interface PharmacyTopNavProps {
   onMenuToggle: () => void;
@@ -51,10 +52,9 @@ export const PharmacyTopNav: React.FC<PharmacyTopNavProps> = ({ onMenuToggle }) 
         {/* Right Side: Actions & Profile */}
         <div className="flex items-center gap-4">
           {/* Notifications */}
-          <button className="text-gray-400 hover:text-teal-600 p-2 rounded-full hover:bg-teal-50 transition-colors relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-          </button>
+          <div className="flex items-center -mr-2">
+            <NotificationBell />
+          </div>
 
           {/* Profile Dropdown */}
           <div className="relative" ref={dropdownRef}>

@@ -26,14 +26,13 @@ const ProfilePage = React.lazy(() => import("@/features/profile/pages/ProfilePag
 // Pharmacy Pages
 import { PharmacyLayout } from "@/features/pharmacy/components/layout/PharmacyLayout";
 const PharmacyDashboardPage = React.lazy(() => import("@/features/pharmacy/pages/DashboardPage"));
-const PharmacyRequestsPage = React.lazy(() => import("@/features/pharmacy/pages/NearbyRequestsPage"));
-const PharmacySubmitBidPage = React.lazy(() => import("@/features/pharmacy/pages/SubmitBidPage"));
+const PharmacySettingsPage = React.lazy(() => import("@/features/pharmacy/pages/SettingsPage"));
+const PharmacyLiveRequestsPage = React.lazy(() => import("@/features/pharmacy/pages/LiveRequestsPage"));
+const PharmacySubmitBidPage = React.lazy(() => import("@/features/pharmacy/pages/CreateBidPage"));
 const PharmacyMyBidsPage = React.lazy(() => import("@/features/pharmacy/pages/MyBidsPage"));
 const PharmacyBidDetailsPage = React.lazy(() => import("@/features/pharmacy/pages/BidDetailsPage"));
 const PharmacyOrdersPage = React.lazy(() => import("@/features/pharmacy/pages/OrdersPage"));
 const PharmacyOrderDetailsPage = React.lazy(() => import("@/features/pharmacy/pages/OrderDetailsPage"));
-const PharmacyProfilePage = React.lazy(() => import("@/features/pharmacy/pages/ProfilePage"));
-const PharmacyLiveRequestsPage = React.lazy(() => import("@/features/pharmacy/pages/LiveRequestsPage"));
 
 // ----------------------------------------------------------------------
 // Guards & Redirects
@@ -190,28 +189,6 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      // Pharmacy Routes
-      {
-        path: "pharmacy",
-        element: (
-          <ProtectedRoute>
-            <RoleGuard allowedRoles={["PharmacyOwner"]}>
-              <PharmacyLayout />
-            </RoleGuard>
-          </ProtectedRoute>
-        ),
-        children: [
-          { path: "dashboard", element: <SuspenseWrapper><PharmacyDashboardPage /></SuspenseWrapper> },
-          { path: "requests", element: <SuspenseWrapper><PharmacyRequestsPage /></SuspenseWrapper> },
-          { path: "live-requests", element: <SuspenseWrapper><PharmacyLiveRequestsPage /></SuspenseWrapper> },
-          { path: "requests/:id/bid", element: <SuspenseWrapper><PharmacySubmitBidPage /></SuspenseWrapper> },
-          { path: "my-bids", element: <SuspenseWrapper><PharmacyMyBidsPage /></SuspenseWrapper> },
-          { path: "my-bids/:id", element: <SuspenseWrapper><PharmacyBidDetailsPage /></SuspenseWrapper> },
-          { path: "orders", element: <SuspenseWrapper><PharmacyOrdersPage /></SuspenseWrapper> },
-          { path: "orders/:id", element: <SuspenseWrapper><PharmacyOrderDetailsPage /></SuspenseWrapper> },
-          { path: "profile", element: <SuspenseWrapper><PharmacyProfilePage /></SuspenseWrapper> },
-        ],
-      },
       {
         path: "admin/*",
         element: (
@@ -222,6 +199,29 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+    ],
+  },
+  // Pharmacy Routes (Isolated from MainLayout)
+  {
+    path: "/pharmacy",
+    element: (
+      <ProtectedRoute>
+        <RoleGuard allowedRoles={["PharmacyOwner"]}>
+          <PharmacyLayout />
+        </RoleGuard>
+      </ProtectedRoute>
+    ),
+    errorElement: <GlobalError />,
+    children: [
+      { index: true, element: <Navigate to="dashboard" replace /> },
+      { path: "dashboard", element: <SuspenseWrapper><PharmacyDashboardPage /></SuspenseWrapper> },
+      { path: "radar", element: <SuspenseWrapper><PharmacyLiveRequestsPage /></SuspenseWrapper> },
+      { path: "requests/:id/bid", element: <SuspenseWrapper><PharmacySubmitBidPage /></SuspenseWrapper> },
+      { path: "bids", element: <SuspenseWrapper><PharmacyMyBidsPage /></SuspenseWrapper> },
+      { path: "bids/:id", element: <SuspenseWrapper><PharmacyBidDetailsPage /></SuspenseWrapper> },
+      { path: "orders", element: <SuspenseWrapper><PharmacyOrdersPage /></SuspenseWrapper> },
+      { path: "orders/:id", element: <SuspenseWrapper><PharmacyOrderDetailsPage /></SuspenseWrapper> },
+      { path: "settings", element: <SuspenseWrapper><PharmacySettingsPage /></SuspenseWrapper> },
     ],
   },
   {

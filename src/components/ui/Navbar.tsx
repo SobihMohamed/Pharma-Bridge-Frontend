@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Pill, Bell, Menu, X, User, ChevronDown, LogOut, Settings } from 'lucide-react';
+import { Pill, Menu, X, User, ChevronDown, LogOut, Settings } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/store/authStore';
+import { NotificationBell } from '@/shared/ui/Notifications/NotificationBell';
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -69,10 +70,9 @@ export default function Navbar() {
             ) : (
               <>
                 {/* Notifications */}
-                <button className="relative p-2 text-gray-600 hover:text-teal-600 hover:bg-gray-100 rounded-full transition-colors">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full border border-white"></span>
-                </button>
+                <div className="flex items-center">
+                  <NotificationBell />
+                </div>
 
                 {/* Profile Dropdown */}
                 <div className="relative">
@@ -116,10 +116,9 @@ export default function Navbar() {
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-2">
             {isAuthenticated && (
-              <button className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full border border-white"></span>
-              </button>
+              <div className="flex items-center mr-2">
+                <NotificationBell />
+              </div>
             )}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

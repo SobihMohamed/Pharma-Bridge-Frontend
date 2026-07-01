@@ -31,8 +31,31 @@ export interface PrescriptionRequestDto {
   bidsCount: number;
 }
 
+export interface PatientOfferItemDto {
+  id: number;
+  itemName: string;
+  unitPrice: number;
+  quantity: number;
+  isAlternative: boolean;
+  alternativeNote?: string | null;
+  lineTotal: number;
+}
+
+export interface PatientOfferDto {
+  id: number;
+  totalPrice: number;
+  deliveryFee: number;
+  status: 'Pending' | 'Accepted' | 'Rejected' | 'Cancelled';
+  notes?: string | null;
+  submittedAt: string;
+  deliveryTimeInMinutes: number;
+  pharmacyName: string;
+  pharmacyRating: number;
+  bidItems: PatientOfferItemDto[];
+}
+
 export interface PrescriptionRequestDetailsDto extends PrescriptionRequestDto {
-  bids: BidDto[];
+  bids: PatientOfferDto[];
   deliveryAddressId: string | number;
 }
 
