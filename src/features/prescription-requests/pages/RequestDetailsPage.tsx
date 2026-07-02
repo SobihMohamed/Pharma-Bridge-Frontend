@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { ArrowLeft, MapPin, AlertTriangle, Clock, Activity, FileText, ImageIcon, Store, Star, Receipt, Info, PackageOpen, Trash2, Loader2, XCircle, CheckCircle } from 'lucide-react';
 
 import { useGetPatientRequestDetailsQuery } from '../hooks/usePrescriptionRequestQueries';
 import { useCancelRequestMutation, useRespondToBidMutation } from '../hooks/usePrescriptionRequestMutations';
+import { useCreateOrderFromBidMutation } from '@/features/orders/api/orders';
 import CancelRequestDialog from '../components/CancelRequestDialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,8 +32,35 @@ export default function RequestDetailsPage() {
   // Real-time enabled query hook
   const { data: request, isLoading, isError } = useGetPatientRequestDetailsQuery(requestId);
   const { mutate: cancelRequest, isPending: isCancelling } = useCancelRequestMutation();
-  const { mutate: respondToBid, isPending: isResponding } = useRespondToBidMutation();
+  const { mutate: createOrder, isPending: isCreatingOrder } = useCreateOrderFromBidMutation();
+  const queryClient = useQueryClient();
+
+  const { mutate: respondToBid, isPending: isResponding } = useRespondToBidMutation({
+    onSuccess: (data, variables) => {
+      if (variables.status === 'Accepted') {
+        // Bid accepted! Now strictly trigger the Order Creation POST request
+        toast.loading("Creating your order...", { id: 'order-toast' });
+
+        createOrder(variables.bidId, {
+          onSuccess: (orderData) => {
+            toast.success(`Order #${orderData.id} placed successfully!`, { id: 'order-toast' });
+            navigate('/orders'); // Redirect to the orders page
+          },
+          onError: () => {
+            toast.error("Failed to create the order. Please try again.", { id: 'order-toast' });
+          }
+        });
+      } else {
+        // Handle Rejection
+        toast.success("Offer rejected.");
+        queryClient.invalidateQueries({ queryKey: ['requestDetails', variables.requestId] });
+      }
+    }
+  });
+
   const [activeBidId, setActiveBidId] = useState<number | null>(null);
+
+  const isBusy = isResponding || isCreatingOrder;
 
   const handleCancelRequest = () => {
     cancelRequest(requestId, {
@@ -398,12 +427,12 @@ export default function RequestDetailsPage() {
                                 render={
                                   <Button 
                                     className="w-full bg-teal-600 hover:bg-teal-700 shadow-sm h-12 text-base font-bold group-hover:scale-[1.02] transition-transform"
-                                    disabled={isResponding}
+                                    disabled={isBusy}
                                     onClick={() => setActiveBidId(bid.id)}
                                   />
                                 }
                               >
-                                {isResponding && activeBidId === bid.id ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Accept Offer'}
+                                {isBusy && activeBidId === bid.id ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Accept Offer'}
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -430,7 +459,7 @@ export default function RequestDetailsPage() {
                                 setActiveBidId(bid.id);
                                 respondToBid({ bidId: bid.id, status: 'Rejected', requestId });
                               }}
-                              disabled={isResponding}
+                              disabled={isBusy}
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Reject
