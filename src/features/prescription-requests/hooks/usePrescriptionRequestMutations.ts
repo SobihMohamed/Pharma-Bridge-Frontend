@@ -42,22 +42,15 @@ export const useCancelRequestMutation = () => {
   });
 };
 
-export const useRespondToBidMutation = () => {
+export const useRespondToBidMutation = (options?: { onSuccess?: (data: any, variables: any) => void }) => {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: ({ bidId, status }: { bidId: number; status: 'Accepted' | 'Rejected'; requestId: number }) => 
       prescriptionRequestService.respondToBid({ bidId, status }),
-    onSuccess: (_, variables) => {
-      if (variables.status === 'Accepted') {
-        toast.success("🎉 Offer accepted successfully! Redirecting to your orders...");
-        setTimeout(() => {
-          navigate('/orders');
-        }, 1500);
-      } else {
-        toast.success("❌ Offer rejected.");
-        queryClient.invalidateQueries({ queryKey: ['requestDetails', variables.requestId] });
+    onSuccess: (data, variables) => {
+      if (options?.onSuccess) {
+        options.onSuccess(data, variables);
       }
     },
     onError: (error: ApiError) => {

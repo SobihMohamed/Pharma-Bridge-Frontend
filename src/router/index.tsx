@@ -18,7 +18,7 @@ const RequestsPage = React.lazy(() => import("@/features/prescription-requests/p
 const NewRequestPage = React.lazy(() => import("@/features/prescription-requests/pages/NewRequestPage"));
 const RequestDetailsPage = React.lazy(() => import("@/features/prescription-requests/pages/RequestDetailsPage"));
 const OrdersPage = React.lazy(() => import("@/features/orders/pages/OrdersPage"));
-const OrderDetailsPage = React.lazy(() => import("@/features/orders/pages/OrderDetailsPage"));
+const PatientOrderDetailsPage = React.lazy(() => import("@/features/orders/pages/PatientOrderDetailsPage"));
 const NotificationsPage = React.lazy(() => import("@/features/notifications/pages/NotificationsPage"));
 const ComplaintsPage = React.lazy(() => import("@/features/complaints/pages/ComplaintsPage"));
 const ProfilePage = React.lazy(() => import("@/features/profile/pages/ProfilePage"));
@@ -149,7 +149,7 @@ export const router = createBrowserRouter([
           <ProtectedRoute>
             <RoleGuard allowedRoles={["Patient"]}>
               <SuspenseWrapper>
-                <OrderDetailsPage />
+                <PatientOrderDetailsPage />
               </SuspenseWrapper>
             </RoleGuard>
           </ProtectedRoute>
