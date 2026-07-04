@@ -53,7 +53,7 @@ export default function CreateBidPage() {
     mutation.mutate(payload, {
       onSuccess: () => {
         toast.success('🎉 Fantastic! Your competitive bid has been sent to the patient!');
-        navigate('/pharmacy/my-bids');
+        navigate('/pharmacy/bids');
       }
     });
   };

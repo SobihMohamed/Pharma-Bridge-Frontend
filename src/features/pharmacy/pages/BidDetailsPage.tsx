@@ -77,7 +77,7 @@ export default function BidDetailsPage() {
           <AlertTriangle className="w-12 h-12 mb-4 text-red-400" />
           <h2 className="text-xl font-bold mb-2">Bid Not Found</h2>
           <p className="text-red-500/80 mb-6">We couldn't retrieve the details for this bid offer.</p>
-          <Button onClick={() => navigate('/pharmacy/my-bids')} variant="outline" className="border-red-200 hover:bg-red-100 text-red-700">
+          <Button onClick={() => navigate('/pharmacy/bids')} variant="outline" className="border-red-200 hover:bg-red-100 text-red-700">
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to My Bids
           </Button>
         </div>
@@ -112,7 +112,7 @@ export default function BidDetailsPage() {
       {/* Top Header */}
       <Button 
         variant="ghost" 
-        onClick={() => navigate('/pharmacy/my-bids')} 
+        onClick={() => navigate('/pharmacy/bids')} 
         className="text-gray-500 hover:text-gray-900 -ml-2"
       >
         <ArrowLeft className="w-4 h-4 mr-2" /> Back to My Bids
