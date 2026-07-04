@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, Clock, Search, Filter, AlertCircle, Pill } from 'lucide-react';
 import { useNearbyRequestsQuery } from '../hooks/useNearbyRequests';
-import { useSignalRNotifications } from '../hooks/useSignalRNotifications';
 import { useNavigate } from 'react-router-dom';
 import { ImageModal } from '@/shared/ui/ImageModal';
 import { TimeAgoText } from '@/shared/ui/TimeAgoText';
@@ -9,14 +8,12 @@ import { usePagination } from '@/shared/hooks/usePagination';
 import { AppPagination } from '@/shared/ui/AppPagination';
 
 export default function NearbyRequestsPage() {
-  // Initialize real-time listener
-  useSignalRNotifications();
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const { pageIndex, setPageIndex, pageSize } = usePagination();
-  
+
   // Fetch REST API data
   const { data: paginatedData, isLoading, isError } = useNearbyRequestsQuery({
     PageIndex: pageIndex,
@@ -133,7 +130,7 @@ export default function NearbyRequestsPage() {
               
               <div className="mt-auto pt-4 border-t border-gray-100">
                 <button 
-                  onClick={() => navigate(`/pharmacy/requests/${req.id}/bid`)}
+                  onClick={() => navigate(`/pharmacy/requests/${req.id}/bid`, { state: { requestData: req } })}
                   className="w-full bg-teal-600 text-white font-medium text-sm py-2.5 rounded-lg hover:bg-teal-700 transition-colors shadow-sm"
                 >
                   View & Submit Bid

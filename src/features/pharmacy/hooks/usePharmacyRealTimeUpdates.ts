@@ -17,7 +17,12 @@ interface SignalRNotification {
   requestData: NearbyRequestDto;
 }
 
-export const useSignalRNotifications = () => {
+interface BidStatusUpdatePayload {
+  bidId: number;
+  status: 'Accepted' | 'Rejected';
+}
+
+export const usePharmacyRealTimeUpdates = () => {
   const [connection, setConnection] = useState<HubConnection | null>(null);
   const queryClient = useQueryClient();
   const token = useAuthStore(state => state.token);
@@ -45,6 +50,9 @@ export const useSignalRNotifications = () => {
         .then(() => {
           console.log('Connected to real-time notifications hub!');
           
+          // -------------------------------------------------------------
+          // 1. General Live Requests / Notifications Listener
+          // -------------------------------------------------------------
           connection.on('ReceiveNotification', (notification: SignalRNotification) => {
             // Trigger a premium toast alert
             toast.info(notification.subject, {
@@ -52,7 +60,7 @@ export const useSignalRNotifications = () => {
               duration: 8000,
               action: {
                 label: 'View Live',
-                onClick: () => navigate('/pharmacy/live-requests'),
+                onClick: () => navigate('/pharmacy/radar'), // Updated to match new route alias
               },
             });
 
@@ -60,15 +68,13 @@ export const useSignalRNotifications = () => {
             if (notification.requestData) {
               const payload = notification.requestData;
 
-              // 1. Update React Query cache for NearbyRequestsPage
+              // Update React Query cache for NearbyRequestsPage
               queryClient.setQueriesData(
                 { queryKey: ['nearby-requests'] }, 
                 (oldData: PaginationResponse<NearbyRequestDto> | undefined) => {
                   if (!oldData) return oldData;
-                  
                   const exists = oldData.data.some(r => r.id === payload.id);
                   if (exists) return oldData;
-                  
                   return {
                     ...oldData,
                     totalCount: oldData.totalCount + 1,
@@ -77,20 +83,45 @@ export const useSignalRNotifications = () => {
                 }
               );
 
-              // 2. Push into the Zustand live-feed store for LiveRequestsPage
+              // Push into the Zustand live-feed store
               useLiveRequestsStore.getState().addLiveRequest(payload as any);
             }
 
-            // Invalidate the global notifications cache to immediately update the NotificationBell
+            // Invalidate global notifications cache
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
+          });
+
+          // -------------------------------------------------------------
+          // 2. Bid Status Update Listener (Accepted / Rejected)
+          // -------------------------------------------------------------
+          connection.on('ReceiveBidStatusUpdate', (payload: BidStatusUpdatePayload) => {
+            const { status } = payload;
+            
+            // Dynamic Toast UI
+            if (status === 'Accepted') {
+              toast.success("🎉 Congratulations! A patient accepted your bid. Check your Active Orders.");
+            } else if (status === 'Rejected') {
+              toast.error("❌ A patient declined your bid. It has been moved to history.");
+            }
+
+            // CRITICAL CACHE INVALIDATION
+            // Invalidate Notifications to instantly increment Header Bell unread count
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+            
+            // Invalidate Bids query to refresh My Bids UI
+            queryClient.invalidateQueries({ queryKey: ['pharmacyBids'] });
+            
+            // Invalidate Active Orders so accepted bids appear in the pipeline instantly
+            queryClient.invalidateQueries({ queryKey: ['pharmacyOrders'] });
           });
         })
         .catch(e => console.error('SignalR Connection failed: ', e));
 
       return () => {
         connection.off('ReceiveNotification');
+        connection.off('ReceiveBidStatusUpdate');
         connection.stop();
       };
     }
-  }, [connection, queryClient]);
+  }, [connection, queryClient, navigate]);
 };

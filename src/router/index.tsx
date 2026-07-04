@@ -19,7 +19,7 @@ const RequestsPage = React.lazy(() => import("@/features/prescription-requests/p
 const NewRequestPage = React.lazy(() => import("@/features/prescription-requests/pages/NewRequestPage"));
 const RequestDetailsPage = React.lazy(() => import("@/features/prescription-requests/pages/RequestDetailsPage"));
 const OrdersPage = React.lazy(() => import("@/features/orders/pages/OrdersPage"));
-const OrderDetailsPage = React.lazy(() => import("@/features/orders/pages/OrderDetailsPage"));
+const PatientOrderDetailsPage = React.lazy(() => import("@/features/orders/pages/PatientOrderDetailsPage"));
 const NotificationsPage = React.lazy(() => import("@/features/notifications/pages/NotificationsPage"));
 const ComplaintsPage = React.lazy(() => import("@/features/complaints/pages/ComplaintsPage"));
 const ProfilePage = React.lazy(() => import("@/features/profile/pages/ProfilePage"));
@@ -27,14 +27,13 @@ const ProfilePage = React.lazy(() => import("@/features/profile/pages/ProfilePag
 // Pharmacy Pages
 import { PharmacyLayout } from "@/features/pharmacy/components/layout/PharmacyLayout";
 const PharmacyDashboardPage = React.lazy(() => import("@/features/pharmacy/pages/DashboardPage"));
-const PharmacyRequestsPage = React.lazy(() => import("@/features/pharmacy/pages/NearbyRequestsPage"));
-const PharmacySubmitBidPage = React.lazy(() => import("@/features/pharmacy/pages/SubmitBidPage"));
+const PharmacySettingsPage = React.lazy(() => import("@/features/pharmacy/pages/SettingsPage"));
+const PharmacyLiveRequestsPage = React.lazy(() => import("@/features/pharmacy/pages/LiveRequestsPage"));
+const PharmacySubmitBidPage = React.lazy(() => import("@/features/pharmacy/pages/CreateBidPage"));
 const PharmacyMyBidsPage = React.lazy(() => import("@/features/pharmacy/pages/MyBidsPage"));
 const PharmacyBidDetailsPage = React.lazy(() => import("@/features/pharmacy/pages/BidDetailsPage"));
 const PharmacyOrdersPage = React.lazy(() => import("@/features/pharmacy/pages/OrdersPage"));
 const PharmacyOrderDetailsPage = React.lazy(() => import("@/features/pharmacy/pages/OrderDetailsPage"));
-const PharmacyProfilePage = React.lazy(() => import("@/features/pharmacy/pages/ProfilePage"));
-const PharmacyLiveRequestsPage = React.lazy(() => import("@/features/pharmacy/pages/LiveRequestsPage"));
 
 // ----------------------------------------------------------------------
 // Guards & Redirects
@@ -88,6 +87,7 @@ const RootRedirect = () => {
 // ----------------------------------------------------------------------
 
 export const router = createBrowserRouter([
+  // 1. Main Layout (Patients)
   {
     path: "/",
     element: <MainLayout />,
@@ -151,7 +151,7 @@ export const router = createBrowserRouter([
           <ProtectedRoute>
             <RoleGuard allowedRoles={["Patient"]}>
               <SuspenseWrapper>
-                <OrderDetailsPage />
+                <PatientOrderDetailsPage />
               </SuspenseWrapper>
             </RoleGuard>
           </ProtectedRoute>
@@ -191,32 +191,37 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      // Pharmacy Routes
-      {
-        path: "pharmacy",
-        element: (
-          <ProtectedRoute>
-            <RoleGuard allowedRoles={["PharmacyOwner"]}>
-              <PharmacyLayout />
-            </RoleGuard>
-          </ProtectedRoute>
-        ),
-        children: [
-          { path: "dashboard", element: <SuspenseWrapper><PharmacyDashboardPage /></SuspenseWrapper> },
-          { path: "requests", element: <SuspenseWrapper><PharmacyRequestsPage /></SuspenseWrapper> },
-          { path: "live-requests", element: <SuspenseWrapper><PharmacyLiveRequestsPage /></SuspenseWrapper> },
-          { path: "requests/:id/bid", element: <SuspenseWrapper><PharmacySubmitBidPage /></SuspenseWrapper> },
-          { path: "my-bids", element: <SuspenseWrapper><PharmacyMyBidsPage /></SuspenseWrapper> },
-          { path: "my-bids/:id", element: <SuspenseWrapper><PharmacyBidDetailsPage /></SuspenseWrapper> },
-          { path: "orders", element: <SuspenseWrapper><PharmacyOrdersPage /></SuspenseWrapper> },
-          { path: "orders/:id", element: <SuspenseWrapper><PharmacyOrderDetailsPage /></SuspenseWrapper> },
-          { path: "profile", element: <SuspenseWrapper><PharmacyProfilePage /></SuspenseWrapper> },
-        ],
-      },
     ],
   },
-  // Admin Routes (top-level — AdminLayout provides its own full-page layout)
+  
+  // 2. Pharmacy Routes (Isolated Layout)
+  {
+    path: "/pharmacy",
+    element: (
+      <ProtectedRoute>
+        <RoleGuard allowedRoles={["PharmacyOwner"]}>
+          <PharmacyLayout />
+        </RoleGuard>
+      </ProtectedRoute>
+    ),
+    errorElement: <GlobalError />,
+    children: [
+      { index: true, element: <Navigate to="dashboard" replace /> },
+      { path: "dashboard", element: <SuspenseWrapper><PharmacyDashboardPage /></SuspenseWrapper> },
+      { path: "radar", element: <SuspenseWrapper><PharmacyLiveRequestsPage /></SuspenseWrapper> },
+      { path: "requests/:id/bid", element: <SuspenseWrapper><PharmacySubmitBidPage /></SuspenseWrapper> },
+      { path: "bids", element: <SuspenseWrapper><PharmacyMyBidsPage /></SuspenseWrapper> },
+      { path: "bids/:id", element: <SuspenseWrapper><PharmacyBidDetailsPage /></SuspenseWrapper> },
+      { path: "orders", element: <SuspenseWrapper><PharmacyOrdersPage /></SuspenseWrapper> },
+      { path: "orders/:id", element: <SuspenseWrapper><PharmacyOrderDetailsPage /></SuspenseWrapper> },
+      { path: "settings", element: <SuspenseWrapper><PharmacySettingsPage /></SuspenseWrapper> },
+    ],
+  },
+
+  // 3. Admin Routes
   adminRoutes,
+
+  // 4. Auth Routes
   {
     element: <AuthLayout />,
     errorElement: <GlobalError />,
@@ -263,6 +268,8 @@ export const router = createBrowserRouter([
       },
     ],
   },
+
+  // 5. Error & Fallback Routes
   {
     path: "/unauthorized",
     element: (

@@ -13,11 +13,10 @@ export const PharmacySidebar: React.FC<PharmacySidebarProps> = ({ isOpen, onClos
 
   const navLinks = [
     { to: '/pharmacy/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/pharmacy/requests', icon: MapPin, label: 'Nearby Requests' },
-    { to: '/pharmacy/live-requests', icon: Radio, label: 'Live Requests' },
-    { to: '/pharmacy/my-bids', icon: Gavel, label: 'My Bids' },
-    { to: '/pharmacy/orders', icon: Package, label: 'Orders' },
-    { to: '/pharmacy/profile', icon: Settings, label: 'Profile Settings' },
+    { to: '/pharmacy/radar', icon: Radio, label: 'Live Radar' },
+    { to: '/pharmacy/bids', icon: Gavel, label: 'My Bids' },
+    { to: '/pharmacy/orders', icon: Package, label: 'Active Orders' },
+    { to: '/pharmacy/settings', icon: Settings, label: 'Settings / Account' },
   ];
 
   return (
