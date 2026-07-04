@@ -5,7 +5,7 @@ import { useLoginMutation } from '../hooks/useAuthMutations';
 
 export default function LoginPage() {
   const { mutate, isPending } = useLoginMutation();
-  
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -43,7 +43,7 @@ export default function LoginPage() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow-xl shadow-teal-900/5 sm:rounded-2xl sm:px-10 border border-gray-100">
           <form className="space-y-5" onSubmit={handleSubmit}>
-            
+
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">

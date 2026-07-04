@@ -169,6 +169,44 @@ export interface AdminOrderDetailsDto {
   items: AdminOrderItemDto[];
 }
 
+// ---------- Admin Bids (Real API) ----------
+
+export interface AdminBidListItemDto {
+  id: number;
+  pharmacyName: string;
+  prescriptionRequestId: number | null;
+  totalPrice: number;
+  deliveryFee: number;
+  status: string;
+  submittedAt: string;
+  deliveryTime: string | null;
+}
+
+export interface AdminBidDetailItemDto {
+  itemName: string;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+  isAlternative: boolean;
+  alternativeNote: string | null;
+}
+
+export interface AdminBidDetailsDto {
+  id: number;
+  status: string;
+  pharmacyName: string;
+  prescriptionRequestId: number | null;
+  submittedAt: string;
+  respondedAt: string | null;
+  deliveryTime: string | null;
+  notes: string | null;
+  subtotal: number;
+  discountAmount: number;
+  deliveryFee: number;
+  platformFee: number;
+  totalPrice: number;
+  items: AdminBidDetailItemDto[];
+}
 
 
 export type BidStatus = "Accepted" | "Pending" | "Rejected";
@@ -409,6 +447,34 @@ export const adminService = {
 
   getBids: () => delay(MOCK_BIDS),
   getBidDetails: (_bidId: string) => delay(MOCK_BID_DETAILS),
+
+  getAdminBids: async (params: {
+    PageIndex: number;
+    PageSize: number;
+    Search?: string;
+    Status?: string;
+    PrescriptionRequestId?: string;
+    FromDate?: string;
+    ToDate?: string;
+  }): Promise<PaginationResponse<AdminBidListItemDto>> => {
+    const cleanParams: Record<string, any> = { PageIndex: params.PageIndex, PageSize: params.PageSize };
+    if (params.Search) cleanParams.Search = params.Search;
+    if (params.Status) cleanParams.Status = params.Status;
+    if (params.PrescriptionRequestId) cleanParams.PrescriptionRequestId = params.PrescriptionRequestId;
+    if (params.FromDate) cleanParams.FromDate = params.FromDate;
+    if (params.ToDate) cleanParams.ToDate = params.ToDate;
+
+    const response = await api.get<PaginationResponse<AdminBidListItemDto>>(
+      '/api/bids/admin/all',
+      { params: cleanParams }
+    );
+    return (response as any).data;
+  },
+
+  getAdminBidDetails: async (bidId: string | number): Promise<AdminBidDetailsDto> => {
+    const response = await api.get<AdminBidDetailsDto>(`/api/bids/admin/${bidId}`);
+    return (response as any).data;
+  },
 
   getComplaints: () => delay(MOCK_COMPLAINTS),
   getComplaintDetails: (_complaintId: string) => delay(MOCK_COMPLAINT_DETAILS),
