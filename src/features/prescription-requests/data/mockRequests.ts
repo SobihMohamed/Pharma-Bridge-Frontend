@@ -14,31 +14,33 @@ export const MOCK_REQUESTS: PrescriptionRequestDetailsDto[] = [
     bidsCount: 2,
     bids: [
       {
-        id: 'bid_1',
-        pharmacyId: 'phar_1',
-        pharmacyName: 'El-Ezaby Pharmacy',
-        rating: 4.8,
+        id: 1,
         totalPrice: 250.50,
-        deliveryTime: '30-45 mins',
+        deliveryFee: 15.00,
         status: 'Pending',
-        createdAt: new Date().toISOString(),
-        items: [
-          { id: 'item_1', name: 'Panadol Extra', quantity: 2, price: 45.00 },
-          { id: 'item_2', name: 'Vitamin C 1000mg', quantity: 1, price: 160.50 }
+        notes: 'We have generic alternatives for Vitamin C.',
+        submittedAt: new Date().toISOString(),
+        deliveryTimeInMinutes: 30,
+        pharmacyName: 'El-Ezaby Pharmacy',
+        pharmacyRating: 4.8,
+        bidItems: [
+          { id: 101, itemName: 'Panadol Extra', quantity: 2, unitPrice: 22.50, isAlternative: false, lineTotal: 45.00 },
+          { id: 102, itemName: 'Vitamin C 1000mg', quantity: 1, unitPrice: 160.50, isAlternative: true, alternativeNote: 'C-Retard generic', lineTotal: 160.50 }
         ]
       },
       {
-        id: 'bid_2',
-        pharmacyId: 'phar_2',
-        pharmacyName: 'Seif Pharmacies',
-        rating: 4.5,
+        id: 2,
         totalPrice: 245.00,
-        deliveryTime: '1-2 hours',
+        deliveryFee: 0,
         status: 'Pending',
-        createdAt: new Date().toISOString(),
-        items: [
-          { id: 'item_1', name: 'Panadol Extra', quantity: 2, price: 45.00 },
-          { id: 'item_2', name: 'Vitamin C 1000mg', quantity: 1, price: 155.00 }
+        notes: null,
+        submittedAt: new Date().toISOString(),
+        deliveryTimeInMinutes: 60,
+        pharmacyName: 'Seif Pharmacies',
+        pharmacyRating: 4.5,
+        bidItems: [
+          { id: 201, itemName: 'Panadol Extra', quantity: 2, unitPrice: 22.50, isAlternative: false, lineTotal: 45.00 },
+          { id: 202, itemName: 'Vitamin C 1000mg', quantity: 1, unitPrice: 155.00, isAlternative: false, lineTotal: 155.00 }
         ]
       }
     ]
@@ -69,16 +71,17 @@ export const MOCK_REQUESTS: PrescriptionRequestDetailsDto[] = [
     bidsCount: 1,
     bids: [
       {
-        id: 'bid_3',
-        pharmacyId: 'phar_3',
-        pharmacyName: 'Roshdy Pharmacies',
-        rating: 4.6,
+        id: 3,
         totalPrice: 1200.00,
-        deliveryTime: 'Same day',
+        deliveryFee: 0,
         status: 'Accepted',
-        createdAt: new Date().toISOString(),
-        items: [
-          { id: 'item_3', name: 'Insulin Glargine', quantity: 3, price: 400.00 }
+        notes: null,
+        submittedAt: new Date().toISOString(),
+        deliveryTimeInMinutes: 120,
+        pharmacyName: 'Roshdy Pharmacies',
+        pharmacyRating: 4.6,
+        bidItems: [
+          { id: 301, itemName: 'Insulin Glargine', quantity: 3, unitPrice: 400.00, isAlternative: false, lineTotal: 1200.00 }
         ]
       }
     ]

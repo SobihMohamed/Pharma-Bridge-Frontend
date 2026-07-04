@@ -63,12 +63,12 @@ function FileUploadField({ label, id, file, existingUrl, required, onFileSelect 
 
       {/* Current image thumbnail */}
       {displayUrl && (
-        <div className="relative mb-2 inline-block">
-          <div className="w-full h-28 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
+        <div className="relative mb-2 w-full">
+          <div className="w-full aspect-video rounded-lg border border-slate-200 overflow-hidden bg-gray-50 flex items-center justify-center">
             <img
               src={displayUrl}
               alt={label}
-              className="max-h-full max-w-full object-contain"
+              className="w-full h-full object-cover"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none';
               }}
@@ -235,12 +235,12 @@ export default function OwnerProfileForm() {
 
       {/* Read-only identity info from auth store — shown in Create mode */}
       {!isExistingProfile && authUser && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div>
           <h3 className="text-base font-bold text-gray-900 flex items-center gap-2 mb-4">
             <User className="w-4 h-4 text-teal-600" />
             Account Information
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Full Name</label>
               <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700">
@@ -260,15 +260,15 @@ export default function OwnerProfileForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-8">
         {/* Personal Details — Only shown for updates */}
         {isExistingProfile && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div>
             <h3 className="text-base font-bold text-gray-900 flex items-center gap-2 mb-5">
               <User className="w-4 h-4 text-teal-600" />
               Personal Details
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
               <div>
                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
                 <input
@@ -298,7 +298,7 @@ export default function OwnerProfileForm() {
         )}
 
         {/* National ID Section */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-slate-50/50 rounded-xl border border-slate-200 p-6">
           <h3 className="text-base font-bold text-gray-900 flex items-center gap-2 mb-5">
             <CreditCard className="w-4 h-4 text-teal-600" />
             National ID Verification
@@ -316,7 +316,7 @@ export default function OwnerProfileForm() {
                 placeholder="14-digit National ID"
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
               <FileUploadField
                 label="National ID — Front"
                 id="nationalIdFront"
@@ -338,7 +338,7 @@ export default function OwnerProfileForm() {
         </div>
 
         {/* Syndicate Card */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div>
           <h3 className="text-base font-bold text-gray-900 flex items-center gap-2 mb-5">
             <FileCheck className="w-4 h-4 text-teal-600" />
             Syndicate Card

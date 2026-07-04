@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Clock, Image, Trash2, Radio, Send } from 'lucide-react';
 import { useLiveRequestsStore } from '../stores/useLiveRequestsStore';
-import { useSignalRNotifications } from '../hooks/useSignalRNotifications';
 import { useNavigate } from 'react-router-dom';
 import { ImageModal } from '@/shared/ui/ImageModal';
 import { TimeAgoText } from '@/shared/ui/TimeAgoText';
@@ -10,9 +9,6 @@ import { usePagination } from '@/shared/hooks/usePagination';
 import { AppPagination } from '@/shared/ui/AppPagination';
 
 export default function LiveRequestsPage() {
-  // Activate the real-time listener
-  useSignalRNotifications();
-
   const navigate = useNavigate();
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const { pageIndex, setPageIndex, pageSize } = usePagination();
@@ -218,7 +214,7 @@ export default function LiveRequestsPage() {
                       <Trash2 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => navigate(`/pharmacy/requests/${req.id}/bid`)}
+                      onClick={() => navigate(`/pharmacy/requests/${req.id}/bid`, { state: { requestData: req } })}
                       className="flex items-center gap-1.5 px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 transition-colors shadow-sm"
                     >
                       <Send className="w-3.5 h-3.5" />

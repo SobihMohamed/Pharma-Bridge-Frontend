@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { PharmacyTopNav } from './PharmacyTopNav';
 import { PharmacySidebar } from './PharmacySidebar';
+import { usePharmacyRealTimeUpdates } from '../../hooks/usePharmacyRealTimeUpdates';
 
 export const PharmacyLayout: React.FC = () => {
+  usePharmacyRealTimeUpdates(); // Global SignalR listener for the entire Pharmacy Dashboard
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {

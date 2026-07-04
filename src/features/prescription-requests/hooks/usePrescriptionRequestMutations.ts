@@ -41,3 +41,20 @@ export const useCancelRequestMutation = () => {
     }
   });
 };
+
+export const useRespondToBidMutation = (options?: { onSuccess?: (data: any, variables: any) => void }) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ bidId, status }: { bidId: number; status: 'Accepted' | 'Rejected'; requestId: number }) => 
+      prescriptionRequestService.respondToBid({ bidId, status }),
+    onSuccess: (data, variables) => {
+      if (options?.onSuccess) {
+        options.onSuccess(data, variables);
+      }
+    },
+    onError: (error: ApiError) => {
+      toast.error(error.message || 'Failed to update bid status.');
+    }
+  });
+};
