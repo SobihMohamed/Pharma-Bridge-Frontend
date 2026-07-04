@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/store/authStore";
 
 interface NavItem {
@@ -10,6 +10,8 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", icon: "dashboard", to: "/admin/dashboard" },
   { label: "Patients", icon: "group", to: "/admin/patients" },
+  { label: "Pharma Owners", icon: "badge", to: "/admin/pharma-owners" },
+  { label: "Pharmacies", icon: "store", to: "/admin/pharmacies" },
   { label: "Prescriptions", icon: "description", to: "/admin/prescription-requests" },
   { label: "Bids", icon: "local_offer", to: "/admin/bids" },
   { label: "Complaints", icon: "report_problem", to: "/admin/complaints" },
@@ -29,7 +31,14 @@ export default function AdminSidebar({
   userAvatarUrl,
   isCollapsed = false,
 }: AdminSidebarProps) {
+  const navigate = useNavigate();
   const clearAuth = useAuthStore((state) => state.clearAuth);
+
+  const handleLogout = () => {
+    clearAuth();
+    navigate("/admin/login");
+  };
+
   return (
     <aside className={`h-screen w-64 fixed left-0 top-0 bg-surface dark:bg-inverse-surface border-r border-outline-variant dark:border-outline flex flex-col py-4 z-50 transition-transform duration-300 ${isCollapsed ? "-translate-x-full" : "translate-x-0"}`}>
       <div className="px-6 mb-8 flex items-center gap-3">
@@ -89,7 +98,7 @@ export default function AdminSidebar({
         </div>
 
         <button
-          onClick={() => clearAuth()}
+          onClick={handleLogout}
           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
         >
           <span className="material-symbols-outlined text-[20px]">logout</span>

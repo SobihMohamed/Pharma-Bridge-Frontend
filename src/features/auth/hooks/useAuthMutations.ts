@@ -60,7 +60,7 @@ export const useRegisterMutation = () => {
   });
 };
 
-export const useLoginMutation = () => {
+export const useLoginMutation = (options?: { onSuccess?: (data: any) => void }) => {
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
 
@@ -68,11 +68,15 @@ export const useLoginMutation = () => {
     mutationFn: (data: LoginDto) => authService.login(data),
     onSuccess: (data) => {
       setAuth(data);
-      toast.success('Logged in successfully!');
-      if (data.roles?.includes('PharmacyOwner')) {
-        navigate('/pharmacy/dashboard');
+      if (options?.onSuccess) {
+        options.onSuccess(data);
       } else {
-        navigate('/profile');
+        toast.success('Logged in successfully!');
+        if (data.roles?.includes('PharmacyOwner')) {
+          navigate('/pharmacy/dashboard');
+        } else {
+          navigate('/profile');
+        }
       }
     },
     onError: (error: any) => {
