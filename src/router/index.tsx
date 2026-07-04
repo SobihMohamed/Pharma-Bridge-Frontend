@@ -5,6 +5,7 @@ import { UserRole } from "@/types/auth.types";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import MainLayout from "@/components/layouts/MainLayout";
 import NotFound from "@/pages/NotFound";
+import { adminRoutes } from "@/features/admin/routes";
 import GlobalError from "@/components/errors/GlobalError";
 
 // Lazy-loaded pages
@@ -86,6 +87,7 @@ const RootRedirect = () => {
 // ----------------------------------------------------------------------
 
 export const router = createBrowserRouter([
+  // 1. Main Layout (Patients)
   {
     path: "/",
     element: <MainLayout />,
@@ -189,19 +191,10 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      {
-        path: "admin/*",
-        element: (
-          <ProtectedRoute>
-            <RoleGuard allowedRoles={["Admin"]}>
-              <div>Admin Dashboard Placeholder</div>
-            </RoleGuard>
-          </ProtectedRoute>
-        ),
-      },
     ],
   },
-  // Pharmacy Routes (Isolated from MainLayout)
+  
+  // 2. Pharmacy Routes (Isolated Layout)
   {
     path: "/pharmacy",
     element: (
@@ -224,6 +217,11 @@ export const router = createBrowserRouter([
       { path: "settings", element: <SuspenseWrapper><PharmacySettingsPage /></SuspenseWrapper> },
     ],
   },
+
+  // 3. Admin Routes
+  adminRoutes,
+
+  // 4. Auth Routes
   {
     element: <AuthLayout />,
     errorElement: <GlobalError />,
@@ -270,6 +268,8 @@ export const router = createBrowserRouter([
       },
     ],
   },
+
+  // 5. Error & Fallback Routes
   {
     path: "/unauthorized",
     element: (

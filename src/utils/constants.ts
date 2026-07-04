@@ -53,7 +53,7 @@ export const API_ENDPOINTS = {
   PROFILE: {
     GET: "/api/patientprofile",
     UPDATE: "/api/patientprofile",
-    ADMIN_ALL: "/api/patientprofile/all",
+    ADMIN_ALL: "/api/patient-profile/all",
   },
   ADDRESSES: {
     BASE: "/api/patientaddresses",
