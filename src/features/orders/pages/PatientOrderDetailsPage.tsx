@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { ReportIssueDialog } from '@/features/complaints/components/ReportIssueDialog';
 
 const STEPS = ['Accepted', 'Preparing', 'In Transit', 'Completed'];
 
@@ -276,6 +277,18 @@ export default function PatientOrderDetailsPage() {
 
               </CardContent>
             </Card>
+
+            {/* Report Issue Button (Only for Completed Orders) */}
+            {order.orderStatus === 'Completed' && (
+              <Card className="border-rose-100 shadow-sm rounded-2xl bg-rose-50/30 overflow-hidden">
+                <CardContent className="p-6 flex flex-col items-center text-center space-y-3">
+                  <p className="text-sm font-medium text-slate-600">
+                    Something wrong with this order?
+                  </p>
+                  <ReportIssueDialog orderId={order.id} />
+                </CardContent>
+              </Card>
+            )}
 
           </div>
         </div>

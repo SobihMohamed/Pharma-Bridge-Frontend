@@ -22,6 +22,7 @@ const OrdersPage = React.lazy(() => import("@/features/orders/pages/OrdersPage")
 const PatientOrderDetailsPage = React.lazy(() => import("@/features/orders/pages/PatientOrderDetailsPage"));
 const NotificationsPage = React.lazy(() => import("@/features/notifications/pages/NotificationsPage"));
 const ComplaintsPage = React.lazy(() => import("@/features/complaints/pages/ComplaintsPage"));
+const ComplaintDetailsPage = React.lazy(() => import("@/features/complaints/pages/ComplaintDetailsPage"));
 const ProfilePage = React.lazy(() => import("@/features/profile/pages/ProfilePage"));
 
 // Pharmacy Pages
@@ -29,6 +30,7 @@ import { PharmacyLayout } from "@/features/pharmacy/components/layout/PharmacyLa
 const PharmacyDashboardPage = React.lazy(() => import("@/features/pharmacy/pages/DashboardPage"));
 const PharmacySettingsPage = React.lazy(() => import("@/features/pharmacy/pages/SettingsPage"));
 const PharmacyLiveRequestsPage = React.lazy(() => import("@/features/pharmacy/pages/LiveRequestsPage"));
+const PharmacyRequestsPage = React.lazy(() => import("@/features/pharmacy/pages/PharmacyRequestsPage"));
 const PharmacySubmitBidPage = React.lazy(() => import("@/features/pharmacy/pages/CreateBidPage"));
 const PharmacyMyBidsPage = React.lazy(() => import("@/features/pharmacy/pages/MyBidsPage"));
 const PharmacyBidDetailsPage = React.lazy(() => import("@/features/pharmacy/pages/BidDetailsPage"));
@@ -180,6 +182,18 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "complaints/:id",
+        element: (
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={["Patient"]}>
+              <SuspenseWrapper>
+                <ComplaintDetailsPage />
+              </SuspenseWrapper>
+            </RoleGuard>
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: "profile",
         element: (
           <ProtectedRoute>
@@ -209,6 +223,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: "dashboard", element: <SuspenseWrapper><PharmacyDashboardPage /></SuspenseWrapper> },
       { path: "radar", element: <SuspenseWrapper><PharmacyLiveRequestsPage /></SuspenseWrapper> },
+      { path: "requests", element: <SuspenseWrapper><PharmacyRequestsPage /></SuspenseWrapper> },
       { path: "requests/:id/bid", element: <SuspenseWrapper><PharmacySubmitBidPage /></SuspenseWrapper> },
       { path: "bids", element: <SuspenseWrapper><PharmacyMyBidsPage /></SuspenseWrapper> },
       { path: "bids/:id", element: <SuspenseWrapper><PharmacyBidDetailsPage /></SuspenseWrapper> },

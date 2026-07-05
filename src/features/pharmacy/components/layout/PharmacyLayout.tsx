@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { PharmacyTopNav } from './PharmacyTopNav';
 import { PharmacySidebar } from './PharmacySidebar';
 import { usePharmacyRealTimeUpdates } from '../../hooks/usePharmacyRealTimeUpdates';
+import { PharmacyProtectedRoute } from './PharmacyProtectedRoute';
 
 export const PharmacyLayout: React.FC = () => {
   usePharmacyRealTimeUpdates(); // Global SignalR listener for the entire Pharmacy Dashboard
@@ -36,7 +37,9 @@ export const PharmacyLayout: React.FC = () => {
         {/* Scrollable Main View */}
         <main className="flex-1 w-full pt-16 p-4 md:p-8">
           <div className="max-w-6xl mx-auto">
-            <Outlet />
+            <PharmacyProtectedRoute>
+              <Outlet />
+            </PharmacyProtectedRoute>
           </div>
         </main>
       </div>

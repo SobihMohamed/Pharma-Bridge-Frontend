@@ -4,7 +4,7 @@ import { pharmacyProfileService } from '../services/pharmacyProfileService';
 import { PharmacyToCreateDto, PharmacyToUpdateDto, PharmacyProfileDto } from '../types';
 import { ApiError } from '@/types/api.types';
 
-export const useMyPharmacyProfileQuery = () => {
+export const useMyPharmacyProfileQuery = (enabled: boolean = true) => {
   return useQuery<PharmacyProfileDto | null, ApiError>({
     queryKey: ['myPharmacyProfile'],
     queryFn: async () => {
@@ -21,6 +21,8 @@ export const useMyPharmacyProfileQuery = () => {
     },
     retry: false, // Do not retry on 404
     throwOnError: false, // Prevent React Query from crashing the UI/triggering error boundaries
+    enabled,
+    refetchOnMount: 'always', // Ensures a network request is made every time the tab is clicked!
   });
 };
 

@@ -7,9 +7,8 @@ import PharmacyStatusDashboard from './PharmacyStatusDashboard';
 
 export default function PharmacyRegGuard() {
   const { data: ownerProfile, isLoading: isOwnerLoading } = usePharmaOwnerProfileQuery();
-  const { data: pharmacyProfile, isLoading: isPharmacyLoading } = useMyPharmacyProfileQuery();
 
-  if (isOwnerLoading || isPharmacyLoading) {
+  if (isOwnerLoading) {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
@@ -76,13 +75,6 @@ export default function PharmacyRegGuard() {
     );
   }
 
-  // --- Step 2: Owner Profile is Approved. Determine Pharmacy State ---
-
-  if (!pharmacyProfile) {
-    // 404 state: Needs to register
-    return <RegisterPharmacyForm />;
-  }
-
-  // 200 state: Has pharmacy
-  return <PharmacyStatusDashboard data={pharmacyProfile} />;
+  // --- Step 2: Owner Profile is Approved. Render Unified Form ---
+  return <RegisterPharmacyForm />;
 }
