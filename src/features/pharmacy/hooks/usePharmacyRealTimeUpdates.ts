@@ -54,15 +54,39 @@ export const usePharmacyRealTimeUpdates = () => {
           // 1. General Live Requests / Notifications Listener
           // -------------------------------------------------------------
           connection.on('ReceiveNotification', (notification: SignalRNotification) => {
-            // Trigger a premium toast alert
-            toast.info(notification.subject, {
-              description: notification.body,
-              duration: 8000,
-              action: {
-                label: 'View Live',
-                onClick: () => navigate('/pharmacy/radar'), // Updated to match new route alias
-              },
-            });
+            const subject = notification.subject || '';
+            const lowerSubject = subject.toLowerCase();
+            
+            const isPharmacyApproved = lowerSubject.includes('pharmacy approved') || lowerSubject.includes('صيدلية') || subject.includes('🏪');
+            const isAccountApproved = lowerSubject.includes('approved') || lowerSubject.includes('موافقة');
+            
+            if (isPharmacyApproved && isAccountApproved) {
+              toast.success("🏪 Your pharmacy has been approved! You can now receive nearby requests.", {
+                description: notification.body,
+                duration: 10000,
+              });
+              
+              // CRITICAL: Force refetch of profile to instantly unlock sidebar tabs!
+              queryClient.invalidateQueries({ queryKey: ['myPharmacyProfile'] });
+            } else if (isAccountApproved) {
+              toast.success("🎉 Congratulations! Your account has been approved.", {
+                description: notification.body,
+                duration: 10000,
+              });
+              
+              // CRITICAL: Force refetch of profile to instantly unlock sidebar tabs!
+              queryClient.invalidateQueries({ queryKey: ['myPharmacyProfile'] });
+            } else {
+              // Trigger standard premium toast alert
+              toast.info(notification.subject, {
+                description: notification.body,
+                duration: 8000,
+                action: {
+                  label: 'View Live',
+                  onClick: () => navigate('/pharmacy/radar'),
+                },
+              });
+            }
 
             // If the notification contains request payload, update both stores
             if (notification.requestData) {

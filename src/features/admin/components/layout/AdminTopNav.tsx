@@ -1,3 +1,5 @@
+import { AdminNotificationBell } from './AdminNotificationBell';
+
 interface AdminTopNavProps {
   title?: string;
   showBack?: boolean;
@@ -36,9 +38,7 @@ export default function AdminTopNav({
         </h2>
       </div>
       <div className="flex items-center gap-4">
-        <button className="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer transition-transform active:scale-95">
-          notifications
-        </button>
+        <AdminNotificationBell />
       </div>
     </header>
   );

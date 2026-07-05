@@ -1,6 +1,7 @@
 import { ReactNode, useState } from "react";
 import AdminSidebar from "./AdminSidebar";
 import AdminTopNav from "./AdminTopNav";
+import { useAdminSignalR } from "../../hooks/useAdminSignalR";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -21,6 +22,7 @@ export default function AdminLayout({
   onBack,
 }: AdminLayoutProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  useAdminSignalR(); // Mount SignalR globally for Admin context
 
   return (
     <div className="min-h-screen bg-background text-on-surface font-body-md">

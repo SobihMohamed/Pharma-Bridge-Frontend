@@ -3,8 +3,17 @@ import { User, Building2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OwnerProfileForm from '../components/OwnerProfileForm';
 import PharmacyRegGuard from '../components/PharmacyRegGuard';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function SettingsPage() {
+  const queryClient = useQueryClient();
+
+  const handleTabChange = (value: string) => {
+    if (value === 'pharmacy') {
+      // Force React Query to make a fresh network request when the tab is clicked
+      queryClient.invalidateQueries({ queryKey: ['myPharmacyProfile'] });
+    }
+  };
   return (
     <div className="w-full max-w-5xl mx-auto space-y-8 p-6 md:p-10">
       {/* Page Header */}
@@ -15,7 +24,7 @@ export default function SettingsPage() {
       
       <div className="h-px w-full bg-slate-200 my-6" />
 
-      <Tabs defaultValue="profile" className="w-full flex flex-col">
+      <Tabs defaultValue="profile" className="w-full flex flex-col" onValueChange={handleTabChange}>
         <TabsList className="flex w-full justify-start border-b border-slate-200 bg-transparent p-0 mb-8 rounded-none">
           <TabsTrigger 
             value="profile" 
