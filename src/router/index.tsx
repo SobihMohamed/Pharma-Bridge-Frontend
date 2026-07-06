@@ -27,7 +27,7 @@ const ProfilePage = React.lazy(() => import("@/features/profile/pages/ProfilePag
 
 // Pharmacy Pages
 import { PharmacyLayout } from "@/features/pharmacy/components/layout/PharmacyLayout";
-const PharmacyDashboardPage = React.lazy(() => import("@/features/pharmacy/pages/DashboardPage"));
+const PharmacyDashboardPage = React.lazy(() => import("@/features/pharmacy/pages/PharmacyOwnerDashboard"));
 const PharmacySettingsPage = React.lazy(() => import("@/features/pharmacy/pages/SettingsPage"));
 const PharmacyLiveRequestsPage = React.lazy(() => import("@/features/pharmacy/pages/LiveRequestsPage"));
 const PharmacyRequestsPage = React.lazy(() => import("@/features/pharmacy/pages/PharmacyRequestsPage"));

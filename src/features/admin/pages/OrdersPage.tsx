@@ -378,9 +378,6 @@ export default function OrdersPage() {
                       Payment Method
                     </th>
                     <th className="px-6 py-4 font-label-md text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
-                      Payment Status
-                    </th>
-                    <th className="px-6 py-4 font-label-md text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
                       Created At
                     </th>
                   </tr>
@@ -429,11 +426,6 @@ export default function OrdersPage() {
                       {/* Payment Method */}
                       <td className="px-6 py-4">
                         <span className="text-[13px] text-slate-650">{order.paymentMethod || "—"}</span>
-                      </td>
-
-                      {/* Payment Status */}
-                      <td className="px-6 py-4">
-                        <span className="text-[13px] text-slate-650">{order.paymentStatus || "—"}</span>
                       </td>
 
                       {/* Created At */}
