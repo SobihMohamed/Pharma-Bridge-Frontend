@@ -79,7 +79,7 @@ function RequestDetailsSheetContent({ id, onClose }: { id: number, onClose: () =
   }
 
   const isExpired = new Date(request.expiresAt).getTime() < new Date().getTime();
-  const canBid = !isExpired && request.status === 'Pending';
+  const canBid = !isExpired && (request.status === 'Pending' || request.status === 'HasBids');
 
   return (
     <div className="flex flex-col h-full">
@@ -344,7 +344,7 @@ export default function PharmacyRequestsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {requests.map((request) => {
                 const isExpired = new Date(request.expiresAt).getTime() < new Date().getTime();
-                const canBid = !isExpired && request.status === 'Pending';
+                const canBid = !isExpired && (request.status === 'Pending' || request.status === 'HasBids');
 
                 return (
                   <Card 

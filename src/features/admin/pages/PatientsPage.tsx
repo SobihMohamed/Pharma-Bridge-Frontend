@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AdminLayout from "../components/layout/AdminLayout";
 import { useAdminPatientsQuery } from "../hooks/useAdminPatientsQuery";
 import { PatientProfileDto } from "@/features/profile/types";
@@ -140,6 +141,7 @@ function EmptyState({ onClear }: { onClear: () => void }) {
 }
 
 export default function PatientsPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [pageIndex, setPageIndex] = useState(1);
@@ -260,6 +262,7 @@ export default function PatientsPage() {
                     return (
                       <tr
                         key={patient.id}
+                        onClick={() => navigate(`/admin/patients/${(patient as any).applicationUserId || patient.id}`)}
                         className="hover:bg-slate-55/50 transition-colors cursor-pointer group"
                       >
                         {/* Profile Block */}

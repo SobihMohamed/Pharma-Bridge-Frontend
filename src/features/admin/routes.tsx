@@ -6,6 +6,7 @@ import { UserRole } from "@/types/auth.types";
 // Lazy-loaded Admin Pages
 const AdminDashboardPage = React.lazy(() => import("@/features/admin/pages/DashboardPage"));
 const AdminPatientsPage = React.lazy(() => import("@/features/admin/pages/PatientsPage"));
+const AdminPatientDetailsPage = React.lazy(() => import("@/features/admin/pages/AdminPatientDetailsPage"));
 const AdminPharmaOwnersPage = React.lazy(() => import("@/features/admin/pages/PharmaOwnersPage"));
 const AdminPharmaOwnerDetailsPage = React.lazy(() => import("@/features/admin/pages/PharmaOwnerDetailsPage"));
 const AdminPharmaciesPage = React.lazy(() => import("@/features/admin/pages/PharmaciesPage"));
@@ -59,6 +60,7 @@ export const adminRoutes = {
         { index: true, element: <Navigate to="dashboard" replace /> },
         { path: "dashboard", element: <SuspenseWrapper><AdminDashboardPage /></SuspenseWrapper> },
         { path: "patients", element: <SuspenseWrapper><AdminPatientsPage /></SuspenseWrapper> },
+        { path: "patients/:applicationUserId", element: <SuspenseWrapper><AdminPatientDetailsPage /></SuspenseWrapper> },
         { path: "pharma-owners", element: <SuspenseWrapper><AdminPharmaOwnersPage /></SuspenseWrapper> },
         { path: "pharma-owners/:ownerId", element: <SuspenseWrapper><AdminPharmaOwnerDetailsPage /></SuspenseWrapper> },
         { path: "pharmacies", element: <SuspenseWrapper><AdminPharmaciesPage /></SuspenseWrapper> },
