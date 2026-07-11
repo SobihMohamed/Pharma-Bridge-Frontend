@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useGetNearbyRequestsQuery, useGetRequestDetailsForPharmacyQuery } from '../api/pharmacyRequests';
-import { Search, MapPin, Clock, Flame, Image as ImageIcon, ChevronLeft, ChevronRight, X, HeartPulse, ListTodo, FilterX } from 'lucide-react';
+import {
+  Search,
+  MapPin,
+  Clock,
+  Flame,
+  Image as ImageIcon,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  HeartPulse,
+  FilterX,
+  Pill,
+  SlidersHorizontal,
+  ArrowRight
+} from 'lucide-react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
 import {
   Sheet,
   SheetContent,
@@ -22,42 +29,78 @@ import {
 } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-function getRelativeTime(dateString: string) {
+export interface PharmacyRequestSummary {
+  id: number;
+  medicineName: string;
+  status: string;
+  deliveryArea: string;
+  createdAt: string;
+  expiresAt: string;
+  bidsCount: number;
+}
+
+export interface PharmacyRequestDetails extends PharmacyRequestSummary {
+  imageUrl?: string | null;
+  patientNotes?: string | null;
+}
+
+// ---------- Config ----------
+const STATUS_TABS = [
+  { label: "All Requests", value: "All" },
+  { label: "Pending Bids", value: "Pending" },
+  { label: "Has Bids", value: "HasBids" },
+  { label: "Closed", value: "Closed" },
+  { label: "Cancelled", value: "Cancelled" },
+];
+
+const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string }> = {
+  Pending:   { bg: '#ecfdf5', text: '#065f46', dot: '#10b981' },
+  HasBids:   { bg: '#eff6ff', text: '#1e40af', dot: '#3b82f6' },
+  Closed:    { bg: '#f5f3ff', text: '#6d28d9', dot: '#8b5cf6' },
+  Cancelled: { bg: '#fff1f2', text: '#9f1239', dot: '#f43f5e' },
+};
+
+const ACCENT_COLORS = ['#0ea5e9', '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316'];
+
+function getRelativeTime(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffInSeconds = Math.floor((date.getTime() - now.getTime()) / 1000);
-  
+
   if (diffInSeconds <= 0) return 'Expired';
-  
-  if (diffInSeconds < 3600) return `Expires in ${Math.floor(diffInSeconds / 60)} mins`;
-  if (diffInSeconds < 86400) return `Expires in ${Math.floor(diffInSeconds / 3600)} hours`;
-  return `Expires in ${Math.floor(diffInSeconds / 86400)} days`;
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m left`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h left`;
+  return `${Math.floor(diffInSeconds / 86400)}d left`;
 }
 
-function formatDate(dateStr: string) {
-  return new Intl.DateTimeFormat('en-US', {
+function formatDate(dateStr: string): string {
+  return new Intl.DateTimeFormat('en-EG', {
     month: 'short',
     day: 'numeric',
-    year: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
   }).format(new Date(dateStr));
 }
 
-function RequestDetailsSheetContent({ id, onClose }: { id: number, onClose: () => void }) {
+// ---------- Sub-components ----------
+interface RequestDetailsSheetContentProps {
+  id: number;
+  onClose: () => void;
+}
+
+function RequestDetailsSheetContent({ id, onClose }: RequestDetailsSheetContentProps) {
   const navigate = useNavigate();
   const { data: request, isLoading, isError } = useGetRequestDetailsForPharmacyQuery(id);
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-full space-y-4 p-6">
-        <div className="w-full h-48 bg-slate-200 rounded-xl animate-pulse" />
-        <div className="h-8 bg-slate-200 rounded w-3/4 animate-pulse mt-4" />
-        <div className="h-4 bg-slate-200 rounded w-1/2 animate-pulse" />
+      <div className="flex flex-col h-full space-y-5 p-6 bg-white">
+        <div className="w-full h-48 bg-slate-100 rounded-2xl animate-pulse" />
+        <div className="h-7 bg-slate-100 rounded-xl w-3/4 animate-pulse mt-4" />
+        <div className="h-4 bg-slate-100 rounded-xl w-1/2 animate-pulse" />
         <div className="space-y-2 mt-6">
-          <div className="h-4 bg-slate-200 rounded w-full animate-pulse" />
-          <div className="h-4 bg-slate-200 rounded w-full animate-pulse" />
-          <div className="h-4 bg-slate-200 rounded w-5/6 animate-pulse" />
+          <div className="h-4 bg-slate-100 rounded-xl w-full animate-pulse" />
+          <div className="h-4 bg-slate-100 rounded-xl w-full animate-pulse" />
         </div>
       </div>
     );
@@ -65,7 +108,7 @@ function RequestDetailsSheetContent({ id, onClose }: { id: number, onClose: () =
 
   if (isError || !request) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-6 space-y-4">
+      <div className="flex flex-col items-center justify-center h-full text-center p-6 space-y-4 bg-white">
         <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center">
           <X className="w-8 h-8 text-rose-400" />
         </div>
@@ -73,95 +116,101 @@ function RequestDetailsSheetContent({ id, onClose }: { id: number, onClose: () =
           <h3 className="text-lg font-bold text-slate-900">Failed to load details</h3>
           <p className="text-sm text-slate-500 mt-1">The request might have been removed or expired.</p>
         </div>
-        <Button variant="outline" onClick={onClose} className="mt-4">Close</Button>
+        <Button variant="outline" onClick={onClose} className="mt-4 rounded-xl">Close</Button>
       </div>
     );
   }
 
   const isExpired = new Date(request.expiresAt).getTime() < new Date().getTime();
   const canBid = !isExpired && (request.status === 'Pending' || request.status === 'HasBids');
+  const cfg = STATUS_CONFIG[request.status] || STATUS_CONFIG.Pending;
 
   return (
-    <div className="flex flex-col h-full">
-      <SheetHeader className="px-6 py-4 border-b border-slate-100 shrink-0 text-left">
+    <div className="flex flex-col h-full bg-white">
+      <SheetHeader className="px-6 py-5 border-b border-slate-100 shrink-0 text-left bg-slate-50/50">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <SheetTitle className="text-xl font-bold text-slate-900 leading-tight">
-              {request.medicineName}
-            </SheetTitle>
-            <SheetDescription className="text-xs font-medium text-slate-500 mt-1 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5" />
-              Posted on {formatDate(request.createdAt)}
-            </SheetDescription>
+          <div className="flex items-start gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-sky-650 flex items-center justify-center shrink-0 shadow-sm" style={{ background: 'linear-gradient(135deg,#0284c7,#0369a1)' }}>
+              <Pill className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <SheetTitle className="text-lg font-black text-slate-900 leading-tight">
+                {request.medicineName}
+              </SheetTitle>
+              <SheetDescription className="text-xs font-semibold text-slate-400 mt-1.5 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5" />
+                Posted {formatDate(request.createdAt)}
+              </SheetDescription>
+            </div>
           </div>
-          <Badge variant="outline" className={`shrink-0 font-bold px-2.5 py-0.5 border ${
-            request.status === 'Pending' ? 'bg-teal-50 text-teal-700 border-teal-200' : 
-            request.status === 'HasBids' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-            'bg-slate-50 text-slate-700 border-slate-200'
-          }`}>
+          <span
+            className="shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full border flex items-center gap-1.5"
+            style={{ backgroundColor: cfg.bg, color: cfg.text, borderColor: 'transparent' }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cfg.dot }} />
             {request.status}
-          </Badge>
+          </span>
         </div>
       </SheetHeader>
 
       <ScrollArea className="flex-1">
-        <div className="p-6 space-y-8">
+        <div className="p-6 space-y-6">
           <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 relative group flex items-center justify-center">
             {request.imageUrl ? (
-              <img 
-                src={request.imageUrl} 
-                alt="Prescription" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              <img
+                src={request.imageUrl}
+                alt="Prescription"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
               />
             ) : (
-              <div className="flex flex-col items-center justify-center text-slate-400">
-                <HeartPulse className="w-12 h-12 mb-2 opacity-50" />
-                <span className="text-sm font-medium">No Prescription Image</span>
+              <div className="flex flex-col items-center justify-center text-slate-450 p-6">
+                <HeartPulse className="w-10 h-10 mb-2 text-sky-400" />
+                <span className="text-xs font-bold text-slate-400">No Prescription Image</span>
               </div>
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-black/5 pointer-events-none" />
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
-              <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-2 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-teal-600" />
+              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-emerald-500" />
                 Delivery Area
               </h4>
-              <p className="text-base text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <p className="text-sm font-semibold text-slate-700 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
                 {request.deliveryArea}
               </p>
             </div>
 
             {request.patientNotes && (
               <div>
-                <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-2 flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-teal-600" />
+                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                  <ImageIcon className="w-3.5 h-3.5 text-violet-500" />
                   Patient Notes
                 </h4>
-                <p className="text-base text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-100 leading-relaxed whitespace-pre-wrap">
+                <p className="text-sm text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 leading-relaxed whitespace-pre-wrap font-medium">
                   {request.patientNotes}
                 </p>
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100">
-                <div className="flex items-center gap-2 text-orange-600 mb-1 font-bold text-sm">
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="bg-amber-50/30 p-4 rounded-xl border border-amber-100">
+                <div className="flex items-center gap-2 text-amber-600 mb-1 font-bold text-xs uppercase tracking-wide">
                   <Flame className="w-4 h-4" />
-                  Competition
+                  Bids Placed
                 </div>
-                <p className="text-lg font-black text-slate-900">
-                  {request.bidsCount} <span className="text-sm font-medium text-slate-500">Bids</span>
+                <p className="text-2xl font-black text-slate-800 tracking-tight">
+                  {request.bidsCount} <span className="text-xs font-semibold text-slate-400">offers</span>
                 </p>
               </div>
 
-              <div className={`p-4 rounded-xl border ${isExpired ? 'bg-slate-50 border-slate-200 text-slate-600' : 'bg-blue-50/50 border-blue-100 text-blue-700'}`}>
-                <div className="flex items-center gap-2 mb-1 font-bold text-sm">
+              <div className={`p-4 rounded-xl border ${isExpired ? 'bg-slate-50 border-slate-200' : 'bg-sky-50/30 border-sky-100'}`}>
+                <div className={`flex items-center gap-2 mb-1 font-bold text-xs uppercase tracking-wide ${isExpired ? 'text-slate-500' : 'text-sky-600'}`}>
                   <Clock className="w-4 h-4" />
-                  Time Left
+                  Time Remaining
                 </div>
-                <p className={`text-sm font-black ${isExpired ? 'text-slate-600' : 'text-slate-900'}`}>
+                <p className="text-2xl font-black text-slate-800 tracking-tight">
                   {isExpired ? 'Expired' : getRelativeTime(request.expiresAt)}
                 </p>
               </div>
@@ -171,19 +220,18 @@ function RequestDetailsSheetContent({ id, onClose }: { id: number, onClose: () =
       </ScrollArea>
 
       <div className="p-4 border-t border-slate-100 bg-white shrink-0">
-        <Button 
-          className={`w-full h-12 text-base font-bold transition-all shadow-sm ${
-            canBid 
-              ? 'bg-teal-600 hover:bg-teal-700 text-white shadow-teal-600/20 active:scale-[0.98]' 
-              : 'bg-slate-200 text-slate-500 hover:bg-slate-200 cursor-not-allowed'
-          }`}
+        <Button
+          className="w-full h-11 text-xs font-bold rounded-xl transition-all"
+          style={canBid
+            ? { background: 'linear-gradient(135deg,#0284c7,#0369a1)', color: '#ffffff', boxShadow: '0 2px 8px rgba(3,105,161,0.25)' }
+            : { backgroundColor: '#f1f5f9', color: '#94a3b8', cursor: 'not-allowed' }}
           disabled={!canBid}
           onClick={() => {
             onClose();
             navigate(`/pharmacy/requests/${request.id}/bid`, { state: { requestData: request } });
           }}
         >
-          {canBid ? 'Submit Bid' : 'Bidding Closed'}
+          {canBid ? 'Submit Bid Offer' : 'Bidding Closed'}
         </Button>
       </div>
     </div>
@@ -193,15 +241,15 @@ function RequestDetailsSheetContent({ id, onClose }: { id: number, onClose: () =
 export default function PharmacyRequestsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  
+
   const pageIndex = parseInt(searchParams.get('page') || '1');
   const search = searchParams.get('search') || '';
   const status = searchParams.get('status') || 'All';
   const pageSize = 12;
 
   const [activeRequestId, setActiveRequestId] = useState<number | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
-  // Debounced search state
   const [searchValue, setSearchValue] = useState(search);
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -210,7 +258,7 @@ export default function PharmacyRequestsPage() {
         const newParams = new URLSearchParams(searchParams);
         if (searchValue) newParams.set('search', searchValue);
         else newParams.delete('search');
-        newParams.set('page', '1'); // Reset to page 1 on search change
+        newParams.set('page', '1');
         setSearchParams(newParams);
       }
     }, 500);
@@ -224,8 +272,8 @@ export default function PharmacyRequestsPage() {
     status: status !== 'All' ? status : undefined,
   });
 
-  const requests = data?.data || [];
-  const totalCount = data?.totalCount || 0;
+  const requests: PharmacyRequestSummary[] = data?.data || [];
+  const totalCount: number = data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   const handlePageChange = (newPage: number) => {
@@ -234,7 +282,7 @@ export default function PharmacyRequestsPage() {
     setSearchParams(newParams);
   };
 
-  const handleStatusChange = (val: string | null) => {
+  const handleStatusTabChange = (val: string) => {
     const newParams = new URLSearchParams(searchParams);
     if (val && val !== 'All') newParams.set('status', val);
     else newParams.delete('status');
@@ -242,232 +290,288 @@ export default function PharmacyRequestsPage() {
     setSearchParams(newParams);
   };
 
-
-
   const handleClearFilters = () => {
     setSearchValue('');
     setSearchParams(new URLSearchParams());
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">All Requests</h1>
-        <p className="text-slate-500 mt-2 font-medium">Browse and filter through all patient requests available in your area.</p>
-      </div>
+    <div className="space-y-6" style={{ paddingTop: '32px', paddingLeft: '24px', paddingRight: '24px', paddingBottom: '24px' }}>
 
-      {/* Advanced Filter Bar */}
-      <Card className="mb-8 border-slate-200 shadow-sm rounded-2xl overflow-hidden">
-        <CardContent className="p-4 sm:p-6 bg-slate-50/50">
-          <div className="flex flex-col lg:flex-row items-end gap-4">
-            <div className="flex-1 w-full space-y-1.5">
-              <label className="text-sm font-bold text-slate-700">Search</label>
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input 
-                  placeholder="Search by medicine name..." 
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  className="pl-9 h-11 bg-white border-slate-200 rounded-xl focus-visible:ring-teal-500 w-full shadow-sm"
-                />
-              </div>
+        {/* ── Page Header ── */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3.5">
+            <div style={{ background: 'linear-gradient(135deg,#0284c7,#0369a1)' }} className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
+              <HeartPulse className="w-6 h-6" style={{ color: '#fff' }} />
             </div>
-
-            <div className="w-full lg:w-48 space-y-1.5">
-              <label className="text-sm font-bold text-slate-700">Status</label>
-              <Select value={status} onValueChange={handleStatusChange}>
-                <SelectTrigger className="h-11 bg-white border-slate-200 rounded-xl font-medium focus:ring-teal-500 shadow-sm">
-                  <SelectValue placeholder="All Statuses" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  <SelectItem value="All">All Statuses</SelectItem>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                  <SelectItem value="HasBids">Has Bids</SelectItem>
-                  <SelectItem value="Closed">Closed</SelectItem>
-                  <SelectItem value="Cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
+            <div>
+              <h1 className="text-2xl font-black tracking-tight" style={{ color: '#0f172a' }}>Nearby Requests</h1>
+              <p className="text-sm mt-0.5" style={{ color: '#94a3b8' }}>Browse patient prescriptions in your area.</p>
             </div>
-
-
-
-            <Button 
-              variant="ghost" 
-              onClick={handleClearFilters}
-              className="h-11 text-slate-500 hover:text-slate-900 hover:bg-slate-200 rounded-xl font-bold px-4 w-full lg:w-auto shrink-0"
-            >
-              <FilterX className="w-4 h-4 mr-2" />
-              Clear
-            </Button>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Grid Content */}
-      <div className="space-y-8">
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <Card key={i} className="border-slate-100 shadow-sm animate-pulse rounded-2xl">
-                <CardContent className="p-6">
-                  <div className="h-6 bg-slate-200 rounded w-3/4 mb-4" />
-                  <div className="h-4 bg-slate-200 rounded w-1/2 mb-6" />
-                  <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-50">
-                    <div className="h-8 bg-slate-200 rounded w-1/3" />
-                  </div>
-                </CardContent>
-                <div className="p-4 border-t border-slate-50 bg-slate-50/50">
-                  <div className="h-10 bg-slate-200 rounded-lg w-full" />
-                </div>
-              </Card>
-            ))}
+          {/* Count Badge */}
+          <div
+            className="flex items-center gap-2 px-4 py-2 rounded-2xl shadow-sm bg-white border"
+            style={{ borderColor: '#e2e8f0' }}
+          >
+            <span className="text-3xl font-black tabular-nums" style={{ color: '#0f172a' }}>{totalCount}</span>
+            <span className="text-xs font-semibold leading-tight" style={{ color: '#94a3b8' }}>
+              Nearby<br />Requests
+            </span>
           </div>
-        ) : isError ? (
-          <div className="text-center py-20 bg-rose-50 rounded-3xl border border-rose-100">
-            <X className="w-12 h-12 text-rose-400 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-rose-900">Failed to load requests</h3>
-            <p className="text-rose-600 mt-2 font-medium">Please check your connection and try again.</p>
-          </div>
-        ) : requests.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-32 bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm">
-            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-              <ListTodo className="w-10 h-10 text-slate-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">No Requests Found</h3>
-            <p className="text-slate-500 text-center max-w-sm font-medium">
-              We couldn't find any patient requests matching your advanced filters.
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {requests.map((request) => {
-                const isExpired = new Date(request.expiresAt).getTime() < new Date().getTime();
-                const canBid = !isExpired && (request.status === 'Pending' || request.status === 'HasBids');
+        </div>
 
+        {/* ── Filter Toolbar Panel ── */}
+        <div className="bg-white border rounded-2xl shadow-sm" style={{ borderColor: '#f1f5f9' }}>
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4">
+            
+            {/* Status Tabs Navigation */}
+            <div className="flex flex-wrap p-1 rounded-xl gap-1" style={{ backgroundColor: '#f8fafc' }}>
+              {STATUS_TABS.map((tab) => {
+                const isActive = status === tab.value;
+                const cfg = STATUS_CONFIG[tab.value];
                 return (
-                  <Card 
-                    key={request.id} 
-                    className={`border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden flex flex-col ${isExpired ? 'bg-slate-50/50' : 'bg-white'}`}
+                  <button
+                    key={tab.value}
+                    onClick={() => handleStatusTabChange(tab.value)}
+                    style={isActive ? { backgroundColor: '#0f172a', color: '#ffffff' } : { color: '#64748b' }}
+                    className="px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5"
                   >
-                    <CardContent className="p-6 flex-1 flex flex-col cursor-pointer" onClick={() => setActiveRequestId(request.id)}>
-                      <div className="flex justify-between items-start gap-3 mb-4">
-                        <h3 className={`text-lg font-bold leading-tight line-clamp-2 ${isExpired ? 'text-slate-500' : 'text-slate-900'}`}>
-                          {request.medicineName}
-                        </h3>
-                        <Badge variant="outline" className={`shrink-0 font-bold px-2.5 py-0.5 border ${
-                          request.status === 'Pending' ? 'bg-teal-50 text-teal-700 border-teal-200' : 
-                          request.status === 'HasBids' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                          'bg-slate-50 text-slate-700 border-slate-200'
-                        }`}>
-                          {request.status}
-                        </Badge>
-                      </div>
-
-                      <div className="space-y-3 mt-auto pt-4 border-t border-slate-100">
-                        <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                          <MapPin className="w-4 h-4 text-teal-600 shrink-0" />
-                          <span className="truncate" title={request.deliveryArea}>{request.deliveryArea}</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                          <Clock className="w-4 h-4 text-slate-400 shrink-0" />
-                          <span>{formatDate(request.createdAt)}</span>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-2">
-                          <div className={`flex items-center gap-1.5 text-xs font-bold ${isExpired ? 'text-slate-500' : 'text-blue-600'}`}>
-                            <Clock className="w-3.5 h-3.5 shrink-0" />
-                            <span>{isExpired ? 'Expired' : getRelativeTime(request.expiresAt)}</span>
-                          </div>
-                          
-                          {request.bidsCount > 0 && (
-                            <div className="flex items-center gap-1 text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-md">
-                              <Flame className="w-3.5 h-3.5" />
-                              {request.bidsCount} Bids
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-
-                    <CardFooter className="p-4 border-t border-slate-100 bg-slate-50/50 shrink-0 grid grid-cols-2 gap-3">
-                      <Button 
-                        variant="outline"
-                        className="w-full rounded-xl font-bold bg-white hover:bg-slate-50 border-slate-200 text-slate-700"
-                        onClick={() => setActiveRequestId(request.id)}
-                      >
-                        Details
-                      </Button>
-                      <Button 
-                        className={`w-full rounded-xl font-bold shadow-sm transition-all ${
-                          canBid 
-                            ? 'bg-teal-600 hover:bg-teal-700 text-white shadow-teal-600/20 active:scale-[0.98]' 
-                            : 'bg-slate-200 text-slate-500 hover:bg-slate-200 cursor-not-allowed'
-                        }`}
-                        disabled={!canBid}
-                        onClick={() => navigate(`/pharmacy/requests/${request.id}/bid`, { state: { requestData: request } })}
-                      >
-                        {canBid ? 'Bid' : 'Closed'}
-                      </Button>
-                    </CardFooter>
-                  </Card>
+                    {cfg && (
+                      <span
+                        className="w-1.5 h-1.5 rounded-full"
+                        style={{ backgroundColor: isActive ? '#ffffff88' : cfg.dot }}
+                      />
+                    )}
+                    {tab.label}
+                  </button>
                 );
               })}
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center pt-8 border-t border-slate-200 mt-8 gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => handlePageChange(Math.max(1, pageIndex - 1))}
-                  disabled={pageIndex === 1 || isLoading}
-                  className="rounded-xl font-bold text-slate-600 hover:text-slate-900 border-slate-200 w-10 h-10 p-0"
+            {/* Actions & Filters */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border shadow-sm transition-colors"
+                style={{
+                  backgroundColor: showFilters ? '#f8fafc' : '#ffffff',
+                  borderColor: '#e2e8f0',
+                  color: showFilters ? '#0f172a' : '#64748b',
+                }}
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                Filter
+              </button>
+              {(searchValue || status !== 'All') && (
+                <button
+                  onClick={handleClearFilters}
+                  className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-xl transition-all"
+                  style={{ color: '#e11d48', backgroundColor: '#fff1f2' }}
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
+                  <FilterX className="w-3.5 h-3.5" />
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
 
-                <div className="flex items-center gap-1.5">
+          {/* Search inputs expandable */}
+          {showFilters && (
+            <div className="px-4 pb-4 border-t pt-4" style={{ borderColor: '#f1f5f9' }}>
+              <div className="relative max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                <Input
+                  placeholder="Search by medicine name, ingredients..."
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  className="pl-8 h-9 text-xs rounded-xl border"
+                  style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0', color: '#0f172a' }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Grid List Content ── */}
+        <div className="space-y-6">
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i} className="bg-white rounded-2xl border p-6 animate-pulse" style={{ borderColor: '#f1f5f9', height: '210px' }}>
+                  <div className="h-4 rounded-lg w-1/3 mb-4" style={{ backgroundColor: '#f1f5f9' }} />
+                  <div className="h-8 rounded-xl w-2/3 mb-4" style={{ backgroundColor: '#f8fafc' }} />
+                  <div className="h-3 rounded w-full mb-2" style={{ backgroundColor: '#f1f5f9' }} />
+                  <div className="h-10 rounded-xl w-full mt-auto" style={{ backgroundColor: '#f1f5f9' }} />
+                </Card>
+              ))}
+            </div>
+          ) : isError ? (
+            <div className="flex flex-col items-center justify-center py-20 rounded-2xl border bg-rose-50" style={{ borderColor: '#fecdd3' }}>
+              <p className="font-bold" style={{ color: '#9f1239' }}>Failed to load requests. Please try again.</p>
+            </div>
+          ) : requests.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-28 bg-white rounded-2xl border-2 border-dashed" style={{ borderColor: '#e2e8f0' }}>
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: '#f0f9ff' }}>
+                <HeartPulse className="w-7 h-7" style={{ color: '#0ea5e9' }} />
+              </div>
+              <h3 className="text-lg font-bold mb-1" style={{ color: '#0f172a' }}>No Requests Found</h3>
+              <p className="text-sm text-center max-w-xs" style={{ color: '#94a3b8' }}>
+                We couldn't find any patient requests matching your filters.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {requests.map((request, i) => {
+                  const isExpired = new Date(request.expiresAt).getTime() < new Date().getTime();
+                  const canBid = !isExpired && (request.status === 'Pending' || request.status === 'HasBids');
+                  const cfg = STATUS_CONFIG[request.status] || STATUS_CONFIG.Pending;
+                  const accent = ACCENT_COLORS[i % ACCENT_COLORS.length];
+
+                  return (
+                    <div
+                      key={request.id}
+                      className="bg-white rounded-2xl border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
+                      style={{ borderColor: '#f1f5f9' }}
+                      onClick={() => setActiveRequestId(request.id)}
+                    >
+                      {/* Accent top line */}
+                      <div className="h-[3px] w-full" style={{ backgroundColor: accent }} />
+
+                      <div className="p-6 flex-1 flex flex-col gap-4">
+                        
+                        {/* Top Meta: Request ID & Status */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-8 h-8 rounded-xl flex items-center justify-center"
+                              style={{ backgroundColor: accent + '18' }}
+                            >
+                              <Pill className="w-4 h-4" style={{ color: accent }} />
+                            </div>
+                            <span className="text-xs font-bold" style={{ color: '#94a3b8' }}>Request #{request.id}</span>
+                          </div>
+                          
+                          <span
+                            className="text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5"
+                            style={{ backgroundColor: cfg.bg, color: cfg.text }}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cfg.dot }} />
+                            {request.status}
+                          </span>
+                        </div>
+
+                        {/* Medicine Name */}
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#cbd5e1' }}>Medicine Name</p>
+                          <h3
+                            className="text-lg font-black tracking-tight line-clamp-2"
+                            style={{ color: isExpired ? '#94a3b8' : '#0f172a' }}
+                          >
+                            {request.medicineName}
+                          </h3>
+                        </div>
+
+                        {/* Delivery Area */}
+                        <div className="flex items-center gap-2 text-xs" style={{ color: '#64748b' }}>
+                          <MapPin className="w-3.5 h-3.5 shrink-0" style={{ color: '#10b981' }} />
+                          <span className="truncate" title={request.deliveryArea}>{request.deliveryArea}</span>
+                        </div>
+
+                        {/* Bids placed count if any */}
+                        {request.bidsCount > 0 && (
+                          <div className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full self-start" style={{ color: '#92400e', backgroundColor: '#fef3c7' }}>
+                            <Flame className="w-3.5 h-3.5" />
+                            {request.bidsCount} Bid{request.bidsCount !== 1 ? 's' : ''} Placed
+                          </div>
+                        )}
+
+                        {/* Date & Time info */}
+                        <div className="flex items-center justify-between text-[11px] pt-3 border-t mt-auto" style={{ borderColor: '#f1f5f9', color: '#94a3b8' }}>
+                          <span className="flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5" />
+                            {formatDate(request.createdAt)}
+                          </span>
+                          <span
+                            className="flex items-center gap-1.5 font-semibold px-2 py-0.5 rounded-full"
+                            style={isExpired
+                              ? { color: '#64748b', backgroundColor: '#f1f5f9' }
+                              : { color: '#0369a1', backgroundColor: '#e0f2fe' }}
+                          >
+                            <Clock className="w-3.5 h-3.5" />
+                            {isExpired ? 'Expired' : getRelativeTime(request.expiresAt)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Footer Details Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveRequestId(request.id);
+                        }}
+                        className="flex items-center justify-between px-6 py-4 w-full text-left transition-all border-t hover:opacity-85 active:scale-[0.99]"
+                        style={{ borderColor: '#f1f5f9', backgroundColor: '#fafafa' }}
+                      >
+                        <span className="text-xs font-bold" style={{ color: '#0f172a' }}>View Details</span>
+                        <div
+                          className="w-6 h-6 rounded-lg flex items-center justify-center"
+                          style={{ backgroundColor: accent + '18' }}
+                        >
+                          <ArrowRight className="w-3.5 h-3.5" style={{ color: accent }} />
+                        </div>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-1.5 pt-4">
+                  <button
+                    onClick={() => handlePageChange(Math.max(1, pageIndex - 1))}
+                    disabled={pageIndex === 1}
+                    className="w-9 h-9 rounded-xl border flex items-center justify-center transition-all disabled:opacity-40"
+                    style={{ backgroundColor: '#fff', borderColor: '#e2e8f0', color: '#475569' }}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                    <Button
+                    <button
                       key={pageNum}
-                      variant={pageIndex === pageNum ? "default" : "outline"}
                       onClick={() => handlePageChange(pageNum)}
-                      disabled={isLoading}
-                      className={`rounded-xl w-10 h-10 p-0 font-bold ${
-                        pageIndex === pageNum 
-                          ? 'bg-teal-600 hover:bg-teal-700 text-white border-transparent' 
-                          : 'text-slate-600 hover:text-slate-900 border-slate-200 hover:bg-slate-50'
-                      }`}
+                      className="w-9 h-9 rounded-xl text-xs font-bold border transition-all"
+                      style={pageIndex === pageNum
+                        ? { backgroundColor: '#0f172a', color: '#fff', borderColor: '#0f172a' }
+                        : { backgroundColor: '#fff', color: '#64748b', borderColor: '#e2e8f0' }}
                     >
                       {pageNum}
-                    </Button>
+                    </button>
                   ))}
+                  <button
+                    onClick={() => handlePageChange(Math.min(totalPages, pageIndex + 1))}
+                    disabled={pageIndex === totalPages}
+                    className="w-9 h-9 rounded-xl border flex items-center justify-center transition-all disabled:opacity-40"
+                    style={{ backgroundColor: '#fff', borderColor: '#e2e8f0', color: '#475569' }}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
-
-                <Button
-                  variant="outline"
-                  onClick={() => handlePageChange(Math.min(totalPages, pageIndex + 1))}
-                  disabled={pageIndex === totalPages || isLoading}
-                  className="rounded-xl font-bold text-slate-600 hover:text-slate-900 border-slate-200 w-10 h-10 p-0"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+              )}
+            </>
+          )}
+        </div>
 
       {/* Details Sheet */}
       <Sheet open={!!activeRequestId} onOpenChange={(isOpen) => !isOpen && setActiveRequestId(null)}>
-        <SheetContent className="w-full sm:max-w-md p-0 flex flex-col bg-white border-l-0 sm:border-l sm:rounded-l-2xl shadow-2xl">
+        <SheetContent className="w-full sm:max-w-md p-0 flex flex-col bg-white border-l-0 sm:border-l sm:rounded-l-3xl shadow-2xl">
           {activeRequestId && (
-            <RequestDetailsSheetContent 
-              id={activeRequestId} 
-              onClose={() => setActiveRequestId(null)} 
+            <RequestDetailsSheetContent
+              id={activeRequestId}
+              onClose={() => setActiveRequestId(null)}
             />
           )}
         </SheetContent>

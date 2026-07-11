@@ -5,9 +5,10 @@ import { NotificationBell } from '@/shared/ui/Notifications/NotificationBell';
 
 interface PharmacyTopNavProps {
   onMenuToggle: () => void;
+  isSidebarCollapsed?: boolean;
 }
 
-export const PharmacyTopNav: React.FC<PharmacyTopNavProps> = ({ onMenuToggle }) => {
+export const PharmacyTopNav: React.FC<PharmacyTopNavProps> = ({ onMenuToggle, isSidebarCollapsed }) => {
   const { user, clearAuth } = useAuthStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -36,7 +37,11 @@ export const PharmacyTopNav: React.FC<PharmacyTopNavProps> = ({ onMenuToggle }) 
   const displayEmail = user?.email || 'user@pharmacy.com';
 
   return (
-    <header className="bg-white border-b border-gray-200 h-16 fixed top-0 right-0 left-0 md:left-64 z-40 transition-all">
+    <header
+      className={`bg-white border-b border-gray-200 h-16 fixed top-0 right-0 left-0 z-40 transition-[left] duration-300 ease-in-out ${
+        isSidebarCollapsed ? 'md:left-20' : 'md:left-64'
+      }`}
+    >
       <div className="flex justify-between items-center h-full px-6">
         {/* Left Side: Mobile Menu Trigger */}
         <div className="flex items-center">

@@ -34,10 +34,11 @@ function getInitials(name: string): string {
 
 // ─── Component ──────────────────────────────────────────────────────────────
 export default function AdminPatientDetailsPage() {
-  const { applicationUserId } = useParams<{ applicationUserId: string }>();
+  const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
-  
-  const { data: patient, isLoading, isError } = useGetPatientProfileByUserIdQuery(applicationUserId);
+  const resolvedUserId = id;
+
+  const { data: patient, isLoading, isError } = useGetPatientProfileByUserIdQuery(resolvedUserId);
 
   // ─── Loading State ──────────────────────────────────────────────────────
   if (isLoading) {

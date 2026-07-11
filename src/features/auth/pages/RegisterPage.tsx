@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Pill, Mail, Lock, User, Phone, BadgeAlert } from 'lucide-react';
+import { motion, Variants } from 'framer-motion';
+import { Pill, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, CheckCircle2, ShieldCheck, Sparkles, Building } from 'lucide-react';
 import { useRegisterMutation } from '../hooks/useAuthMutations';
 import { UserRole } from '@/types/auth.types';
 
 export default function RegisterPage() {
   const { mutate, isPending } = useRegisterMutation();
+  const [showPassword, setShowPassword] = useState(false);
   
   const [formData, setFormData] = useState({
     displayName: '',
@@ -23,156 +25,372 @@ export default function RegisterPage() {
     }));
   };
 
+  const handleRoleSelect = (role: UserRole) => {
+    setFormData(prev => ({
+      ...prev,
+      role
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     mutate(formData);
   };
 
+  // Animation variants
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08
+      }
+    }
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: 'spring' as const,
+        stiffness: 100,
+        damping: 15
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <div className="w-16 h-16 bg-teal-600 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
-            <Pill className="w-10 h-10 text-white -rotate-3" />
-          </div>
+    <div className="min-h-screen bg-white flex font-sans overflow-x-hidden">
+      
+      {/* Left Column: Brand Hero & Value Prop (Hidden on Mobile) */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-[#075985] via-[#0369a1] to-[#0284c7] overflow-hidden items-center justify-center p-16 xl:p-20">
+        
+        {/* Animated ambient glowing backdrops in vibrant Sky Blue */}
+        <motion.div 
+          animate={{
+            scale: [1, 1.15, 1],
+            x: [0, 20, 0],
+            y: [0, -20, 0],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#bae6fd]/15 rounded-full blur-[100px]" 
+        />
+        <motion.div 
+          animate={{
+            scale: [1.1, 1, 1.1],
+            x: [0, -30, 0],
+            y: [0, 15, 0],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] bg-[#0284c7]/25 rounded-full blur-[120px]" 
+        />
+        
+        {/* Concentric rotating tech circles */}
+        <motion.div 
+          animate={{ rotate: 360 }}
+          transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+          className="absolute right-[-10%] top-[15%] w-[450px] h-[450px] border-[2px] border-dashed border-white/10 rounded-full pointer-events-none" 
+        />
+
+        {/* Left Column Content Container */}
+        <div className="relative z-10 w-full max-w-md flex flex-col justify-between h-full pr-8">
+          {/* Logo Brand */}
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex items-center gap-2.5"
+          >
+            <div className="w-10 h-10 bg-white/10 border border-white/20 rounded-xl flex items-center justify-center shadow-lg backdrop-blur-md">
+              <Pill className="w-5 h-5 text-[#bae6fd]" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-white font-sans">PharmaBridge</span>
+          </motion.div>
+
+          {/* Hero text & bullets */}
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="space-y-6 my-auto"
+          >
+            <motion.div 
+              variants={itemVariants}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#bae6fd]/15 border border-[#bae6fd]/25 backdrop-blur-sm text-xs font-semibold text-[#bae6fd] w-fit"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Premium Healthcare Solutions</span>
+            </motion.div>
+            
+            <motion.h1 
+              variants={itemVariants}
+              className="text-4xl xl:text-5xl font-serif font-bold text-white tracking-tight leading-[1.15]"
+            >
+              Connecting Health, <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#bae6fd] to-[#bae6fd]">
+                Bridging Care.
+              </span>
+            </motion.h1>
+            
+            <motion.p 
+              variants={itemVariants}
+              className="text-[#bae6fd]/85 text-sm leading-relaxed font-normal"
+            >
+              Join a unified network connecting patients and pharmacy stores. Track medication, request orders, and verify prescriptions instantly.
+            </motion.p>
+
+            {/* List of inline features */}
+            <motion.div variants={itemVariants} className="space-y-3 pt-4 text-xs text-[#bae6fd]/90 border-t border-white/10">
+              <div className="flex items-start gap-3">
+                <div className="p-1 bg-white/10 rounded-md">
+                  <CheckCircle2 className="w-4 h-4 text-white" />
+                </div>
+                <span>Direct Patient Connection</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="p-1 bg-white/10 rounded-md">
+                  <ShieldCheck className="w-4 h-4 text-white" />
+                </div>
+                <span>Safe & Secure Platform</span>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Footer status */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className="pt-4 border-t border-white/10 flex justify-between items-center text-[#bae6fd]/60 text-xs"
+          >
+            <span>© 2026 PharmaBridge</span>
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#bae6fd] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#bae6fd]"></span>
+              </span>
+              <span>Active</span>
+            </div>
+          </motion.div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 tracking-tight">
-          Join PharmaBridge
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Already have an account?{' '}
-          <Link to="/login" className="font-semibold text-teal-600 hover:text-teal-500 transition-colors">
-            Sign in here
-          </Link>
-        </p>
+
+        {/* Dynamic Wave Divider cutting into the dark column */}
+        <svg
+          className="absolute right-0 top-0 h-full w-32 text-white fill-current translate-x-[1px] pointer-events-none z-20"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <motion.path
+            animate={{
+              d: [
+                "M100,0 L0,0 C30,20 30,80 0,100 L100,100 Z",
+                "M100,0 L0,0 C45,30 15,70 0,100 L100,100 Z",
+                "M100,0 L0,0 C15,15 45,85 0,100 L100,100 Z",
+                "M100,0 L0,0 C30,20 30,80 0,100 L100,100 Z"
+              ]
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+        </svg>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-xl shadow-teal-900/5 sm:rounded-2xl sm:px-10 border border-gray-100">
+      {/* Right Column: Register Form */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-4 sm:px-8 md:px-16 lg:px-12 xl:px-20 py-12 bg-white relative overflow-hidden">
+        
+        {/* Ambient light graphic for mobile/tablet screens */}
+        <div className="lg:hidden absolute top-[-10%] right-[-10%] w-[60%] h-[30%] bg-[#bae6fd]/20 rounded-full blur-3xl -z-10" />
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mx-auto w-full max-w-md"
+        >
+          {/* Brand Logo for Mobile */}
+          <div className="flex lg:hidden justify-center mb-8">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-[#0284c7] rounded-xl flex items-center justify-center shadow-md">
+                <Pill className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold tracking-tight text-[#0369a1] font-sans">PharmaBridge</span>
+            </div>
+          </div>
+
+          <div className="text-center lg:text-left mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#bae6fd]/30 text-[#0369a1] text-xs font-semibold mb-3">
+              <Sparkles className="w-3.5 h-3.5 text-[#0284c7]" />
+              <span>Join PharmaBridge</span>
+            </div>
+            <h2 className="text-3xl font-serif font-bold text-[#0369a1] tracking-tight font-sans">
+              Create an account
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Already have an account?{' '}
+              <Link to="/login" className="font-semibold text-[#0284c7] hover:text-[#0369a1] hover:underline transition-all">
+                Sign in here
+              </Link>
+            </p>
+          </div>
+
           <form className="space-y-5" onSubmit={handleSubmit}>
             
-            {/* Display Name */}
+            {/* Custom Role Card Grid Selector (Only Patient and PharmacyOwner) */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="displayName">
-                Full Name
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="displayName"
-                  name="displayName"
-                  type="text"
-                  required
-                  className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-shadow"
-                  placeholder="John Doe"
-                  value={formData.displayName}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">
-                Email Address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-shadow"
-                  placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            {/* Phone Number */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="phoneNumber">
-                Phone Number
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Phone className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  type="tel"
-                  required
-                  className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-shadow"
-                  placeholder="+1 (555) 000-0000"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="password">
-                Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-shadow"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            {/* Role Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="role">
+              <label className="block text-sm font-semibold text-slate-700 mb-2.5">
                 I am signing up as a:
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <BadgeAlert className="h-5 w-5 text-gray-400" />
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { value: 'Patient', label: 'Patient (Customer)', icon: <User className="w-4.5 h-4.5" /> },
+                  { value: 'PharmacyOwner', label: 'Pharmacy Owner', icon: <Building className="w-4.5 h-4.5" /> }
+                ].map((roleOption) => {
+                  const isSelected = formData.role === roleOption.value;
+                  return (
+                    <motion.button
+                      key={roleOption.value}
+                      type="button"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleRoleSelect(roleOption.value as UserRole)}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl border text-center transition-all duration-200 group ${
+                        isSelected
+                          ? 'border-[#0284c7] bg-gradient-to-br from-white to-[#bae6fd]/15 text-[#0369a1] font-semibold ring-2 ring-[#0284c7]/20 shadow-md'
+                          : 'border-[#bae6fd] bg-white text-[#0284c7] hover:border-[#0284c7] hover:bg-[#bae6fd]/10'
+                      }`}
+                    >
+                      <div className={`p-2.5 rounded-lg mb-2 transition-colors duration-200 ${
+                        isSelected ? 'bg-[#0284c7] text-white' : 'bg-[#F8FAFC] text-[#0284c7] group-hover:text-[#0369a1]'
+                      }`}>
+                        {roleOption.icon}
+                      </div>
+                      <span className="text-xs tracking-tight">{roleOption.label}</span>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Inputs Container */}
+            <div className="space-y-4">
+              
+              {/* Display Name */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="displayName">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <User className="h-5 w-5 text-[#0284c7]" />
+                  </div>
+                  <input
+                    id="displayName"
+                    name="displayName"
+                    type="text"
+                    required
+                    className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-[#bae6fd] rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#0284c7]/10 focus:border-[#0284c7] sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]"
+                    placeholder="John Doe"
+                    value={formData.displayName}
+                    onChange={handleChange}
+                  />
                 </div>
-                <select
-                  id="role"
-                  name="role"
-                  className="appearance-none block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-shadow"
-                  value={formData.role}
-                  onChange={handleChange}
-                >
-                  <option value="Patient">Patient (Customer)</option>
-                  <option value="PharmacyOwner">Pharmacy Owner</option>
-                  <option value="Admin">System Administrator</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                  </svg>
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="email">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-[#0284c7]" />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-[#bae6fd] rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#0284c7]/10 focus:border-[#0284c7] sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]"
+                    placeholder="you@example.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              {/* Phone Number */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="phoneNumber">
+                  Phone Number
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <Phone className="h-5 w-5 text-[#0284c7]" />
+                  </div>
+                  <input
+                    id="phoneNumber"
+                    name="phoneNumber"
+                    type="tel"
+                    required
+                    className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-[#bae6fd] rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#0284c7]/10 focus:border-[#0284c7] sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]"
+                    placeholder="+1 (555) 000-0000"
+                    value={formData.phoneNumber}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="password">
+                  Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-[#0284c7]" />
+                  </div>
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    className="appearance-none block w-full pl-10 pr-10 py-2.5 border border-[#bae6fd] rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#0284c7]/10 focus:border-[#0284c7] sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]"
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-[#0369a1] transition-colors"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
               </div>
             </div>
 
             {/* Submit Button */}
             <div className="pt-2">
-              <button
+              <motion.button
                 type="submit"
                 disabled={isPending}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg shadow-[#0284c7]/10 text-sm font-bold text-white bg-gradient-to-r from-[#0284c7] to-[#0369a1] hover:from-[#0369a1] hover:to-[#0284c7] transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {isPending ? (
                   <div className="flex items-center gap-2">
@@ -180,21 +398,24 @@ export default function RegisterPage() {
                     <span>Creating account...</span>
                   </div>
                 ) : (
-                  'Create Account'
+                  <div className="flex items-center gap-1.5">
+                    <span>Create Account</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
                 )}
-              </button>
+              </motion.button>
             </div>
           </form>
 
           {/* Policy disclaimer */}
-          <div className="mt-6">
-            <p className="text-xs text-center text-gray-500 leading-relaxed">
+          <div className="mt-8 text-center">
+            <p className="text-xs text-slate-400 leading-relaxed">
               By creating an account, you agree to our{' '}
-              <a href="#" className="font-medium text-teal-600 hover:underline">Terms of Service</a> and{' '}
-              <a href="#" className="font-medium text-teal-600 hover:underline">Privacy Policy</a>.
+              <a href="#" className="font-semibold text-slate-500 hover:text-[#0369a1] underline">Terms of Service</a> and{' '}
+              <a href="#" className="font-semibold text-slate-500 hover:text-[#0369a1] underline">Privacy Policy</a>.
             </p>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
