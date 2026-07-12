@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMyPharmacyProfileQuery } from '../hooks/usePharmacyProfile';
 import { useGetPharmacyDashboardQuery } from '../hooks/useGetPharmacyDashboardQuery';
 import { motion } from 'framer-motion';
@@ -73,9 +73,9 @@ const kpiDefs = [
     label: 'Total Revenue',
     growthLabel: 'vs last month',
     icon: Wallet,
-    accent: '#10b981',
-    bg: '#ecfdf5',
-    text: '#065f46',
+    iconClass: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20',
+    topBarClass: 'bg-emerald-500 dark:bg-emerald-400',
+    badgeClass: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400',
     format: formatCurrency,
   },
   {
@@ -84,9 +84,9 @@ const kpiDefs = [
     label: 'Active Bids',
     growthLabel: 'vs yesterday',
     icon: Tag,
-    accent: '#f59e0b',
-    bg: '#fffbeb',
-    text: '#92400e',
+    iconClass: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20',
+    topBarClass: 'bg-amber-500 dark:bg-amber-400',
+    badgeClass: 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400',
   },
   {
     key: 'completedOrders' as const,
@@ -94,9 +94,9 @@ const kpiDefs = [
     label: 'Completed Orders',
     growthLabel: 'vs last week',
     icon: PackageCheck,
-    accent: '#0ea5e9',
-    bg: '#f0f9ff',
-    text: '#0369a1',
+    iconClass: 'text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/20',
+    topBarClass: 'bg-sky-500 dark:bg-sky-400',
+    badgeClass: 'bg-sky-50 text-sky-700 dark:bg-sky-950/30 dark:text-sky-400',
   },
   {
     key: 'newPatients' as const,
@@ -104,9 +104,9 @@ const kpiDefs = [
     label: 'New Patients',
     growthLabel: 'vs last month',
     icon: Users,
-    accent: '#6366f1',
-    bg: '#f5f3ff',
-    text: '#4f46e5',
+    iconClass: 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/20',
+    topBarClass: 'bg-indigo-500 dark:bg-indigo-400',
+    badgeClass: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400',
   },
 ];
 
@@ -114,74 +114,47 @@ const kpiDefs = [
 function GrowthBadge({ value, label }: { value: number; label: string }) {
   if (value > 0) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
-        <span style={{
-          display: 'inline-flex', alignItems: 'center', gap: 4,
-          padding: '2px 8px', borderRadius: 20,
-          background: '#ecfdf5', color: '#065f46',
-          fontSize: 11, fontWeight: 700,
-        }}>
-          <TrendingUp style={{ width: 12, height: 12 }} />
+      <div className="flex items-center gap-1.5 mt-3">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-[10px] font-bold">
+          <TrendingUp className="w-3 h-3" />
           +{value}%
         </span>
-        <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500 }}>{label}</span>
+        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">{label}</span>
       </div>
     );
   }
   if (value < 0) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
-        <span style={{
-          display: 'inline-flex', alignItems: 'center', gap: 4,
-          padding: '2px 8px', borderRadius: 20,
-          background: '#fff1f2', color: '#9f1239',
-          fontSize: 11, fontWeight: 700,
-        }}>
-          <TrendingDown style={{ width: 12, height: 12 }} />
+      <div className="flex items-center gap-1.5 mt-3">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-705 dark:bg-rose-950/30 dark:text-rose-400 text-[10px] font-bold">
+          <TrendingDown className="w-3 h-3" />
           {value}%
         </span>
-        <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500 }}>{label}</span>
+        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">{label}</span>
       </div>
     );
   }
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
-      <span style={{
-        display: 'inline-flex', alignItems: 'center', gap: 4,
-        padding: '2px 8px', borderRadius: 20,
-        background: '#f8fafc', color: '#64748b',
-        fontSize: 11, fontWeight: 700,
-      }}>
-        <Minus style={{ width: 12, height: 12 }} />
+    <div className="flex items-center gap-1.5 mt-3">
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-50 text-slate-650 dark:bg-slate-800 dark:text-slate-400 text-[10px] font-bold">
+        <Minus className="w-3 h-3" />
         0%
       </span>
-      <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500 }}>{label}</span>
+      <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">{label}</span>
     </div>
   );
 }
 
-function ActivityIcon({ type, accent }: { type: string; accent: string }) {
+function ActivityIcon({ type, classes }: { type: string; classes: { bg: string; text: string } }) {
   const t = type?.toLowerCase() ?? '';
-
-  if (t === 'ordercompleted') {
-    return (
-      <div style={{
-        width: 36, height: 36, borderRadius: 10,
-        background: accent + '15',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-      }}>
-        <Package style={{ width: 16, height: 16, color: accent }} />
-      </div>
-    );
-  }
-
+  const isOrder = t === 'ordercompleted';
   return (
-    <div style={{
-      width: 36, height: 36, borderRadius: 10,
-      background: accent + '15',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-    }}>
-      <Zap style={{ width: 16, height: 16, color: accent }} />
+    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${classes.bg}`}>
+      {isOrder ? (
+        <Package className={`w-4 h-4 ${classes.text}`} />
+      ) : (
+        <Zap className={`w-4 h-4 ${classes.text}`} />
+      )}
     </div>
   );
 }
@@ -190,12 +163,9 @@ function ActivityIcon({ type, accent }: { type: string; accent: string }) {
 function ChartTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{
-      background: '#0f172a', borderRadius: 12, padding: '10px 14px',
-      boxShadow: '0 4px 20px rgba(15,23,42,0.15)', border: 'none',
-    }}>
-      <p style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2, fontWeight: 600 }}>{label}</p>
-      <p style={{ fontSize: 14, fontWeight: 950, color: '#fff', margin: 0 }}>
+    <div className="bg-slate-900 dark:bg-slate-950 rounded-xl p-3 shadow-lg border border-slate-800">
+      <p className="text-[10px] text-slate-400 dark:text-slate-550 mb-0.5 font-semibold">{label}</p>
+      <p className="text-sm font-black text-white">
         {formatCurrency(payload[0].value)}
       </p>
     </div>
@@ -204,19 +174,16 @@ function ChartTooltip({ active, payload, label }: any) {
 
 /* ─── Skeleton ──────────────────────────────────────────────────────────── */
 function DashboardSkeleton() {
-  const shimmerStyle: React.CSSProperties = {
-    borderRadius: 16, background: 'linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%)',
-    backgroundSize: '200% 100%', animation: 'shimmer 1.5s ease-in-out infinite',
-  };
+  const shimmerStyle = "animate-pulse bg-slate-200 dark:bg-slate-800 rounded-2xl";
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingTop: '32px', paddingLeft: '24px', paddingRight: '24px', paddingBottom: '24px' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ ...shimmerStyle, height: 28, width: 220 }} />
-        <div style={{ ...shimmerStyle, height: 16, width: 320 }} />
+    <div className="flex flex-col gap-6 pt-8 px-6 pb-6">
+      <div className="flex flex-col gap-2">
+        <div className={`${shimmerStyle} h-7 w-56`} />
+        <div className={`${shimmerStyle} h-4 w-80`} />
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 20 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {[1, 2, 3, 4].map(i => (
-          <div key={i} style={{ ...shimmerStyle, height: 140, background: '#fff', border: '1px solid #f1f5f9' }} />
+          <div key={i} className="h-36 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl animate-pulse" />
         ))}
       </div>
     </div>
@@ -230,104 +197,89 @@ export default function PharmacyOwnerDashboard() {
   const { data: profile } = useMyPharmacyProfileQuery();
   const pharmacyId = profile?.id;
   const { data: dashboard, isLoading } = useGetPharmacyDashboardQuery(pharmacyId);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    setIsDark(document.documentElement.classList.contains('dark'));
+    return () => observer.disconnect();
+  }, []);
 
   if (isLoading || !dashboard) {
     return <DashboardSkeleton />;
   }
 
+  const primaryAccentColor = isDark ? '#0ea5e9' : '#0d9488';
+
   return (
     <motion.div
       variants={stagger} initial="hidden" animate="visible"
-      style={{
-        display: 'flex', flexDirection: 'column', gap: 24,
-        paddingTop: '32px', paddingLeft: '24px', paddingRight: '24px', paddingBottom: '24px'
-      }}
+      className="flex flex-col gap-6 pt-8 px-6 pb-6"
     >
       {/* ── Header ── */}
-      <motion.div variants={fadeUp} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+      <motion.div variants={fadeUp} className="flex justify-between items-center flex-wrap gap-4">
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-            <span style={{ position: 'relative', width: 8, height: 8, display: 'inline-flex' }}>
-              <span style={{
-                position: 'absolute', inset: 0, borderRadius: '50%', background: '#10b981',
-                animation: 'ping 1.5s cubic-bezier(0,0,0.2,1) infinite', opacity: 0.75,
-              }} />
-              <span style={{ position: 'relative', width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} />
+          <div className="flex items-center gap-1.5 mb-1">
+            <span className="relative w-2 h-2 flex">
+              <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75" />
+              <span className="relative w-2 h-2 rounded-full bg-emerald-500" />
             </span>
-            <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+            <span className="text-[10px] font-extrabold text-emerald-500 dark:text-emerald-455 uppercase tracking-widest">
               Live Overview
             </span>
           </div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-0.019em' }}>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             Pharmacy Overview
           </h1>
-          <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 3, margin: 0 }}>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Real-time insights and analytics for your pharmacy operations.
           </p>
         </div>
         
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          padding: '8px 14px', background: '#fff', borderRadius: 12,
-          border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-        }}>
-          <Clock style={{ width: 14, height: 14, color: '#0ea5e9' }} />
-          <span style={{ fontSize: 12, fontWeight: 700, color: '#475569' }}>
+        <div className="flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-805 rounded-xl shadow-sm">
+          <Clock className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
+          <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
           </span>
         </div>
       </motion.div>
 
       {/* ── KPI Cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: 20 }}>
-        {kpiDefs.map((kpi, idx) => {
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {kpiDefs.map((kpi) => {
           const value = dashboard[kpi.key];
           const growth = dashboard[kpi.growthKey];
           const display = kpi.format ? kpi.format(value) : String(value);
           const Icon = kpi.icon;
-          const accent = kpi.accent;
 
           return (
             <motion.div
               key={kpi.key}
               variants={fadeUp}
-              whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(15,23,42,0.05)' }}
-              style={{
-                background: '#fff',
-                borderRadius: 16,
-                padding: 20,
-                border: '1px solid #f1f5f9',
-                cursor: 'default',
-                transition: 'all 0.25s ease',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.01)',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
+              whileHover={{ y: -2 }}
+              className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 hover:shadow-md transition-all duration-200 relative overflow-hidden"
             >
               {/* Thin top bar */}
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: accent }} />
+              <div className={`absolute top-0 left-0 right-0 h-0.5 ${kpi.topBarClass}`} />
 
-              <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div
-                    className="w-8 h-8 rounded-xl flex items-center justify-center"
-                    style={{ backgroundColor: accent + '18' }}
-                  >
-                    <Icon style={{ width: 16, height: 16, color: accent }} />
+              <div className="relative flex flex-col gap-3.5">
+                <div className="flex justify-between items-center">
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${kpi.iconClass}`}>
+                    <Icon className="w-4 h-4" />
                   </div>
-                  <span
-                    className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                    style={{ backgroundColor: kpi.bg, color: kpi.text }}
-                  >
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${kpi.badgeClass}`}>
                     Active
                   </span>
                 </div>
 
                 <div>
-                  <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8', margin: '0 0 2px 0' }}>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-0.5">
                     {kpi.label}
                   </p>
-                  <h3 style={{ fontSize: 26, fontWeight: 950, color: '#0f172a', margin: 0, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                     {display}
                   </h3>
                 </div>
@@ -340,64 +292,50 @@ export default function PharmacyOwnerDashboard() {
       </div>
 
       {/* ── Chart + Activity ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }} className="lg:!grid-cols-[2fr_1fr]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[2fr_1fr]">
 
         {/* Revenue Chart */}
-        <motion.div variants={fadeUp} style={{
-          background: '#fff', borderRadius: 16,
-          border: '1px solid #f1f5f9', overflow: 'hidden',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.01)',
-        }}>
+        <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
           {/* Header */}
-          <div style={{
-            padding: '16px 20px', borderBottom: '1px solid #f1f5f9',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            background: '#fafafa',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: 10,
-                background: '#0d948818', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center'
-              }}>
-                <BarChart3 style={{ width: 18, height: 18, color: '#0d9488' }} />
+          <div className="padding-6 py-4 px-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/30">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/30 flex items-center justify-center">
+                <BarChart3 className="w-4.5 h-4.5 text-teal-600 dark:text-teal-400" />
               </div>
               <div>
-                <h2 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: 0 }}>Revenue Trajectory</h2>
-                <p style={{ fontSize: 11, color: '#94a3b8', margin: 0 }}>Monthly revenue performance</p>
+                <h2 className="text-sm font-extrabold text-slate-900 dark:text-white">Revenue Trajectory</h2>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500">Monthly revenue performance</p>
               </div>
             </div>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              padding: '4px 10px', background: '#ecfdf5', borderRadius: 8,
-            }}>
-              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#10b981' }} />
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#065f46' }}>Live</span>
+            <div className="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400">Live</span>
             </div>
           </div>
 
           {/* Chart */}
-          <div style={{ padding: '20px 10px 10px 10px', height: 300 }}>
+          <div className="p-5 pl-0 pr-2 h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={dashboard.revenueChart} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="dashRevGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#0d9488" stopOpacity={0.2} />
-                    <stop offset="100%" stopColor="#0d9488" stopOpacity={0} />
+                    <stop offset="0%" stopColor={primaryAccentColor} stopOpacity={0.2} />
+                    <stop offset="100%" stopColor={primaryAccentColor} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#1e293b' : '#f1f5f9'} />
                 <XAxis dataKey="date" axisLine={false} tickLine={false}
-                  tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 600 }} dy={8} />
+                  tick={{ fontSize: 10, fill: isDark ? '#64748b' : '#94a3b8', fontWeight: 600 }} dy={8} />
                 <YAxis axisLine={false} tickLine={false}
-                  tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 600 }}
+                  tick={{ fontSize: 10, fill: isDark ? '#64748b' : '#94a3b8', fontWeight: 600 }}
                   tickFormatter={val => val >= 1000 ? `${(val / 1000).toFixed(0)}k` : `${val}`} />
                 <Tooltip content={<ChartTooltip />}
-                  cursor={{ stroke: '#0d9488', strokeWidth: 1.5, strokeDasharray: '4 4' }} />
+                  cursor={{ stroke: primaryAccentColor, strokeWidth: 1.5, strokeDasharray: '4 4' }} />
                 <Area type="monotone" dataKey="revenue"
-                  stroke="#0d9488" strokeWidth={2.5}
+                  stroke={primaryAccentColor} strokeWidth={2.5}
                   fill="url(#dashRevGrad)" fillOpacity={1}
-                  dot={{ r: 3, fill: '#0d9488', stroke: '#fff', strokeWidth: 2 }}
-                  activeDot={{ r: 5, fill: '#0d9488', stroke: '#fff', strokeWidth: 2 }}
+                  dot={{ r: 3, fill: primaryAccentColor, stroke: isDark ? '#0f172a' : '#fff', strokeWidth: 2 }}
+                  activeDot={{ r: 5, fill: primaryAccentColor, stroke: isDark ? '#0f172a' : '#fff', strokeWidth: 2 }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -405,81 +343,48 @@ export default function PharmacyOwnerDashboard() {
         </motion.div>
 
         {/* Recent Activity */}
-        <motion.div variants={fadeUp} style={{
-          background: '#fff', borderRadius: 16,
-          border: '1px solid #f1f5f9', overflow: 'hidden',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.01)',
-          display: 'flex', flexDirection: 'column',
-        }}>
+        <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm flex flex-col">
           {/* Header */}
-          <div style={{
-            padding: '16px 20px', borderBottom: '1px solid #f1f5f9',
-            display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0,
-            background: '#fafafa',
-          }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: 10,
-              background: '#6366f118', display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}>
-              <Sparkles style={{ width: 18, height: 18, color: '#6366f1' }} />
+          <div className="py-4 px-5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2.5 bg-slate-50/50 dark:bg-slate-900/30">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center">
+              <Sparkles className="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
             </div>
             <div>
-              <h2 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: 0 }}>Recent Activity</h2>
-              <p style={{ fontSize: 11, color: '#94a3b8', margin: 0 }}>Latest updates</p>
+              <h2 className="text-sm font-extrabold text-slate-900 dark:text-white">Recent Activity</h2>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500">Latest updates</p>
             </div>
           </div>
 
           {/* List */}
-          <div className="custom-scrollbar" style={{ padding: 12, overflowY: 'auto', flex: 1, maxHeight: 310 }}>
+          <div className="custom-scrollbar p-3 overflow-y-auto flex-1 max-h-[310px]">
             {!dashboard.recentActivities || dashboard.recentActivities.length === 0 ? (
-              <div style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyItems: 'center', justifyContent: 'center',
-                height: '100%', textAlign: 'center', padding: '48px 0',
-              }}>
-                <div style={{
-                  width: 48, height: 48, borderRadius: 12, background: '#f8fafc',
-                  display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', marginBottom: 12,
-                }}>
-                  <Info style={{ width: 20, height: 20, color: '#cbd5e1' }} />
+              <div className="flex flex-col items-center justify-center h-full text-center py-12">
+                <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-955 flex items-center justify-center mb-3">
+                  <Info className="w-5 h-5 text-slate-300 dark:text-slate-600" />
                 </div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: '#94a3b8', margin: 0 }}>No recent activity</p>
+                <p className="text-xs font-bold text-slate-450 dark:text-slate-500">No recent activity</p>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <div className="flex flex-col gap-1">
                 {dashboard.recentActivities.map((activity, i) => (
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.04 + 0.15 }}
-                    style={{
-                      display: 'flex', alignItems: 'flex-start', gap: 10,
-                      padding: 10, borderRadius: 10, cursor: 'default',
-                      transition: 'background 0.15s ease',
-                    }}
-                    className="hover:bg-slate-50"
+                    className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                   >
-                    <ActivityIcon type={activity.type} accent={ACCENT_COLORS[i % ACCENT_COLORS.length]} />
-                    <div style={{ flex: 1, minWidth: 0, paddingTop: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
-                        <h4 style={{
-                          fontSize: 13, fontWeight: 700, color: '#0f172a', margin: 0,
-                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                        }}>
+                    <ActivityIcon type={activity.type} classes={ACCENT_CLASSES[i % ACCENT_CLASSES.length]} />
+                    <div className="flex-1 min-w-0 pt-0.5">
+                      <div className="flex justify-between items-center gap-2">
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
                           {activity.title}
                         </h4>
-                        <span style={{
-                          fontSize: 9, fontWeight: 700, color: '#94a3b8', whiteSpace: 'nowrap',
-                          background: '#f8fafc', padding: '2px 6px', borderRadius: 6, flexShrink: 0,
-                        }}>
+                        <span className="text-[8px] font-bold text-slate-400 dark:text-slate-550 bg-slate-50 dark:bg-slate-850 px-2 py-0.5 rounded-md flex-shrink-0">
                           {formatTimeAgo(activity.createdAt)}
                         </span>
                       </div>
-                      <p style={{
-                        fontSize: 11, color: '#64748b', margin: '2px 0 0', lineHeight: 1.4,
-                        overflow: 'hidden', textOverflow: 'ellipsis',
-                        display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical',
-                      }}>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed truncate">
                         {activity.description}
                       </p>
                     </div>
@@ -491,20 +396,10 @@ export default function PharmacyOwnerDashboard() {
 
           {/* Footer */}
           {dashboard.recentActivities && dashboard.recentActivities.length > 0 && (
-            <div style={{
-              padding: '10px 16px', borderTop: '1px solid #f1f5f9', flexShrink: 0,
-              background: '#fafafa',
-            }}>
-              <button style={{
-                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-                fontSize: 12, fontWeight: 800, color: '#0d9488',
-                padding: '6px 0', borderRadius: 8, border: 'none', background: 'transparent',
-                cursor: 'pointer', transition: 'background 0.15s ease',
-              }}
-                className="hover:bg-teal-50"
-              >
+            <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
+              <button className="w-full flex items-center justify-center gap-1 text-xs font-bold text-teal-600 dark:text-teal-400 py-1.5 rounded-lg hover:bg-teal-50 dark:hover:bg-teal-950/20 transition-colors">
                 View all activity
-                <ArrowUpRight style={{ width: 12, height: 12 }} />
+                <ArrowUpRight className="w-3.5 h-3.5" />
               </button>
             </div>
           )}
@@ -514,4 +409,13 @@ export default function PharmacyOwnerDashboard() {
   );
 }
 
-const ACCENT_COLORS = ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ec4899','#8b5cf6','#14b8a6','#f97316'];
+const ACCENT_CLASSES = [
+  { bg: 'bg-indigo-50 dark:bg-indigo-950/20', text: 'text-indigo-600 dark:text-indigo-400' },
+  { bg: 'bg-sky-50 dark:bg-sky-950/20', text: 'text-sky-600 dark:text-sky-400' },
+  { bg: 'bg-emerald-50 dark:bg-emerald-950/20', text: 'text-emerald-600 dark:text-emerald-400' },
+  { bg: 'bg-amber-50 dark:bg-amber-950/20', text: 'text-amber-600 dark:text-amber-400' },
+  { bg: 'bg-pink-50 dark:bg-pink-950/20', text: 'text-pink-600 dark:text-pink-400' },
+  { bg: 'bg-violet-50 dark:bg-violet-950/20', text: 'text-violet-600 dark:text-violet-400' },
+  { bg: 'bg-teal-50 dark:bg-teal-950/20', text: 'text-teal-600 dark:text-teal-400' },
+  { bg: 'bg-orange-50 dark:bg-orange-950/20', text: 'text-orange-600 dark:text-orange-400' },
+];

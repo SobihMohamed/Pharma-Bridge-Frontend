@@ -53,11 +53,11 @@ const STATUS_TABS = [
   { label: "Cancelled", value: "Cancelled" },
 ];
 
-const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string }> = {
-  Pending:   { bg: '#ecfdf5', text: '#065f46', dot: '#10b981' },
-  HasBids:   { bg: '#eff6ff', text: '#1e40af', dot: '#3b82f6' },
-  Closed:    { bg: '#f5f3ff', text: '#6d28d9', dot: '#8b5cf6' },
-  Cancelled: { bg: '#fff1f2', text: '#9f1239', dot: '#f43f5e' },
+const STATUS_CONFIG: Record<string, { badgeClass: string; dotClass: string }> = {
+  Pending:   { badgeClass: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400', dotClass: 'bg-emerald-500' },
+  HasBids:   { badgeClass: 'bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400', dotClass: 'bg-blue-500' },
+  Closed:    { badgeClass: 'bg-violet-50 text-violet-700 dark:bg-violet-950/30 dark:text-violet-400', dotClass: 'bg-violet-500' },
+  Cancelled: { badgeClass: 'bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400', dotClass: 'bg-rose-500' },
 };
 
 const ACCENT_COLORS = ['#0ea5e9', '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316'];
@@ -94,13 +94,13 @@ function RequestDetailsSheetContent({ id, onClose }: RequestDetailsSheetContentP
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-full space-y-5 p-6 bg-white">
-        <div className="w-full h-48 bg-slate-100 rounded-2xl animate-pulse" />
-        <div className="h-7 bg-slate-100 rounded-xl w-3/4 animate-pulse mt-4" />
-        <div className="h-4 bg-slate-100 rounded-xl w-1/2 animate-pulse" />
+      <div className="flex flex-col h-full space-y-5 p-6 bg-white dark:bg-slate-900">
+        <div className="w-full h-48 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />
+        <div className="h-7 bg-slate-100 dark:bg-slate-800 rounded-xl w-3/4 animate-pulse mt-4" />
+        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-xl w-1/2 animate-pulse" />
         <div className="space-y-2 mt-6">
-          <div className="h-4 bg-slate-100 rounded-xl w-full animate-pulse" />
-          <div className="h-4 bg-slate-100 rounded-xl w-full animate-pulse" />
+          <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-xl w-full animate-pulse" />
+          <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-xl w-full animate-pulse" />
         </div>
       </div>
     );
@@ -108,15 +108,15 @@ function RequestDetailsSheetContent({ id, onClose }: RequestDetailsSheetContentP
 
   if (isError || !request) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-6 space-y-4 bg-white">
-        <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center">
+      <div className="flex flex-col items-center justify-center h-full text-center p-6 space-y-4 bg-white dark:bg-slate-900">
+        <div className="w-16 h-16 bg-rose-50 dark:bg-rose-950/20 rounded-full flex items-center justify-center">
           <X className="w-8 h-8 text-rose-400" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-slate-900">Failed to load details</h3>
-          <p className="text-sm text-slate-500 mt-1">The request might have been removed or expired.</p>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">Failed to load details</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">The request might have been removed or expired.</p>
         </div>
-        <Button variant="outline" onClick={onClose} className="mt-4 rounded-xl">Close</Button>
+        <Button variant="outline" onClick={onClose} className="mt-4 rounded-xl dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800">Close</Button>
       </div>
     );
   }
@@ -124,30 +124,33 @@ function RequestDetailsSheetContent({ id, onClose }: RequestDetailsSheetContentP
   const isExpired = new Date(request.expiresAt).getTime() < new Date().getTime();
   const canBid = !isExpired && (request.status === 'Pending' || request.status === 'HasBids');
   const cfg = STATUS_CONFIG[request.status] || STATUS_CONFIG.Pending;
+  const accent = ACCENT_COLORS[request.id % ACCENT_COLORS.length];
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      <SheetHeader className="px-6 py-5 border-b border-slate-100 shrink-0 text-left bg-slate-50/50">
+    <div className="flex flex-col h-full bg-white dark:bg-slate-900">
+      <SheetHeader className="px-6 py-5 border-b border-slate-150 dark:border-slate-800 shrink-0 text-left bg-slate-50/50 dark:bg-slate-950/20">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-sky-650 flex items-center justify-center shrink-0 shadow-sm" style={{ background: 'linear-gradient(135deg,#0284c7,#0369a1)' }}>
-              <Pill className="w-5 h-5 text-white" />
+            <div 
+              className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-sm" 
+              style={{ backgroundColor: accent + '18', marginRight: '14px' }}
+            >
+              <Pill className="w-5 h-5" style={{ color: accent }} />
             </div>
             <div>
-              <SheetTitle className="text-lg font-black text-slate-900 leading-tight">
+              <SheetTitle className="text-lg font-black text-slate-900 dark:text-white leading-tight">
                 {request.medicineName}
               </SheetTitle>
-              <SheetDescription className="text-xs font-semibold text-slate-400 mt-1.5 flex items-center gap-1.5">
+              <SheetDescription className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-1.5 flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5" />
                 Posted {formatDate(request.createdAt)}
               </SheetDescription>
             </div>
           </div>
           <span
-            className="shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full border flex items-center gap-1.5"
-            style={{ backgroundColor: cfg.bg, color: cfg.text, borderColor: 'transparent' }}
+            className={`shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full border border-transparent flex items-center gap-1.5 ${cfg.badgeClass}`}
           >
-            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cfg.dot }} />
+            <span className={`w-1.5 h-1.5 rounded-full ${cfg.dotClass}`} />
             {request.status}
           </span>
         </div>
@@ -155,7 +158,7 @@ function RequestDetailsSheetContent({ id, onClose }: RequestDetailsSheetContentP
 
       <ScrollArea className="flex-1">
         <div className="p-6 space-y-6">
-          <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 relative group flex items-center justify-center">
+          <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800/80 relative group flex items-center justify-center">
             {request.imageUrl ? (
               <img
                 src={request.imageUrl}
@@ -164,8 +167,8 @@ function RequestDetailsSheetContent({ id, onClose }: RequestDetailsSheetContentP
               />
             ) : (
               <div className="flex flex-col items-center justify-center text-slate-450 p-6">
-                <HeartPulse className="w-10 h-10 mb-2 text-sky-400" />
-                <span className="text-xs font-bold text-slate-400">No Prescription Image</span>
+                <HeartPulse className="w-10 h-10 mb-2 text-sky-400 dark:text-sky-500" />
+                <span className="text-xs font-bold text-slate-400 dark:text-slate-500">No Prescription Image</span>
               </div>
             )}
             <div className="absolute inset-0 bg-black/5 pointer-events-none" />
@@ -173,44 +176,46 @@ function RequestDetailsSheetContent({ id, onClose }: RequestDetailsSheetContentP
 
           <div className="space-y-4">
             <div>
-              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+              <h4 className="text-[10px] font-bold text-slate-450 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5 text-emerald-500" />
                 Delivery Area
               </h4>
-              <p className="text-sm font-semibold text-slate-700 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-350 bg-slate-50 dark:bg-slate-950/20 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800">
                 {request.deliveryArea}
               </p>
             </div>
 
             {request.patientNotes && (
               <div>
-                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                <h4 className="text-[10px] font-bold text-slate-450 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                   <ImageIcon className="w-3.5 h-3.5 text-violet-500" />
                   Patient Notes
                 </h4>
-                <p className="text-sm text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 leading-relaxed whitespace-pre-wrap font-medium">
+                <p className="text-sm text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-950/20 p-4 rounded-xl border border-slate-100 dark:border-slate-800 leading-relaxed whitespace-pre-wrap font-medium">
                   {request.patientNotes}
                 </p>
               </div>
             )}
 
             <div className="grid grid-cols-2 gap-3 pt-2">
-              <div className="bg-amber-50/30 p-4 rounded-xl border border-amber-100">
-                <div className="flex items-center gap-2 text-amber-600 mb-1 font-bold text-xs uppercase tracking-wide">
+              <div className="bg-amber-50/30 dark:bg-amber-950/10 p-4 rounded-xl border border-amber-100 dark:border-amber-900/35">
+                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-500 mb-1 font-bold text-xs uppercase tracking-wide">
                   <Flame className="w-4 h-4" />
                   Bids Placed
                 </div>
-                <p className="text-2xl font-black text-slate-800 tracking-tight">
+                <p className="text-2xl font-black text-slate-800 dark:text-slate-200 tracking-tight">
                   {request.bidsCount} <span className="text-xs font-semibold text-slate-400">offers</span>
                 </p>
               </div>
 
-              <div className={`p-4 rounded-xl border ${isExpired ? 'bg-slate-50 border-slate-200' : 'bg-sky-50/30 border-sky-100'}`}>
-                <div className={`flex items-center gap-2 mb-1 font-bold text-xs uppercase tracking-wide ${isExpired ? 'text-slate-500' : 'text-sky-600'}`}>
+              <div className={`p-4 rounded-xl border ${isExpired ? 'bg-slate-50 dark:bg-slate-950/20 border-slate-200 dark:border-slate-800' : 'bg-sky-50/30 dark:bg-sky-950/10 border-sky-100 dark:border-sky-900/30'}`}>
+                <div 
+                  className={`flex items-center gap-2 mb-1 font-bold text-xs uppercase tracking-wide ${isExpired ? 'text-slate-500 dark:text-slate-400' : 'text-sky-600 dark:text-sky-400'}`}
+                >
                   <Clock className="w-4 h-4" />
                   Time Remaining
                 </div>
-                <p className="text-2xl font-black text-slate-800 tracking-tight">
+                <p className="text-2xl font-black text-slate-800 dark:text-slate-200 tracking-tight">
                   {isExpired ? 'Expired' : getRelativeTime(request.expiresAt)}
                 </p>
               </div>
@@ -219,12 +224,9 @@ function RequestDetailsSheetContent({ id, onClose }: RequestDetailsSheetContentP
         </div>
       </ScrollArea>
 
-      <div className="p-4 border-t border-slate-100 bg-white shrink-0">
+      <div className="p-4 border-t border-slate-150 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
         <Button
-          className="w-full h-11 text-xs font-bold rounded-xl transition-all"
-          style={canBid
-            ? { background: 'linear-gradient(135deg,#0284c7,#0369a1)', color: '#ffffff', boxShadow: '0 2px 8px rgba(3,105,161,0.25)' }
-            : { backgroundColor: '#f1f5f9', color: '#94a3b8', cursor: 'not-allowed' }}
+          className={`w-full h-11 text-xs font-bold rounded-xl transition-all ${canBid ? 'bg-gradient-to-br from-sky-600 to-sky-700 text-white shadow-md shadow-sky-600/25 hover:from-sky-500 hover:to-sky-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed'}`}
           disabled={!canBid}
           onClick={() => {
             onClose();
@@ -301,33 +303,30 @@ export default function PharmacyRequestsPage() {
         {/* ── Page Header ── */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3.5">
-            <div style={{ background: 'linear-gradient(135deg,#0284c7,#0369a1)' }} className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
+            {/* <div style={{ background: 'linear-gradient(135deg,#0284c7,#0369a1)' }} className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
               <HeartPulse className="w-6 h-6" style={{ color: '#fff' }} />
-            </div>
+            </div> */}
             <div>
-              <h1 className="text-2xl font-black tracking-tight" style={{ color: '#0f172a' }}>Nearby Requests</h1>
-              <p className="text-sm mt-0.5" style={{ color: '#94a3b8' }}>Browse patient prescriptions in your area.</p>
+              <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Nearby Requests</h1>
+              <p className="text-sm mt-0.5 text-slate-450 dark:text-slate-500">Browse patient prescriptions in your area.</p>
             </div>
           </div>
 
           {/* Count Badge */}
-          <div
-            className="flex items-center gap-2 px-4 py-2 rounded-2xl shadow-sm bg-white border"
-            style={{ borderColor: '#e2e8f0' }}
-          >
-            <span className="text-3xl font-black tabular-nums" style={{ color: '#0f172a' }}>{totalCount}</span>
-            <span className="text-xs font-semibold leading-tight" style={{ color: '#94a3b8' }}>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-2xl shadow-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+            <span className="text-3xl font-black tabular-nums text-slate-900 dark:text-white">{totalCount}</span>
+            <span className="text-xs font-semibold leading-tight text-slate-400 dark:text-slate-500">
               Nearby<br />Requests
             </span>
           </div>
         </div>
 
         {/* ── Filter Toolbar Panel ── */}
-        <div className="bg-white border rounded-2xl shadow-sm" style={{ borderColor: '#f1f5f9' }}>
+        <div className="bg-white dark:bg-slate-900/50 border border-slate-150 dark:border-slate-800 shadow-sm rounded-2xl">
           <div className="flex flex-wrap items-center justify-between gap-3 p-4">
             
             {/* Status Tabs Navigation */}
-            <div className="flex flex-wrap p-1 rounded-xl gap-1" style={{ backgroundColor: '#f8fafc' }}>
+            <div className="flex flex-wrap p-1 rounded-xl gap-1 bg-slate-50 dark:bg-slate-950/40">
               {STATUS_TABS.map((tab) => {
                 const isActive = status === tab.value;
                 const cfg = STATUS_CONFIG[tab.value];
@@ -335,13 +334,15 @@ export default function PharmacyRequestsPage() {
                   <button
                     key={tab.value}
                     onClick={() => handleStatusTabChange(tab.value)}
-                    style={isActive ? { backgroundColor: '#0f172a', color: '#ffffff' } : { color: '#64748b' }}
-                    className="px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5"
+                    className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5 ${
+                      isActive 
+                        ? 'bg-slate-900 text-white dark:bg-slate-800 dark:text-white' 
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                    }`}
                   >
                     {cfg && (
                       <span
-                        className="w-1.5 h-1.5 rounded-full"
-                        style={{ backgroundColor: isActive ? '#ffffff88' : cfg.dot }}
+                        className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white/60' : cfg.dotClass}`}
                       />
                     )}
                     {tab.label}
@@ -354,12 +355,11 @@ export default function PharmacyRequestsPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border shadow-sm transition-colors"
-                style={{
-                  backgroundColor: showFilters ? '#f8fafc' : '#ffffff',
-                  borderColor: '#e2e8f0',
-                  color: showFilters ? '#0f172a' : '#64748b',
-                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border shadow-sm transition-colors ${
+                  showFilters 
+                    ? 'bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800' 
+                    : 'bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 border-slate-250 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900'
+                }`}
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
                 Filter
@@ -367,8 +367,7 @@ export default function PharmacyRequestsPage() {
               {(searchValue || status !== 'All') && (
                 <button
                   onClick={handleClearFilters}
-                  className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-xl transition-all"
-                  style={{ color: '#e11d48', backgroundColor: '#fff1f2' }}
+                  className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-xl transition-all bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30"
                 >
                   <FilterX className="w-3.5 h-3.5" />
                   Clear
@@ -379,15 +378,14 @@ export default function PharmacyRequestsPage() {
 
           {/* Search inputs expandable */}
           {showFilters && (
-            <div className="px-4 pb-4 border-t pt-4" style={{ borderColor: '#f1f5f9' }}>
+            <div className="px-4 pb-4 border-t pt-4 border-slate-100 dark:border-slate-800">
               <div className="relative max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                 <Input
                   placeholder="Search by medicine name, ingredients..."
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
-                  className="pl-8 h-9 text-xs rounded-xl border"
-                  style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0', color: '#0f172a' }}
+                  className="pl-8 h-9 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus-visible:ring-sky-500"
                 />
               </div>
             </div>
@@ -399,25 +397,25 @@ export default function PharmacyRequestsPage() {
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i} className="bg-white rounded-2xl border p-6 animate-pulse" style={{ borderColor: '#f1f5f9', height: '210px' }}>
-                  <div className="h-4 rounded-lg w-1/3 mb-4" style={{ backgroundColor: '#f1f5f9' }} />
-                  <div className="h-8 rounded-xl w-2/3 mb-4" style={{ backgroundColor: '#f8fafc' }} />
-                  <div className="h-3 rounded w-full mb-2" style={{ backgroundColor: '#f1f5f9' }} />
-                  <div className="h-10 rounded-xl w-full mt-auto" style={{ backgroundColor: '#f1f5f9' }} />
+                <Card key={i} className="bg-white dark:bg-slate-900/50 rounded-2xl border p-6 animate-pulse border-slate-100 dark:border-slate-800" style={{ height: '210px' }}>
+                  <div className="h-4 rounded-lg w-1/3 mb-4 bg-slate-100 dark:bg-slate-800" />
+                  <div className="h-8 rounded-xl w-2/3 mb-4 bg-slate-50 dark:bg-slate-950/40" />
+                  <div className="h-3 rounded w-full mb-2 bg-slate-100 dark:bg-slate-800" />
+                  <div className="h-10 rounded-xl w-full mt-auto bg-slate-100 dark:bg-slate-800" />
                 </Card>
               ))}
             </div>
           ) : isError ? (
-            <div className="flex flex-col items-center justify-center py-20 rounded-2xl border bg-rose-50" style={{ borderColor: '#fecdd3' }}>
-              <p className="font-bold" style={{ color: '#9f1239' }}>Failed to load requests. Please try again.</p>
+            <div className="flex flex-col items-center justify-center py-20 rounded-2xl border bg-rose-50 dark:bg-rose-950/10 border-rose-100 dark:border-rose-900/30">
+              <p className="font-bold text-rose-800 dark:text-rose-400">Failed to load requests. Please try again.</p>
             </div>
           ) : requests.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-28 bg-white rounded-2xl border-2 border-dashed" style={{ borderColor: '#e2e8f0' }}>
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: '#f0f9ff' }}>
-                <HeartPulse className="w-7 h-7" style={{ color: '#0ea5e9' }} />
+            <div className="flex flex-col items-center justify-center py-28 bg-white dark:bg-slate-900/30 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 bg-sky-50 dark:bg-sky-950/20">
+                <HeartPulse className="w-7 h-7 text-sky-500 dark:text-sky-400" />
               </div>
-              <h3 className="text-lg font-bold mb-1" style={{ color: '#0f172a' }}>No Requests Found</h3>
-              <p className="text-sm text-center max-w-xs" style={{ color: '#94a3b8' }}>
+              <h3 className="text-lg font-bold mb-1 text-slate-900 dark:text-white">No Requests Found</h3>
+              <p className="text-sm text-center max-w-xs text-slate-400 dark:text-slate-500">
                 We couldn't find any patient requests matching your filters.
               </p>
             </div>
@@ -433,8 +431,7 @@ export default function PharmacyRequestsPage() {
                   return (
                     <div
                       key={request.id}
-                      className="bg-white rounded-2xl border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
-                      style={{ borderColor: '#f1f5f9' }}
+                      className="bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-150 dark:border-slate-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
                       onClick={() => setActiveRequestId(request.id)}
                     >
                       {/* Accent top line */}
@@ -451,54 +448,49 @@ export default function PharmacyRequestsPage() {
                             >
                               <Pill className="w-4 h-4" style={{ color: accent }} />
                             </div>
-                            <span className="text-xs font-bold" style={{ color: '#94a3b8' }}>Request #{request.id}</span>
+                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Request #{request.id}</span>
                           </div>
                           
                           <span
-                            className="text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5"
-                            style={{ backgroundColor: cfg.bg, color: cfg.text }}
+                            className={`text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 ${cfg.badgeClass}`}
                           >
-                            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cfg.dot }} />
+                            <span className={`w-1.5 h-1.5 rounded-full ${cfg.dotClass}`} />
                             {request.status}
                           </span>
                         </div>
 
                         {/* Medicine Name */}
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#cbd5e1' }}>Medicine Name</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5 text-slate-450 dark:text-slate-500">Medicine Name</p>
                           <h3
-                            className="text-lg font-black tracking-tight line-clamp-2"
-                            style={{ color: isExpired ? '#94a3b8' : '#0f172a' }}
+                            className={`text-lg font-black tracking-tight line-clamp-2 ${isExpired ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-white'}`}
                           >
                             {request.medicineName}
                           </h3>
                         </div>
 
                         {/* Delivery Area */}
-                        <div className="flex items-center gap-2 text-xs" style={{ color: '#64748b' }}>
-                          <MapPin className="w-3.5 h-3.5 shrink-0" style={{ color: '#10b981' }} />
+                        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                          <MapPin className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
                           <span className="truncate" title={request.deliveryArea}>{request.deliveryArea}</span>
                         </div>
 
                         {/* Bids placed count if any */}
                         {request.bidsCount > 0 && (
-                          <div className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full self-start" style={{ color: '#92400e', backgroundColor: '#fef3c7' }}>
+                          <div className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full self-start text-amber-800 dark:text-amber-450 bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30">
                             <Flame className="w-3.5 h-3.5" />
                             {request.bidsCount} Bid{request.bidsCount !== 1 ? 's' : ''} Placed
                           </div>
                         )}
 
                         {/* Date & Time info */}
-                        <div className="flex items-center justify-between text-[11px] pt-3 border-t mt-auto" style={{ borderColor: '#f1f5f9', color: '#94a3b8' }}>
+                        <div className="flex items-center justify-between text-[11px] pt-3 border-t mt-auto border-slate-100 dark:border-slate-800/80 text-slate-400 dark:text-slate-500">
                           <span className="flex items-center gap-1.5">
                             <Clock className="w-3.5 h-3.5" />
                             {formatDate(request.createdAt)}
                           </span>
                           <span
-                            className="flex items-center gap-1.5 font-semibold px-2 py-0.5 rounded-full"
-                            style={isExpired
-                              ? { color: '#64748b', backgroundColor: '#f1f5f9' }
-                              : { color: '#0369a1', backgroundColor: '#e0f2fe' }}
+                            className={`flex items-center gap-1.5 font-semibold px-2 py-0.5 rounded-full ${isExpired ? 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800' : 'text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/30'}`}
                           >
                             <Clock className="w-3.5 h-3.5" />
                             {isExpired ? 'Expired' : getRelativeTime(request.expiresAt)}
@@ -512,10 +504,9 @@ export default function PharmacyRequestsPage() {
                           e.stopPropagation();
                           setActiveRequestId(request.id);
                         }}
-                        className="flex items-center justify-between px-6 py-4 w-full text-left transition-all border-t hover:opacity-85 active:scale-[0.99]"
-                        style={{ borderColor: '#f1f5f9', backgroundColor: '#fafafa' }}
+                        className="flex items-center justify-between px-6 py-4 w-full text-left transition-all border-t border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/10 hover:bg-slate-100/40 dark:hover:bg-slate-900/20 active:scale-[0.99]"
                       >
-                        <span className="text-xs font-bold" style={{ color: '#0f172a' }}>View Details</span>
+                        <span className="text-xs font-bold text-slate-900 dark:text-slate-350">View Details</span>
                         <div
                           className="w-6 h-6 rounded-lg flex items-center justify-center"
                           style={{ backgroundColor: accent + '18' }}
@@ -534,8 +525,7 @@ export default function PharmacyRequestsPage() {
                   <button
                     onClick={() => handlePageChange(Math.max(1, pageIndex - 1))}
                     disabled={pageIndex === 1}
-                    className="w-9 h-9 rounded-xl border flex items-center justify-center transition-all disabled:opacity-40"
-                    style={{ backgroundColor: '#fff', borderColor: '#e2e8f0', color: '#475569' }}
+                    className="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 flex items-center justify-center transition-all disabled:opacity-40"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
@@ -543,10 +533,11 @@ export default function PharmacyRequestsPage() {
                     <button
                       key={pageNum}
                       onClick={() => handlePageChange(pageNum)}
-                      className="w-9 h-9 rounded-xl text-xs font-bold border transition-all"
-                      style={pageIndex === pageNum
-                        ? { backgroundColor: '#0f172a', color: '#fff', borderColor: '#0f172a' }
-                        : { backgroundColor: '#fff', color: '#64748b', borderColor: '#e2e8f0' }}
+                      className={`w-9 h-9 rounded-xl text-xs font-bold border transition-all ${
+                        pageIndex === pageNum
+                          ? 'bg-slate-900 dark:bg-slate-800 text-white border-slate-900 dark:border-slate-800'
+                          : 'bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-850 hover:bg-slate-50 dark:hover:bg-slate-900'
+                      }`}
                     >
                       {pageNum}
                     </button>
@@ -554,8 +545,7 @@ export default function PharmacyRequestsPage() {
                   <button
                     onClick={() => handlePageChange(Math.min(totalPages, pageIndex + 1))}
                     disabled={pageIndex === totalPages}
-                    className="w-9 h-9 rounded-xl border flex items-center justify-center transition-all disabled:opacity-40"
-                    style={{ backgroundColor: '#fff', borderColor: '#e2e8f0', color: '#475569' }}
+                    className="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 flex items-center justify-center transition-all disabled:opacity-40"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
@@ -567,7 +557,7 @@ export default function PharmacyRequestsPage() {
 
       {/* Details Sheet */}
       <Sheet open={!!activeRequestId} onOpenChange={(isOpen) => !isOpen && setActiveRequestId(null)}>
-        <SheetContent className="w-full sm:max-w-md p-0 flex flex-col bg-white border-l-0 sm:border-l sm:rounded-l-3xl shadow-2xl">
+        <SheetContent className="w-full sm:max-w-md p-0 flex flex-col bg-white dark:bg-slate-900 border-l-0 sm:border-l border-slate-100 dark:border-slate-800 sm:rounded-l-3xl shadow-2xl">
           {activeRequestId && (
             <RequestDetailsSheetContent
               id={activeRequestId}

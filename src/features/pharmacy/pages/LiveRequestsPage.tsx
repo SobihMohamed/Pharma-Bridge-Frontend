@@ -43,18 +43,18 @@ export default function LiveRequestsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-4">
         <div>
           <div className="flex items-center gap-3 mb-1.5">
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Live Requests</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Live Requests</h1>
             
-              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200">
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/30">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
                 </span>
-                <span className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wide">Live</span>
+                <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Live</span>
               </span>
   
           </div>
-          <p className="text-slate-500 text-sm">Real-time prescription requests appearing as they arrive via SignalR.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">Real-time prescription requests appearing as they arrive via SignalR.</p>
         </div>
         <AnimatePresence>
           {!isEmpty && (
@@ -65,7 +65,7 @@ export default function LiveRequestsPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={clearLiveRequests}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors shadow-sm w-fit"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/30 transition-colors shadow-sm w-fit"
             >
               <Trash2 className="w-4 h-4" />
               Clear Feed
@@ -80,37 +80,37 @@ export default function LiveRequestsPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="flex flex-col items-center justify-center py-28 text-center rounded-3xl bg-gradient-to-b from-teal-50/60 to-transparent"
+          className="flex flex-col items-center justify-center py-28 text-center rounded-3xl bg-gradient-to-b from-teal-50/60 dark:from-teal-950/20 to-transparent"
         >
           {/* Radar Animation */}
           <div className="relative w-32 h-32 mb-8">
             <motion.div
-              className="absolute inset-0 rounded-full border-2 border-teal-300/40"
+              className="absolute inset-0 rounded-full border-2 border-teal-300/40 dark:border-teal-700/40"
               animate={{ scale: [1, 2.2], opacity: [0.5, 0] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut' }}
             />
             <motion.div
-              className="absolute inset-0 rounded-full border-2 border-teal-400/50"
+              className="absolute inset-0 rounded-full border-2 border-teal-400/50 dark:border-teal-600/50"
               animate={{ scale: [1, 1.8], opacity: [0.6, 0] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut', delay: 0.5 }}
             />
             <motion.div
-              className="absolute inset-0 rounded-full border-2 border-teal-500/60"
+              className="absolute inset-0 rounded-full border-2 border-teal-500/60 dark:border-teal-500/40"
               animate={{ scale: [1, 1.4], opacity: [0.7, 0] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut', delay: 1 }}
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-16 h-16 rounded-full bg-teal-50 border-2 border-teal-200 flex items-center justify-center">
-                <Radio className="w-7 h-7 text-teal-600" />
+              <div className="w-16 h-16 rounded-full bg-teal-50 dark:bg-teal-950/30 border-2 border-teal-200 dark:border-teal-900/40 flex items-center justify-center">
+                <Radio className="w-7 h-7 text-teal-600 dark:text-teal-400" />
               </div>
             </div>
           </div>
  
-          <h3 className="text-xl font-semibold text-slate-900 mb-2">Radar active</h3>
-          <p className="text-slate-500 max-w-sm leading-relaxed">
+          <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Radar active</h3>
+          <p className="text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed">
             Listening for live prescription requests in your area. New requests will appear here instantly.
           </p>
-          <div className="mt-6 flex items-center gap-2 px-4 py-2 bg-white text-teal-700 text-sm font-medium rounded-full border border-teal-200 shadow-sm">
+          <div className="mt-6 flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-400 text-sm font-medium rounded-full border border-teal-200 dark:border-teal-800 shadow-sm">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500" />
@@ -133,7 +133,7 @@ export default function LiveRequestsPage() {
                 exit={{ opacity: 0, scale: 0.92, x: -24 }}
                 transition={{ type: 'spring', stiffness: 340, damping: 28, delay: i * 0.03 }}
                 whileHover={{ y: -3 }}
-                className="group bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-4 shadow-sm hover:shadow-lg hover:border-teal-200 transition-all relative overflow-hidden"
+                className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex flex-col gap-4 shadow-sm hover:shadow-lg hover:border-teal-200 dark:hover:border-teal-500/50 transition-all relative overflow-hidden"
               >
                 {/* New glow pulse overlay */}
                 <motion.div
@@ -155,11 +155,11 @@ export default function LiveRequestsPage() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                       <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
                     </motion.span>
-                    <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-900/30">
                       New #{req.id}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-slate-400 font-medium">
+                  <div className="flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500 font-medium">
                     <Clock className="w-3 h-3" />
                     <TimeAgoText date={req.createdAt} />
                   </div>
@@ -171,7 +171,7 @@ export default function LiveRequestsPage() {
                   {req.imageUrl ? (
                     <div
                       onClick={() => setZoomedImage(req.imageUrl)}
-                      className="w-full h-40 rounded-xl overflow-hidden border border-slate-100 bg-slate-50 flex items-center justify-center cursor-pointer relative"
+                      className="w-full h-40 rounded-xl overflow-hidden border border-slate-105 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center justify-center cursor-pointer relative"
                     >
                       <img
                         src={req.imageUrl}
@@ -184,13 +184,13 @@ export default function LiveRequestsPage() {
                       <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors" />
                     </div>
                   ) : (
-                    <div className="w-full h-40 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 flex flex-col items-center justify-center text-slate-400">
+                    <div className="w-full h-40 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 flex flex-col items-center justify-center text-slate-400 dark:text-slate-550">
                       <Image className="w-8 h-8 mb-2 opacity-50" />
                       <span className="text-xs font-medium">No image provided</span>
                     </div>
                   )}
 
-                  <h3 className="text-lg font-semibold text-slate-900 pt-1 flex items-center gap-1.5">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white pt-1 flex items-center gap-1.5">
                     {req.medicineName || (
                       <span className="inline-flex items-center gap-1.5">
                         <Sparkles className="w-4 h-4 text-teal-500" />
@@ -199,16 +199,16 @@ export default function LiveRequestsPage() {
                     )}
                   </h3>
 
-                  <div className="flex items-center gap-1.5 text-sm text-slate-500">
-                    <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                  <div className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+                    <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
                     {req.deliveryArea || 'Nearby Area'}
                   </div>
 
                   {/* Notes Display */}
                   {req.patientNotes && (
-                    <div className="bg-teal-50/60 p-3 rounded-xl border border-teal-100">
-                      <p className="text-sm text-slate-600 line-clamp-3">
-                        <span className="font-semibold block mb-1 text-xs text-teal-800">Patient notes</span>
+                    <div className="bg-teal-50/60 dark:bg-teal-950/20 p-3 rounded-xl border border-teal-100 dark:border-teal-900/30">
+                      <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-3">
+                        <span className="font-semibold block mb-1 text-xs text-teal-800 dark:text-teal-400">Patient notes</span>
                         {req.patientNotes}
                       </p>
                     </div>
@@ -216,14 +216,14 @@ export default function LiveRequestsPage() {
                 </div>
 
                 {/* Bottom: expiry + action */}
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
-                  <div className="text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+                  <div className="text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-2.5 py-1 rounded-full border border-amber-200 dark:border-amber-900/30">
                     ⏳ {formatExpiry(req.expiresAt)}
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => removeRequest(req.id)}
-                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-2 text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors"
                       aria-label="Dismiss"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -232,7 +232,7 @@ export default function LiveRequestsPage() {
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => navigate(`/pharmacy/requests/${req.id}/bid`, { state: { requestData: req } })}
-                      className="flex items-center gap-1.5 px-4 py-2 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 transition-colors shadow-sm"
+                      className="flex items-center gap-1.5 px-4 py-2 bg-teal-600 dark:bg-teal-500 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 dark:hover:bg-teal-600 transition-colors shadow-sm"
                     >
                       <Send className="w-3.5 h-3.5" />
                       Submit Bid

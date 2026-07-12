@@ -38,13 +38,17 @@ function HeartbeatLine() {
     <svg width="52" height="20" viewBox="0 0 52 20" fill="none" className="shrink-0">
       <path
         d="M0 10 H14 L18 3 L23 17 L27 10 H33 L36 5 L39 15 L42 10 H52"
-        stroke={palette.mint}
+        stroke="#0284c7"
         strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
         pathLength="1"
-        style={{ strokeDasharray: 1, strokeDashoffset: 1, animation: 'draw-beat 2.2s ease-in-out infinite' }}
+        style={{
+          strokeDasharray: 1,
+          strokeDashoffset: 1,
+          animation: 'draw-beat 2.2s ease-in-out infinite',
+        }}
       />
     </svg>
   );
@@ -91,8 +95,8 @@ export const PharmacySidebar: React.FC<PharmacySidebarProps> = ({ isOpen, onClos
         md:translate-x-0 transition-all duration-300 ease-in-out
         fixed top-0 left-0 h-screen flex flex-col z-50
         ${isCollapsed ? 'w-20' : 'w-64'}
+        bg-white border-r border-gray-200 dark:bg-[#0f172a] dark:border-slate-800
       `}
-      style={{ background: palette.base, borderRight: `1px solid ${palette.line}` }}
     >
       <style>{`
         @keyframes draw-beat {
@@ -102,10 +106,9 @@ export const PharmacySidebar: React.FC<PharmacySidebarProps> = ({ isOpen, onClos
         }
         .pb-scroll::-webkit-scrollbar { width: 5px; }
         .pb-scroll::-webkit-scrollbar-thumb { background: #DCEBE9; border-radius: 8px; }
-        .pb-navitem:hover:not(.pb-active) { background: #F2F8F7; }
         .pb-tooltip {
           position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%);
-          background: ${palette.textPrimary}; color: #fff; font-size: 12px; font-weight: 600;
+          background: #1e293b; color: #fff; font-size: 12px; font-weight: 600;
           padding: 5px 10px; border-radius: 8px; white-space: nowrap; pointer-events: none;
           opacity: 0; transition: opacity 0.15s ease; z-index: 60;
         }
@@ -116,31 +119,25 @@ export const PharmacySidebar: React.FC<PharmacySidebarProps> = ({ isOpen, onClos
       <button
         onClick={() => setIsCollapsed(v => !v)}
         aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        className="hidden md:flex absolute top-1/2 -right-3 -translate-y-1/2 w-6 h-12 rounded-full items-center justify-center shadow-sm z-10 transition-colors"
-        style={{ background: palette.base, border: `1px solid ${palette.line}` }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = palette.tealSoft; e.currentTarget.style.borderColor = '#C9EFE1'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = palette.base; e.currentTarget.style.borderColor = palette.line; }}
+        className="hidden md:flex absolute top-1/2 -right-3 -translate-y-1/2 w-6 h-12 rounded-full items-center justify-center shadow-sm z-10 transition-all bg-white border border-gray-200 text-gray-400 hover:text-teal-650 hover:bg-teal-50 dark:bg-[#0f172a] dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-teal-400"
       >
-        {isCollapsed
-          ? <ChevronRight className="w-3.5 h-3.5" style={{ color: palette.teal }} />
-          : <ChevronLeft className="w-3.5 h-3.5" style={{ color: palette.teal }} />}
+        {isCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
       </button>
 
       {/* Brand Area */}
       <div
-        className={`h-16 flex items-center shrink-0 ${isCollapsed ? 'justify-center px-0' : 'px-6'}`}
-        style={{ borderBottom: `1px solid ${palette.line}` }}
+        className={`h-16 flex items-center shrink-0 border-b border-gray-200 dark:border-slate-800 ${isCollapsed ? 'justify-center px-0' : 'px-6'}`}
       >
         <div className="flex items-center gap-2.5">
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: palette.teal }}
+            style={{ background: 'linear-gradient(135deg,#0284c7,#0369a1)' }}
           >
             <Plus className="w-5 h-5 text-white" strokeWidth={3} />
           </div>
           {!isCollapsed && (
-            <h1 className="text-lg font-extrabold tracking-tight whitespace-nowrap" style={{ color: palette.textPrimary }}>
-              Pharma<span style={{ color: palette.teal }}>Bridge</span>
+            <h1 className="text-lg font-extrabold tracking-tight whitespace-nowrap text-gray-900 dark:text-white">
+              Pharma<span className="text-teal-600 dark:text-teal-400">Bridge</span>
             </h1>
           )}
         </div>
@@ -152,50 +149,57 @@ export const PharmacySidebar: React.FC<PharmacySidebarProps> = ({ isOpen, onClos
         <div className={`mb-4 ${isCollapsed ? 'px-0 flex justify-center' : 'px-3'}`}>
           {isLocked ? (
             <div
-              className={`relative group flex items-center rounded-2xl ${isCollapsed ? 'w-10 h-10 justify-center' : 'gap-3 p-3'}`}
-              style={{ background: palette.warnSoft, border: `1px solid ${palette.warnLine}` }}
+              className={`relative group flex items-center rounded-2xl ${isCollapsed ? 'w-10 h-10 justify-center' : 'gap-3 p-3'} bg-amber-50/50 border border-amber-100 dark:bg-amber-950/10 dark:border-amber-900/30`}
             >
               <div
-                className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: '#FCEBC7' }}
+                className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-amber-100 dark:bg-amber-900/30"
               >
-                <AlertTriangle className="w-4 h-4" style={{ color: palette.warn }} />
+                <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-500" />
               </div>
               {!isCollapsed && (
                 <div className="flex flex-col leading-tight">
-                  <span className="text-xs font-bold" style={{ color: palette.warn }}>
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-500">
                     {isOwnerMissing ? 'Registration Incomplete' : isOwnerPending ? 'Status: Under Review' : 'Pharmacy Setup Required'}
                   </span>
-                  <span className="text-[10px] font-medium" style={{ color: '#C68A3E' }}>
+                  <span className="text-[10px] font-medium text-amber-600/80 dark:text-amber-500/70">
                     {isOwnerMissing ? 'Complete your profile details' : isOwnerPending ? 'Under Review' : 'Add Pharmacy Details'}
                   </span>
                 </div>
               )}
               {isCollapsed && (
-                <span className="pb-tooltip" style={{ opacity: 0 }}>
+                <span className="pb-tooltip">
                   {isOwnerMissing ? 'Registration Incomplete' : isOwnerPending ? 'Under Review' : 'Setup Required'}
                 </span>
               )}
             </div>
           ) : (
             <div
-              className={`relative group flex items-center rounded-2xl ${isCollapsed ? 'w-10 h-10 justify-center' : 'gap-3 p-3'}`}
-              style={{ background: palette.mintSoft, border: '1px solid #C9EFE1' }}
+              className={`relative group flex items-center rounded-2xl ${
+                isCollapsed
+                  ? 'w-10 h-10 justify-center bg-sky-50 border border-sky-200'
+                  : 'gap-3 p-3 bg-sky-50 border border-sky-200'
+              } dark:bg-sky-950/10 dark:border-sky-900/30`}
             >
               {isCollapsed ? (
                 <span className="relative flex h-2.5 w-2.5">
-                  <span className="absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: palette.mint }} />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: palette.mint }} />
+                  <span className="absolute inline-flex h-full w-full rounded-full opacity-75 bg-sky-400 animate-ping" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-sky-500" />
                 </span>
               ) : (
                 <>
                   <HeartbeatLine />
                   <div className="flex flex-col leading-tight">
-                    <span className="text-xs font-bold" style={{ color: palette.tealDeep }}>Online &amp; Active</span>
-                    <span className="text-[10px] font-medium" style={{ color: '#5FAE9B' }}>Ready to receive orders</span>
+                    <span className="text-xs font-bold text-[#0284c7] dark:text-sky-400">
+                      Online &amp; Active
+                    </span>
+
+                    <span className="text-[10px] font-medium text-[#0284c7] dark:text-sky-300">
+                      Ready to receive orders
+                    </span>
                   </div>
                 </>
               )}
+
               {isCollapsed && <span className="pb-tooltip">Online &amp; Active</span>}
             </div>
           )}
@@ -203,7 +207,7 @@ export const PharmacySidebar: React.FC<PharmacySidebarProps> = ({ isOpen, onClos
 
         {!isCollapsed && (
           <div className="px-3 mb-2">
-            <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: palette.textFaint }}>Menu</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500">Menu</p>
           </div>
         )}
 
@@ -215,14 +219,13 @@ export const PharmacySidebar: React.FC<PharmacySidebarProps> = ({ isOpen, onClos
               return (
                 <div
                   key={link.to}
-                  className={`pb-navitem relative group flex items-center rounded-xl text-sm font-medium cursor-not-allowed ${isCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3.5 py-2.5'}`}
-                  style={{ color: palette.textFaint }}
+                  className={`pb-navitem relative group flex items-center rounded-xl text-sm font-medium cursor-not-allowed text-gray-300 dark:text-slate-600 ${isCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3.5 py-2.5'}`}
                 >
                   <link.icon className="w-[18px] h-[18px] shrink-0" />
                   {!isCollapsed && (
                     <>
                       <span className="flex-1">{link.label}</span>
-                      <Lock className="w-3.5 h-3.5 shrink-0" style={{ color: palette.textFaint }} />
+                      <Lock className="w-3.5 h-3.5 shrink-0" />
                     </>
                   )}
                   {isCollapsed && <span className="pb-tooltip">{link.label}</span>}
@@ -235,27 +238,27 @@ export const PharmacySidebar: React.FC<PharmacySidebarProps> = ({ isOpen, onClos
                 key={link.to}
                 to={link.to}
                 onClick={() => { if (isOpen) onClose(); }}
-                className={({ isActive }) => `pb-navitem relative group flex items-center rounded-xl text-sm font-medium transition-colors duration-150 ${isCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3.5 py-2.5'} ${isActive ? 'pb-active' : ''}`}
-                style={({ isActive }) => ({
-                  background: isActive ? palette.tealSoft : 'transparent',
-                  color: isActive ? palette.tealDeep : palette.textMuted,
-                })}
+                className={({ isActive }) => `
+                  pb-navitem relative group flex items-center rounded-xl text-sm font-medium transition-colors duration-150 
+                  ${isCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3.5 py-2.5'} 
+                  ${isActive 
+                    ? 'bg-teal-50 text-teal-700 dark:bg-teal-950/20 dark:text-teal-400 font-bold' 
+                    : 'text-gray-500 hover:bg-gray-50 dark:text-slate-400 dark:hover:bg-slate-900/50 dark:hover:text-slate-100'}
+                `}
               >
                 {({ isActive }) => (
                   <>
                     <span
-                      className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                      style={{ background: isActive ? '#FFFFFF' : 'transparent' }}
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isActive ? 'bg-white shadow-sm dark:bg-slate-800' : 'bg-transparent'}`}
                     >
-                      <link.icon className="w-4 h-4" style={{ color: isActive ? palette.teal : palette.textMuted }} />
+                      <link.icon className="w-4 h-4" />
                     </span>
                     {!isCollapsed && (
                       <>
                         <span className="flex-1">{link.label}</span>
                         {link.live && (
                           <span
-                            className="w-1.5 h-1.5 rounded-full shrink-0"
-                            style={{ background: palette.mint, boxShadow: `0 0 0 3px ${palette.mintSoft}` }}
+                            className="w-1.5 h-1.5 rounded-full shrink-0 bg-emerald-500 animate-pulse shadow-[0_0_0_3px_rgba(16,185,129,0.2)]"
                           />
                         )}
                       </>
@@ -270,16 +273,13 @@ export const PharmacySidebar: React.FC<PharmacySidebarProps> = ({ isOpen, onClos
       </div>
 
       {/* Footer Area */}
-      <div className="p-4 shrink-0" style={{ borderTop: `1px solid ${palette.line}` }}>
+      <div className="p-4 shrink-0 border-t border-gray-200 dark:border-slate-800">
         <button
           onClick={() => {
             clearAuth();
             if (isOpen) onClose();
           }}
-          className={`pb-navitem relative group w-full flex items-center text-sm font-medium rounded-xl transition-colors ${isCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3.5 py-2.5'}`}
-          style={{ color: palette.textMuted }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = '#FEECEC'; e.currentTarget.style.color = '#DC5B5B'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = palette.textMuted; }}
+          className={`pb-navitem relative group w-full flex items-center text-sm font-medium rounded-xl transition-colors ${isCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3.5 py-2.5'} text-gray-500 hover:bg-red-50 hover:text-red-650 dark:text-slate-400 dark:hover:bg-red-950/10 dark:hover:text-red-400`}
         >
           <LogOut className="w-[18px] h-[18px] shrink-0" />
           {!isCollapsed && <span>Logout</span>}

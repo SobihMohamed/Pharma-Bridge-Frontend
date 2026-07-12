@@ -45,8 +45,8 @@ export const PharmacyProtectedRoute: React.FC<PharmacyProtectedRouteProps> = ({ 
     return (
       <div className="min-h-[50vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin"></div>
-          <p className="text-teal-600 font-medium">Checking Profile Status...</p>
+          <div className="w-12 h-12 border-4 border-teal-200 border-t-teal-600 dark:border-teal-800 dark:border-t-teal-400 rounded-full animate-spin"></div>
+          <p className="text-teal-600 dark:text-teal-400 font-medium">Checking Profile Status...</p>
         </div>
       </div>
     );
