@@ -1,28 +1,29 @@
 import { useNavigate } from 'react-router-dom';
 import { useGetPatientHomeQuery } from '../hooks/usePatientHomeQuery';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { 
-  Pill, 
-  Clock, 
-  MapPin, 
-  Zap, 
-  ShoppingBag, 
+import {
+  Pill,
+  Clock,
+  MapPin,
+  Zap,
+  ShoppingBag,
   CreditCard,
   ChevronRight,
   PackageX,
   Stethoscope,
-  Activity,
   CheckCircle2,
   XCircle,
   Truck,
-  Timer
+  Timer,
+  Shield,
+  Headphones,
+  ArrowRight,
+  PlusCircle,
+  Receipt
 } from 'lucide-react';
 
 // ─── Inline Skeleton ────────────────────────────────────────────────────────
 const Skeleton = ({ className = '' }: { className?: string }) => (
-  <div className={`animate-pulse rounded-md bg-slate-200 ${className}`} />
+  <div className={`animate-pulse rounded-md bg-gray-200 ${className}`} />
 );
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -34,10 +35,10 @@ function formatRelativeTime(isoString: string): string {
       d.getDate() === now.getDate() &&
       d.getMonth() === now.getMonth() &&
       d.getFullYear() === now.getFullYear();
-    
+
     const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     if (isToday) return `Today at ${time}`;
-    
+
     // Check if yesterday
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -51,28 +52,21 @@ function formatRelativeTime(isoString: string): string {
   }
 }
 
-function getOrderIcon(status: string) {
+function getOrderStatusStyle(status: string) {
   const s = status?.toLowerCase() ?? '';
-  if (s === 'delivered') return <CheckCircle2 className="w-3.5 h-3.5 mr-1" />;
-  if (s === 'cancelled') return <XCircle className="w-3.5 h-3.5 mr-1" />;
-  if (s === 'outfordelivery' || s === 'in transit') return <Truck className="w-3.5 h-3.5 mr-1" />;
-  return <Timer className="w-3.5 h-3.5 mr-1" />;
-}
-
-function getOrderBadgeStyle(status: string) {
-  const s = status?.toLowerCase() ?? '';
-  if (s === 'delivered') return 'bg-emerald-500 text-white hover:bg-emerald-600 border-emerald-500';
-  if (s === 'cancelled') return 'bg-red-500 text-white hover:bg-red-600 border-red-500';
-  if (s === 'outfordelivery' || s === 'in transit') return 'bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200';
-  return 'bg-amber-100 text-amber-800 hover:bg-amber-200 border-amber-200';
+  if (s === 'delivered') return { bg: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: <CheckCircle2 className="w-3 h-3" /> };
+  if (s === 'cancelled') return { bg: 'bg-red-50 text-red-700 border-red-200', icon: <XCircle className="w-3 h-3" /> };
+  if (s === 'outfordelivery' || s === 'in transit') return { bg: 'bg-blue-50 text-blue-700 border-blue-200', icon: <Truck className="w-3 h-3" /> };
+  return { bg: 'bg-amber-50 text-amber-700 border-amber-200', icon: <Timer className="w-3 h-3" /> };
 }
 
 function getRequestStatusBadge(status: string) {
   const s = status?.toLowerCase() ?? '';
-  if (s === 'pending') return <Badge className="bg-amber-50 text-amber-700 hover:bg-amber-100 border-amber-200 shadow-sm">Pending</Badge>;
-  if (s.includes('bid')) return <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200 shadow-sm">Has Bids</Badge>;
-  if (s === 'completed' || s === 'accepted') return <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200 shadow-sm">Completed</Badge>;
-  return <Badge variant="secondary" className="shadow-sm">{status}</Badge>;
+  if (s === 'pending') return <span className="bg-[#FFDCBC] text-[#402300] px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold">Pending</span>;
+  if (s.includes('bid')) return <span className="bg-[#C8E6FF] text-[#006591] px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold">Has Bids</span>;
+  if (s === 'completed' || s === 'accepted') return <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold">Completed</span>;
+  if (s === 'closed') return <span className="bg-gray-500 text-white px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold">Closed</span>;
+  return <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold">{status}</span>;
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -86,210 +80,330 @@ export default function PatientHomePage() {
   const recentOrders = data?.recentOrders ?? [];
 
   return (
-    <div className="space-y-8 max-w-[1400px] mx-auto pb-12">
-      {/* ── Welcome Hero ── */}
-      <section className="bg-gradient-to-br from-teal-700 to-emerald-900 rounded-2xl p-8 md:p-10 text-white shadow-xl relative overflow-hidden">
-        <div className="relative z-10">
-          <h1 className="text-3xl md:text-4xl font-black mb-3 tracking-tight text-white">Welcome back! 👋</h1>
-          <p className="text-teal-100/90 max-w-xl text-base md:text-lg leading-relaxed mb-8">
-            Manage your health seamlessly. Track active prescription requests, review incoming bids, and monitor recent deliveries—all from your dashboard.
-          </p>
-          <div className="flex gap-4">
-            <Button 
-              size="lg"
-              onClick={() => navigate('/requests/new')}
-              className="bg-white text-teal-900 hover:bg-teal-50 font-bold shadow-lg transition-transform hover:-translate-y-0.5"
+    <div className="space-y-8 max-w-[1440px] mx-auto pb-12">
+      {/* ── Hero Banner Section ── */}
+      <section className="relative pb-10">
+        {/* Main hero content container */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#009ADA] to-[#006591] p-8 md:p-10 min-h-[280px] flex flex-col justify-center text-white shadow-lg animate-[bottomWave_8s_ease-in-out_infinite]" style={{ borderRadius: '24px 24px 60% 40% / 24px 24px 5% 8%' }}>
+          {/* Animated Floating Orbs */}
+          <div className="absolute -right-16 -top-16 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none animate-[float_8s_ease-in-out_infinite]" />
+          <div className="absolute right-1/4 -bottom-20 w-64 h-64 bg-white/8 rounded-full blur-3xl pointer-events-none animate-[float_10s_ease-in-out_2s_infinite_reverse]" />
+          <div className="absolute left-1/3 top-0 w-48 h-48 bg-[#88CEFF]/15 rounded-full blur-2xl pointer-events-none animate-[float_12s_ease-in-out_4s_infinite]" />
+
+          {/* Animated Wave Pattern inside */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <svg
+              className="absolute bottom-0 left-0 w-[200%] h-[60%] animate-[waveScroll_15s_linear_infinite]"
+              viewBox="0 0 2000 400"
+              xmlns="http://www.w3.org/2000/svg"
+              preserveAspectRatio="none"
             >
-              <Pill className="w-5 h-5 mr-2" />
+              <path d="M0 200 Q250 120 500 200 T1000 200 T1500 200 T2000 200 V400 H0 Z" fill="white" opacity="0.06" />
+            </svg>
+            <svg
+              className="absolute bottom-0 left-0 w-[200%] h-[50%] animate-[waveScroll_12s_linear_1s_infinite_reverse]"
+              viewBox="0 0 2000 400"
+              xmlns="http://www.w3.org/2000/svg"
+              preserveAspectRatio="none"
+            >
+              <path d="M0 250 Q300 180 600 250 T1200 250 T1800 250 T2000 250 V400 H0 Z" fill="white" opacity="0.04" />
+            </svg>
+          </div>
+
+          {/* Animated Pill / Medical Icons floating in background */}
+          <div className="absolute right-12 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-6 opacity-[0.12] pointer-events-none">
+            <Pill className="w-16 h-16 animate-[floatSpin_9s_ease-in-out_infinite]" />
+            <Shield className="w-12 h-12 animate-[floatSpin_7s_ease-in-out_2s_infinite_reverse] ml-8" />
+            <Stethoscope className="w-14 h-14 animate-[floatSpin_11s_ease-in-out_1s_infinite]" />
+          </div>
+
+          {/* Hero Content with entrance animations */}
+          <div className="relative z-10 max-w-2xl animate-[slideUp_0.8s_ease-out_both]">
+            <h1 className="text-3xl md:text-[40px] font-extrabold mb-4 tracking-tight leading-tight animate-[slideUp_0.6s_ease-out_0.1s_both]">
+              Welcome back! <span className="inline-block animate-[waveHand_2.5s_ease-in-out_1s_infinite]">👋</span>
+            </h1>
+            <p className="text-base md:text-lg opacity-90 mb-8 leading-relaxed max-w-xl animate-[slideUp_0.6s_ease-out_0.3s_both]">
+              Manage your health seamlessly. Track active prescription requests, review incoming bids, and monitor recent deliveries—all from your dashboard.
+            </p>
+            <button
+              onClick={() => navigate('/requests/new')}
+              className="bg-white text-[#009ADA] px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-[#C8E6FF] transition-all active:scale-95 shadow-md group animate-[slideUp_0.6s_ease-out_0.5s_both] hover:shadow-xl hover:-translate-y-0.5"
+            >
+              <PlusCircle className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
               New Request
-            </Button>
+            </button>
           </div>
         </div>
-        {/* Decorative elements */}
-        <div className="absolute -right-20 -top-20 w-96 h-96 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute right-40 -bottom-20 w-72 h-72 bg-teal-500/20 rounded-full blur-3xl pointer-events-none" />
+
+
+
+        {/* Inline keyframes */}
+        <style>{`
+          @keyframes float {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+          }
+          @keyframes waveScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          @keyframes waveHand {
+            0%, 60%, 100% { transform: rotate(0deg); }
+            10% { transform: rotate(14deg); }
+            20% { transform: rotate(-8deg); }
+            30% { transform: rotate(14deg); }
+            40% { transform: rotate(-4deg); }
+            50% { transform: rotate(10deg); }
+          }
+          @keyframes floatSpin {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-16px) rotate(12deg); }
+          }
+          @keyframes bottomWave {
+            0%, 100% {
+              border-radius: 24px 24px 60% 40% / 24px 24px 5% 8%;
+            }
+            25% {
+              border-radius: 24px 24px 40% 60% / 24px 24px 8% 4%;
+            }
+            50% {
+              border-radius: 24px 24px 55% 45% / 24px 24px 6% 10%;
+            }
+            75% {
+              border-radius: 24px 24px 45% 55% / 24px 24px 9% 5%;
+            }
+          }
+        `}</style>
       </section>
 
-      {/* ── Two-Column Grid Layout ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+      {/* ── Main Content Grid ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        {/* ── Column 1: Latest Requests ── */}
-        <section className="flex flex-col h-full">
-          <div className="flex items-center justify-between pb-3 mb-5 border-b border-slate-200/60">
-            <h2 className="text-xl font-extrabold text-slate-800 flex items-center gap-2.5">
-              <div className="p-1.5 bg-teal-100 rounded-lg text-teal-700">
-                <Activity className="w-5 h-5" />
+        {/* ── Column 1: Recent Requests ── */}
+        <section className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[#C8E6FF] rounded-xl text-[#009ADA]">
+                <Stethoscope className="w-5 h-5" />
               </div>
-              Recent Requests
-            </h2>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/requests')} className="text-teal-600 font-semibold text-sm hover:text-teal-800 hover:bg-teal-50">
-              View All <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
+              <h2 className="text-2xl font-bold text-gray-900">Recent Requests</h2>
+            </div>
+            <button
+              onClick={() => navigate('/requests')}
+              className="text-[#009ADA] text-sm font-bold flex items-center gap-1 hover:underline group"
+            >
+              View All
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
           </div>
 
-          <div className="flex-1 flex flex-col gap-4">
+          {/* Request Cards Stack */}
+          <div className="space-y-4">
             {isLoading ? (
               [1, 2, 3].map(i => (
-                <Card key={i} className="border border-slate-100 shadow-sm">
-                  <CardContent className="p-5 flex gap-4">
-                    <Skeleton className="h-16 w-16 rounded-xl shrink-0" />
-                    <div className="flex-1 space-y-3 py-1">
-                      <Skeleton className="h-4 w-3/4" />
-                      <Skeleton className="h-3 w-1/2" />
-                    </div>
-                  </CardContent>
-                </Card>
+                <div key={i} className="bg-white border border-gray-200 p-6 rounded-2xl animate-pulse">
+                  <div className="flex gap-4">
+                    <Skeleton className="h-5 w-48" />
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    <Skeleton className="h-4 w-36" />
+                    <Skeleton className="h-4 w-52" />
+                  </div>
+                </div>
               ))
             ) : latestRequests.length === 0 ? (
-              <Card className="border-dashed border-2 border-slate-200 bg-slate-50 shadow-none flex-1 flex flex-col items-center justify-center py-16 text-center min-h-[300px]">
-                <div className="w-16 h-16 bg-white shadow-sm rounded-full flex items-center justify-center mb-4">
-                  <Stethoscope className="w-8 h-8 text-slate-300" />
+              <div className="bg-white border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center py-16 text-center min-h-[300px]">
+                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 shadow-sm">
+                  <Stethoscope className="w-8 h-8 text-gray-300" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-700 mb-1">No Active Requests</h3>
-                <p className="text-slate-500 text-sm max-w-[250px] mb-6 leading-relaxed">
+                <h3 className="text-lg font-bold text-gray-700 mb-1">No Active Requests</h3>
+                <p className="text-gray-500 text-sm max-w-[250px] mb-6 leading-relaxed">
                   Upload a prescription image to start receiving competitive offers.
                 </p>
-                <Button onClick={() => navigate('/requests/new')} className="bg-teal-600 hover:bg-teal-700 shadow-md">
+                <button
+                  onClick={() => navigate('/requests/new')}
+                  className="bg-[#006591] text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-md"
+                >
                   Start a new request
-                </Button>
-              </Card>
+                </button>
+              </div>
             ) : (
               latestRequests.map(req => (
-                <Card 
-                  key={req.id} 
+                <div
+                  key={req.id}
                   onClick={() => navigate(`/requests/${req.id}`)}
-                  className="group relative overflow-hidden border border-slate-200/60 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer bg-white"
+                  className="bg-white border border-gray-200 p-6 rounded-2xl flex flex-col md:flex-row justify-between gap-4 hover:border-[#009ADA] transition-all cursor-pointer group hover:shadow-md"
                 >
-                  {/* Subtle left accent */}
-                  <div className="absolute left-0 top-0 w-1 h-full bg-slate-200 group-hover:bg-teal-400 transition-colors" />
-                  
-                  <CardContent className="p-5 pl-6 flex flex-col sm:flex-row gap-4 sm:items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-1.5">
-                        <h4 className="font-bold text-slate-900 text-lg line-clamp-1 group-hover:text-teal-700 transition-colors">
-                          {req.medicineName || 'Prescription Document'}
-                        </h4>
-                        {getRequestStatusBadge(req.status)}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-[#006591] transition-colors">
+                        {req.medicineName || 'Prescription Document'}
+                      </h3>
+                      {getRequestStatusBadge(req.status)}
+                    </div>
+                    <div className="flex flex-col gap-1 text-gray-500">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Clock className="w-4 h-4" />
+                        {formatRelativeTime(req.createdAt)}
                       </div>
-                      
-                      <div className="flex items-center gap-4 text-sm text-slate-500 mt-2">
-                        <span className="flex items-center gap-1.5 font-medium">
-                          <Clock className="w-4 h-4 text-slate-400" />
-                          {formatRelativeTime(req.createdAt)}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <MapPin className="w-4 h-4 text-slate-400" />
-                          <span className="line-clamp-1">{req.deliveryArea}</span>
-                        </span>
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin className="w-4 h-4" />
+                        <span className="line-clamp-1">{req.deliveryArea}</span>
                       </div>
                     </div>
-
-                    <div className="sm:text-right shrink-0">
-                      {req.bidsCount > 0 ? (
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 text-amber-800 rounded-full text-sm font-bold shadow-sm animate-pulse ring-2 ring-amber-500/20">
-                          <Zap className="w-4 h-4" fill="currentColor" />
-                          {req.bidsCount} Bids Available
-                        </div>
-                      ) : (
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-500 rounded-full text-xs font-semibold">
-                          Awaiting Bids
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="flex items-center">
+                    {req.bidsCount > 0 ? (
+                      <div className="bg-[#FFDCBC] text-[#402300] px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 w-full md:w-auto justify-center">
+                        <Zap className="w-4 h-4" fill="currentColor" />
+                        {req.bidsCount} Bids Available
+                      </div>
+                    ) : (
+                      <div className="bg-gray-100 text-gray-500 px-6 py-3 rounded-xl text-sm font-semibold text-center w-full md:w-auto">
+                        Awaiting Bids
+                      </div>
+                    )}
+                  </div>
+                </div>
               ))
             )}
           </div>
         </section>
 
         {/* ── Column 2: Recent Orders ── */}
-        <section className="flex flex-col h-full">
-          <div className="flex items-center justify-between pb-3 mb-5 border-b border-slate-200/60">
-            <h2 className="text-xl font-extrabold text-slate-800 flex items-center gap-2.5">
-              <div className="p-1.5 bg-indigo-100 rounded-lg text-indigo-700">
+        <section className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[#85CBFD] rounded-xl text-[#00567C]">
                 <ShoppingBag className="w-5 h-5" />
               </div>
-              Recent Orders
-            </h2>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/orders')} className="text-indigo-600 font-semibold text-sm hover:text-indigo-800 hover:bg-indigo-50">
-              View All <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
+              <h2 className="text-2xl font-bold text-gray-900">Recent Orders</h2>
+            </div>
+            <button
+              onClick={() => navigate('/orders')}
+              className="text-[#009ADA] text-sm font-bold flex items-center gap-1 hover:underline group"
+            >
+              View All
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
           </div>
 
-          <div className="flex-1 flex flex-col gap-4">
+          {/* Order Cards */}
+          <div className="space-y-4">
             {isLoading ? (
               [1, 2, 3].map(i => (
-                <Card key={i} className="border border-slate-100 shadow-sm">
-                  <CardContent className="p-5 space-y-4">
+                <div key={i} className="bg-white border border-gray-200 rounded-2xl overflow-hidden animate-pulse">
+                  <div className="p-6 space-y-3">
                     <div className="flex justify-between">
-                      <Skeleton className="h-5 w-1/3" />
-                      <Skeleton className="h-6 w-24 rounded-full" />
+                      <Skeleton className="h-4 w-40" />
+                      <Skeleton className="h-5 w-20 rounded-full" />
                     </div>
-                    <Skeleton className="h-10 w-full rounded-lg" />
-                  </CardContent>
-                </Card>
+                    <Skeleton className="h-6 w-48" />
+                  </div>
+                  <div className="p-6 bg-gray-50">
+                    <Skeleton className="h-12 w-full rounded-xl" />
+                  </div>
+                </div>
               ))
             ) : recentOrders.length === 0 ? (
-              <Card className="border-dashed border-2 border-slate-200 bg-slate-50 shadow-none flex-1 flex flex-col items-center justify-center py-16 text-center min-h-[300px]">
-                <div className="w-16 h-16 bg-white shadow-sm rounded-full flex items-center justify-center mb-4">
-                  <PackageX className="w-8 h-8 text-slate-300" />
+              <div className="bg-white border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center py-16 text-center min-h-[300px]">
+                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 shadow-sm">
+                  <PackageX className="w-8 h-8 text-gray-300" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-700 mb-1">No Recent Orders</h3>
-                <p className="text-slate-500 text-sm max-w-[250px] mb-6 leading-relaxed">
+                <h3 className="text-lg font-bold text-gray-700 mb-1">No Recent Orders</h3>
+                <p className="text-gray-500 text-sm max-w-[250px] mb-6 leading-relaxed">
                   When you accept an offer from a pharmacy, tracking information will appear here.
                 </p>
-              </Card>
+              </div>
             ) : (
-              recentOrders.map(order => (
-                <Card 
-                  key={order.id} 
-                  onClick={() => navigate(`/orders/${order.id}`)}
-                  className="group relative border border-slate-200/60 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer bg-white"
-                >
-                  <CardContent className="p-5">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                          Order #{order.id} <span className="w-1 h-1 rounded-full bg-slate-300" /> {formatRelativeTime(order.createdAt)}
+              recentOrders.map(order => {
+                const statusStyle = getOrderStatusStyle(order.orderStatus);
+                return (
+                  <div
+                    key={order.id}
+                    onClick={() => navigate(`/orders/${order.id}`)}
+                    className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-md transition-all cursor-pointer group"
+                  >
+                    {/* Order Header */}
+                    <div className="p-6 border-b border-gray-200 flex justify-between items-start">
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                          Order #{order.id} • {formatRelativeTime(order.createdAt)}
                         </p>
-                        <h4 className="font-bold text-slate-900 text-lg group-hover:text-indigo-700 transition-colors line-clamp-1">
+                        <h3 className="text-xl font-bold text-[#009ADA] group-hover:text-[#006591] transition-colors">
                           {order.pharmacyName}
-                        </h4>
+                        </h3>
                       </div>
-                      <Badge className={`px-2.5 py-1 text-xs font-bold shadow-sm flex items-center ${getOrderBadgeStyle(order.orderStatus)}`}>
-                        {getOrderIcon(order.orderStatus)}
+                      <span className={`${statusStyle.bg} border px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold flex items-center gap-1`}>
+                        {statusStyle.icon}
                         {order.orderStatus}
-                      </Badge>
+                      </span>
                     </div>
-                    
-                    <div className="flex items-center justify-between bg-slate-50/80 rounded-xl p-3 border border-slate-100/80">
-                      <div className="flex items-center gap-4">
-                        <div className="flex flex-col">
-                          <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5">Amount</span>
-                          <span className="font-black text-slate-800 tracking-tight">EGP {order.amount?.toFixed(2) || '0.00'}</span>
-                        </div>
+
+                    {/* Order Details */}
+                    <div className="p-6 bg-gray-50 grid grid-cols-2 gap-6">
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Amount</p>
+                        <p className="text-xl font-bold text-gray-900">EGP {order.amount?.toFixed(2) || '0.00'}</p>
                       </div>
-                      
-                      <div className="flex items-center gap-3 text-right">
-                        <div className="flex flex-col items-end">
-                          <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5 flex items-center gap-1">
-                            <CreditCard className="w-3 h-3" /> {order.paymentMethod}
-                          </span>
-                          <span className={`text-xs font-extrabold ${order.paymentStatus?.toLowerCase() === 'paid' ? 'text-emerald-600' : 'text-amber-600'}`}>
-                            {order.paymentStatus || 'Pending'}
-                          </span>
+                      <div className="text-right space-y-1">
+                        <div className="flex items-center justify-end gap-1 text-gray-400">
+                          <CreditCard className="w-3.5 h-3.5" />
+                          <p className="text-xs font-bold uppercase tracking-widest">{order.paymentMethod}</p>
                         </div>
+                        <p className={`text-sm font-bold ${order.paymentStatus?.toLowerCase() === 'paid' ? 'text-emerald-600' : 'text-amber-600'}`}>
+                          {order.paymentStatus || 'Pending Payment'}
+                        </p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))
+
+                    {/* Click to view hint */}
+                    <div className="p-6 flex justify-center">
+                      <div className="w-full h-20 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center text-gray-400 opacity-60">
+                        <Receipt className="w-5 h-5 mb-1" />
+                        <p className="text-sm">Click to view prescription details</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
             )}
           </div>
         </section>
-
       </div>
+
+      {/* ── Featured Section (Bento Style) ── */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2 bg-white border border-gray-200 rounded-2xl p-6 flex items-center gap-6">
+          <div className="w-24 h-24 shrink-0 bg-[#C8E6FF] rounded-2xl flex items-center justify-center text-[#009ADA]">
+            <Shield className="w-12 h-12" />
+          </div>
+          <div className="space-y-2">
+            <h4 className="text-lg font-bold text-gray-900">Health Shield Protection</h4>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              Your prescriptions are verified by licensed pharmacists before every bid is placed. Ensuring precision in every drop.
+            </p>
+          </div>
+        </div>
+        <div
+          onClick={() => navigate('/complaints')}
+          className="bg-[#85CBFD] text-[#00567C] rounded-2xl p-6 flex flex-col justify-between group cursor-pointer hover:shadow-lg transition-all min-h-[160px]"
+        >
+          <div className="flex justify-between items-start">
+            <Headphones className="w-8 h-8" />
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </div>
+          <div>
+            <h4 className="text-lg font-bold">24/7 Support</h4>
+            <p className="text-sm opacity-80">Need help with an order?</p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

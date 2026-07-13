@@ -62,7 +62,7 @@ export default function EditProfileModal({ isOpen, onClose, profile }: EditProfi
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-shadow"
+                className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009ADA] focus:border-transparent transition-shadow"
                 placeholder="Enter your full name"
                 required
               />
@@ -81,7 +81,7 @@ export default function EditProfileModal({ isOpen, onClose, profile }: EditProfi
                 type="tel"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-shadow"
+                className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009ADA] focus:border-transparent transition-shadow"
                 placeholder="Enter your phone number"
                 required
               />
@@ -100,7 +100,7 @@ export default function EditProfileModal({ isOpen, onClose, profile }: EditProfi
             <button
               type="submit"
               disabled={isPending || !fullName.trim() || !phoneNumber.trim()}
-              className="flex-1 px-4 py-2.5 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
+              className="flex-1 px-4 py-2.5 bg-[#006591] text-white rounded-lg text-sm font-medium hover:bg-[#005478] transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
             >
               {isPending ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

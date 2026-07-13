@@ -1,13 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Package, Search, FilterX, Clock, Receipt, ExternalLink, Store } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Package, Search, ChevronDown, Calendar, Store, CheckCircle, Clock, ExternalLink, LayoutGrid, BadgeCheck, ClipboardList, Truck, XCircle } from 'lucide-react';
 import { usePagination } from '@/shared/hooks/usePagination';
 import { AppPagination } from '@/shared/ui/AppPagination';
 import { useGetMyOrdersQuery } from '../api/orders';
-import { Card, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -21,6 +16,14 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
+const STATUS_OPTIONS = [
+  { value: 'All', label: 'All Statuses', icon: LayoutGrid },
+  { value: 'Accepted', label: 'Accepted', icon: BadgeCheck },
+  { value: 'Pending', label: 'Pending', icon: ClipboardList },
+  { value: 'Delivered', label: 'Delivered', icon: Truck },
+  { value: 'Cancelled', label: 'Cancelled', icon: XCircle },
+];
+
 export default function OrdersPage() {
   const navigate = useNavigate();
   const { pageIndex, setPageIndex, pageSize } = usePagination({ initialPageSize: 10 });
@@ -30,6 +33,19 @@ export default function OrdersPage() {
   const debouncedSearch = useDebounce(searchInput, 500);
   const [fromDate, setFromDate] = useState<string>('');
   const [toDate, setToDate] = useState<string>('');
+
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsStatusDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const { data: paginatedOrders, isLoading, isError } = useGetMyOrdersQuery({
     Status: statusFilter === 'All' ? undefined : statusFilter,
@@ -43,203 +59,223 @@ export default function OrdersPage() {
   const orders = paginatedOrders?.data || [];
   const totalCount = paginatedOrders?.totalCount || 0;
 
-  const handleStatusChange = (value: string | null) => {
-    if (!value) return;
-    setStatusFilter(value);
-    setPageIndex(1);
-  };
-
-  const handleClearFilters = () => {
-    setStatusFilter('All');
-    setSearchInput('');
-    setFromDate('');
-    setToDate('');
-    setPageIndex(1);
-  };
-
-  const getStatusBadge = (status: string) => {
+  const getStatusConfig = (status: string) => {
     switch (status) {
       case 'Pending':
       case 'Accepted':
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 border-blue-200">Accepted</Badge>;
+        return 'bg-[#009ADA]/10 text-[#009ADA]';
       case 'Preparing':
-        return <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100 border-orange-200">Preparing</Badge>;
+        return 'bg-amber-100 text-amber-800';
       case 'InTransit':
-        return <Badge className="bg-indigo-100 text-indigo-800 hover:bg-indigo-100 border-indigo-200">In Transit</Badge>;
+        return 'bg-indigo-100 text-indigo-800';
       case 'Completed':
       case 'Delivered':
-        return <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100 border-emerald-200">Completed</Badge>;
+        return 'bg-gray-200/50 text-gray-600';
       case 'Cancelled':
       case 'Returned':
-        return <Badge className="bg-rose-100 text-rose-800 hover:bg-rose-100 border-rose-200">{status}</Badge>;
+        return 'bg-red-100 text-red-800';
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return 'bg-gray-100 text-gray-700';
     }
   };
 
+  const getPaymentStatusIcon = (status: string) => {
+    if (status === 'Paid') {
+      return <CheckCircle className="w-4 h-4 text-[#009ADA]" />;
+    }
+    return <Clock className="w-4 h-4 text-[#895100]" />;
+  };
+
+  const getPaymentStatusTextColor = (status: string) => {
+    if (status === 'Paid') return 'text-[#009ADA]';
+    return 'text-[#895100]';
+  };
+
+  const ActiveStatusIcon = STATUS_OPTIONS.find(o => o.value === statusFilter)?.icon || LayoutGrid;
+  const activeStatusLabel = STATUS_OPTIONS.find(o => o.value === statusFilter)?.label || 'All Statuses';
+
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-          <Package className="w-8 h-8 text-teal-600" />
-          My Orders
-        </h1>
-        <p className="text-base text-gray-500 mt-2">
-          Track and manage your pharmacy orders.
-        </p>
+    <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 min-h-[calc(100vh-160px)] font-sans">
+      {/* Header Section */}
+      <div className="mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="bg-[#009ADA]/10 p-2 rounded-xl">
+            <Package className="text-[#009ADA] w-6 h-6" />
+          </div>
+          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">My Orders</h1>
+        </div>
+        <p className="text-gray-500 text-base">Track and manage your pharmacy orders with transparency and precision.</p>
       </div>
         
-      {/* Filters Board */}
-      <Card className="shadow-sm border-slate-200">
-        <CardContent className="p-4 sm:p-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-center">
-            <div className="relative flex-1 w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input 
-                value={searchInput}
-                onChange={(e) => { setSearchInput(e.target.value); setPageIndex(1); }}
-                placeholder="Search by Pharmacy Name or Order ID..." 
-                className="pl-9 bg-slate-50 border-slate-200 focus:bg-white"
-              />
-            </div>
-            
-            <div className="w-full sm:w-48">
-              <Select value={statusFilter} onValueChange={handleStatusChange}>
-                <SelectTrigger className="bg-slate-50 border-slate-200">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">All Statuses</SelectItem>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                  <SelectItem value="Accepted">Accepted</SelectItem>
-                  <SelectItem value="Preparing">Preparing</SelectItem>
-                  <SelectItem value="InTransit">In Transit</SelectItem>
-                  <SelectItem value="Completed">Completed</SelectItem>
-                  <SelectItem value="Cancelled">Cancelled</SelectItem>
-                  <SelectItem value="Returned">Returned</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      {/* Filter & Search Bento Section */}
+      <section className="bg-white border border-gray-200 rounded-2xl p-4 mb-8 shadow-sm">
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Search */}
+          <div className="flex-grow relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input 
+              type="text"
+              value={searchInput}
+              onChange={(e) => { setSearchInput(e.target.value); setPageIndex(1); }}
+              className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#009ADA] focus:border-[#009ADA] transition-all text-gray-900"
+              placeholder="Search by Pharmacy Name or Order ID..."
+            />
+          </div>
+          
+          {/* Status Filter Custom Dropdown */}
+          <div className="w-full lg:w-56" ref={dropdownRef}>
+            <div className="relative">
+              <button 
+                onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+                className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#009ADA] focus:outline-none text-gray-900"
+              >
+                <div className="flex items-center gap-2">
+                  <ActiveStatusIcon className="w-5 h-5 text-gray-600" />
+                  <span className="font-medium text-gray-800">{activeStatusLabel}</span>
+                </div>
+                <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isStatusDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Input 
+              {isStatusDropdownOpen && (
+                <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden py-2 animate-in fade-in zoom-in-95 duration-200">
+                  {STATUS_OPTIONS.map((option) => {
+                    const isActive = statusFilter === option.value;
+                    const Icon = option.icon;
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setStatusFilter(option.value);
+                          setPageIndex(1);
+                          setIsStatusDropdownOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-4 py-3 transition-colors ${
+                          isActive 
+                            ? 'bg-[#009ADA] text-[#001E2F]' 
+                            : 'bg-white text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className={`w-5 h-5 ${isActive ? 'text-[#001E2F]' : 'text-gray-500'}`} />
+                          <span className={`font-semibold ${isActive ? 'text-[#001E2F]' : ''}`}>{option.label}</span>
+                        </div>
+                        {isActive && (
+                          <div className="bg-[#001E2F] rounded-full p-0.5 flex items-center justify-center">
+                            <CheckCircle className="w-4 h-4 text-[#009ADA] stroke-[3]" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Date Range */}
+          <div className="flex flex-col md:flex-row items-center gap-2">
+            <div className="relative w-full md:w-44">
+              <input 
                 type="date" 
                 value={fromDate}
                 onChange={(e) => { setFromDate(e.target.value); setPageIndex(1); }}
-                className="bg-slate-50 border-slate-200 text-sm flex-1 sm:w-36"
-                title="From Date"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#009ADA] text-gray-900" 
               />
-              <span className="text-gray-400 text-sm">-</span>
-              <Input 
+            </div>
+            <span className="text-gray-400 hidden md:block">—</span>
+            <div className="relative w-full md:w-44">
+              <input 
                 type="date" 
                 value={toDate}
                 onChange={(e) => { setToDate(e.target.value); setPageIndex(1); }}
-                className="bg-slate-50 border-slate-200 text-sm flex-1 sm:w-36"
-                title="To Date"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#009ADA] text-gray-900" 
               />
             </div>
-
-            {(statusFilter !== 'All' || searchInput || fromDate || toDate) && (
-              <Button 
-                variant="ghost" 
-                onClick={handleClearFilters}
-                className="text-gray-500 hover:text-red-600 w-full sm:w-auto shrink-0"
-              >
-                <FilterX className="w-4 h-4 mr-2" />
-                Clear
-              </Button>
-            )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       {/* Orders List */}
       {isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <Card key={i} className="animate-pulse h-24 bg-slate-50 border-slate-100" />
+            <div key={i} className="animate-pulse h-28 rounded-2xl bg-white border border-gray-200" />
           ))}
         </div>
       ) : isError ? (
-        <Card className="bg-red-50 border-red-100 text-center py-12">
-          <CardContent>
-            <p className="text-red-600 font-semibold mt-6">Failed to load orders. Please try again later.</p>
-          </CardContent>
-        </Card>
+        <div className="bg-red-50 border-red-100 rounded-2xl text-center py-12">
+          <p className="text-red-600 font-semibold mt-6">Failed to load orders. Please try again later.</p>
+        </div>
       ) : orders.length === 0 ? (
-        <Card className="bg-white border-dashed border-slate-300 text-center py-16">
-          <CardContent className="flex flex-col items-center pt-6">
-            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-              <Package className="w-8 h-8 text-slate-400" />
+        <div className="bg-white rounded-2xl border-2 border-dashed border-gray-300 text-center py-16">
+          <div className="flex flex-col items-center pt-6">
+            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+              <Package className="w-8 h-8 text-gray-400" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">No orders found</h3>
-            <p className="text-slate-500 max-w-md">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">No orders found</h3>
+            <p className="text-gray-500 max-w-md">
               We couldn't find any orders matching your current criteria.
             </p>
-            {(statusFilter !== 'All' || searchInput || fromDate || toDate) && (
-              <Button onClick={handleClearFilters} variant="outline" className="mt-6 border-slate-300">
-                Clear Filters
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ) : (
         <div className="space-y-4">
           {orders.map((order) => (
-            <Card 
+            <div 
               key={order.id} 
-              className="hover:shadow-md transition-shadow cursor-pointer border-slate-200 group"
               onClick={() => navigate(`/orders/${order.id}`)}
+              className={`group bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg hover:border-[#009ADA]/30 transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer ${['Completed', 'Delivered', 'Cancelled'].includes(order.orderStatus) ? 'opacity-80 hover:opacity-100' : ''}`}
             >
-              <CardContent className="p-0">
-                <div className="flex flex-col md:flex-row md:items-center justify-between p-6 gap-6">
-                  {/* Left: Info */}
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold text-slate-900">Order #{order.id}</span>
-                      <span className="text-slate-300">•</span>
-                      <span className="text-sm text-slate-500 flex items-center gap-1.5">
-                        <Clock className="w-4 h-4" />
-                        {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(order.createdAt))}
-                      </span>
-                    </div>
-                    <div className="text-slate-700 flex items-center gap-1.5 font-medium">
-                      <Store className="w-4 h-4 text-teal-600" />
-                      {order.pharmacyName}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-gray-500">Order #{order.id}</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+                    <div className="flex items-center gap-1 text-gray-500">
+                      <Calendar className="w-4 h-4" />
+                      <span className="text-sm">{new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(order.createdAt))}</span>
                     </div>
                   </div>
-
-                  {/* Middle: Status */}
-                  <div className="flex md:justify-center shrink-0 w-40">
-                    {getStatusBadge(order.orderStatus)}
-                  </div>
-
-                  {/* Right: Price & Payment */}
-                  <div className="text-left md:text-right shrink-0 w-32 flex flex-col justify-center">
-                    <div className="text-xl font-black text-slate-900">
-                      {order.amount.toFixed(2)} <span className="text-sm font-medium text-slate-500">EGP</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#85CBFD]/20 flex items-center justify-center text-[#006591]">
+                      <Store className="w-5 h-5" />
                     </div>
-                    <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 mt-1 flex items-center gap-1 md:justify-end">
-                      <Receipt className="w-3.5 h-3.5" />
-                      {order.paymentStatus}
+                    <div>
+                      <h3 className="text-2xl font-semibold leading-none text-gray-900">{order.pharmacyName}</h3>
+                      <p className="text-xs text-gray-500 mt-1">Pharmacy</p>
                     </div>
-                  </div>
-                  
-                  {/* Action Icon */}
-                  <div className="hidden md:flex items-center justify-center text-slate-300 group-hover:text-teal-600 transition-colors shrink-0 pl-2">
-                     <ExternalLink className="w-5 h-5" />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                
+                <div className="flex items-center gap-12">
+                  <div className="flex flex-col items-start md:items-center">
+                    <span className={`px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${getStatusConfig(order.orderStatus)}`}>
+                      {order.orderStatus}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-end w-24">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-semibold text-gray-900">{order.amount.toFixed(2)}</span>
+                      <span className="text-sm font-medium text-gray-500">EGP</span>
+                    </div>
+                    <div className={`flex items-center gap-1 ${getPaymentStatusTextColor(order.paymentStatus)}`}>
+                      {getPaymentStatusIcon(order.paymentStatus)}
+                      <span className="text-xs font-bold tracking-widest uppercase">{order.paymentStatus}</span>
+                    </div>
+                  </div>
+                  <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-[#009ADA] group-hover:bg-[#009ADA] group-hover:text-white transition-all shrink-0">
+                    <ExternalLink className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       )}
 
       {/* Pagination */}
       {totalCount > pageSize && (
-        <div className="pt-4 flex justify-center">
+        <div className="pt-8 flex justify-center">
           <AppPagination 
             totalCount={totalCount} 
             currentPage={pageIndex} 
