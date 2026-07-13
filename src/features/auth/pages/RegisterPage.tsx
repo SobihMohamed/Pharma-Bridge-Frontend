@@ -1,12 +1,31 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
 import { Pill, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, CheckCircle2, ShieldCheck, Sparkles, Building } from 'lucide-react';
 import { useRegisterMutation } from '../hooks/useAuthMutations';
+import { useGoogleAuthMutation } from '../hooks/useGoogleAuthMutation';
+import { useGoogleLogin } from '@react-oauth/google';
+import { useAuthStore } from '../store/authStore';
+import { toast } from 'sonner';
 import { UserRole } from '@/types/auth.types';
 
+const GoogleIcon = () => (
+  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+    <path fill="none" d="M1 1h22v22H1z" />
+  </svg>
+);
+
 export default function RegisterPage() {
-  const { mutate, isPending } = useRegisterMutation();
+  const navigate = useNavigate();
+  const setAuth = useAuthStore((state) => state.setAuth);
+
+  const { mutate: regularRegister, isPending: isRegularPending } = useRegisterMutation();
+  const { mutate: googleRegister, isPending: isGooglePending } = useGoogleAuthMutation();
+
   const [showPassword, setShowPassword] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -34,7 +53,42 @@ export default function RegisterPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutate(formData);
+    regularRegister(formData);
+  };
+
+  const registerWithGoogle = useGoogleLogin({
+    onSuccess: (codeResponse) => {
+      googleRegister(
+        { idToken: codeResponse.access_token, role: formData.role },
+        {
+          onSuccess: (res) => {
+            const payload = res.data || res;
+            // Exact same flow as regular email/password registration
+            setAuth(payload as any);
+            toast.success('Account Created Successfully');
+            if (payload.roles?.includes('PharmacyOwner')) {
+              navigate('/pharmacy/dashboard');
+            } else {
+              navigate('/profile');
+            }
+          },
+          onError: (error) => {
+            toast.error(error?.message || 'Failed to authenticate with our servers');
+          }
+        }
+      );
+    },
+    onError: () => toast.error('Google sign-in was cancelled or failed')
+  });
+
+  // Guard: validate role selection BEFORE opening the Google popup
+  const handleGoogleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!formData.role) {
+      toast.error('Please select your account type (Patient or Pharmacy) first.');
+      return;
+    }
+    registerWithGoogle();
   };
 
   // Animation variants
@@ -246,45 +300,69 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            
-            {/* Custom Role Card Grid Selector (Only Patient and PharmacyOwner) */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2.5">
-                I am signing up as a:
-              </label>
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { value: 'Patient', label: 'Patient (Customer)', icon: <User className="w-4.5 h-4.5" /> },
-                  { value: 'PharmacyOwner', label: 'Pharmacy Owner', icon: <Building className="w-4.5 h-4.5" /> }
-                ].map((roleOption) => {
-                  const isSelected = formData.role === roleOption.value;
-                  return (
-                    <motion.button
-                      key={roleOption.value}
-                      type="button"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleRoleSelect(roleOption.value as UserRole)}
-                      className={`flex flex-col items-center justify-center p-4 rounded-xl border text-center transition-all duration-200 group ${
-                        isSelected
-                          ? 'border-[#0284c7] bg-gradient-to-br from-white to-[#bae6fd]/15 text-[#0369a1] font-semibold ring-2 ring-[#0284c7]/20 shadow-md'
-                          : 'border-[#bae6fd] bg-white text-[#0284c7] hover:border-[#0284c7] hover:bg-[#bae6fd]/10'
-                      }`}
-                    >
-                      <div className={`p-2.5 rounded-lg mb-2 transition-colors duration-200 ${
-                        isSelected ? 'bg-[#0284c7] text-white' : 'bg-[#F8FAFC] text-[#0284c7] group-hover:text-[#0369a1]'
-                      }`}>
-                        {roleOption.icon}
-                      </div>
-                      <span className="text-xs tracking-tight">{roleOption.label}</span>
-                    </motion.button>
-                  );
-                })}
-              </div>
+          {/* 1. Custom Role Card Grid Selector (Must select before Google Login) */}
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-slate-700 mb-2.5">
+              I am signing up as a:
+            </label>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { value: 'Patient', label: 'Patient (Customer)', icon: <User className="w-4.5 h-4.5" /> },
+                { value: 'PharmacyOwner', label: 'Pharmacy Owner', icon: <Building className="w-4.5 h-4.5" /> }
+              ].map((roleOption) => {
+                const isSelected = formData.role === roleOption.value;
+                return (
+                  <motion.button
+                    key={roleOption.value}
+                    type="button"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleRoleSelect(roleOption.value as UserRole)}
+                    className={`flex flex-col items-center justify-center p-4 rounded-xl border text-center transition-all duration-200 group ${
+                      isSelected
+                        ? 'border-[#0284c7] bg-gradient-to-br from-white to-[#bae6fd]/15 text-[#0369a1] font-semibold ring-2 ring-[#0284c7]/20 shadow-md'
+                        : 'border-[#bae6fd] bg-white text-[#0284c7] hover:border-[#0284c7] hover:bg-[#bae6fd]/10'
+                    }`}
+                  >
+                    <div className={`p-2.5 rounded-lg mb-2 transition-colors duration-200 ${
+                      isSelected ? 'bg-[#0284c7] text-white' : 'bg-[#F8FAFC] text-[#0284c7] group-hover:text-[#0369a1]'
+                    }`}>
+                      {roleOption.icon}
+                    </div>
+                    <span className="text-xs tracking-tight">{roleOption.label}</span>
+                  </motion.button>
+                );
+              })}
             </div>
+          </div>
 
-            {/* Inputs Container */}
+          {/* 2. Google Register Button (Uses Guard to ensure role is selected) */}
+          <button
+            type="button"
+            onClick={handleGoogleClick}
+            disabled={isGooglePending || isRegularPending}
+            className="w-full flex items-center justify-center py-2.5 px-4 border border-slate-300 rounded-xl shadow-sm text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0284c7] transition-all disabled:opacity-70 disabled:cursor-not-allowed mb-6"
+          >
+            {isGooglePending ? (
+              <div className="w-5 h-5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin mr-2" />
+            ) : (
+              <GoogleIcon />
+            )}
+            Sign up with Google
+          </button>
+
+          {/* Elegant Divider */}
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-3 bg-white text-slate-500 font-medium">Or register with email</span>
+            </div>
+          </div>
+
+          {/* 3. Regular Email/Password Form */}
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-4">
               
               {/* Display Name */}
@@ -387,12 +465,12 @@ export default function RegisterPage() {
             <div className="pt-2">
               <motion.button
                 type="submit"
-                disabled={isPending}
+                disabled={isRegularPending || isGooglePending}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg shadow-[#0284c7]/10 text-sm font-bold text-white bg-gradient-to-r from-[#0284c7] to-[#0369a1] hover:from-[#0369a1] hover:to-[#0284c7] transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
               >
-                {isPending ? (
+                {isRegularPending ? (
                   <div className="flex items-center gap-2">
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     <span>Creating account...</span>
