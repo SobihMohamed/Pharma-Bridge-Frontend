@@ -9,116 +9,92 @@ export default function ProfileDetailsCard() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8 animate-pulse">
-        <div className="flex justify-between items-start mb-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-gray-200 shrink-0" />
-            <div className="space-y-3">
-              <div className="h-6 w-48 bg-gray-200 rounded" />
-              <div className="h-4 w-32 bg-gray-200 rounded" />
-              <div className="h-4 w-36 bg-gray-200 rounded" />
-            </div>
+      <section className="bg-white p-6 shadow-[0_4px_20px_rgba(15,23,42,0.04)] border border-gray-200 relative overflow-hidden rounded-2xl">
+        <div className="flex flex-col items-center text-center gap-4 animate-pulse">
+          <div className="w-32 h-32 rounded-2xl bg-gray-200" />
+          <div className="space-y-2 w-full">
+            <div className="h-6 w-40 bg-gray-200 rounded mx-auto" />
+            <div className="h-4 w-32 bg-gray-200 rounded mx-auto" />
           </div>
-          <div className="w-10 h-10 rounded-full bg-gray-200" />
+          <div className="w-full space-y-2 pt-4 border-t border-gray-100">
+            <div className="h-4 w-48 bg-gray-200 rounded" />
+            <div className="h-4 w-36 bg-gray-200 rounded" />
+          </div>
         </div>
-        <div className="grid grid-cols-3 gap-4 pt-6 border-t border-gray-100">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 bg-gray-100 rounded-lg" />
-          ))}
-        </div>
-      </div>
+      </section>
     );
   }
 
   if (isError || !profile) {
     return (
-      <div className="bg-red-50 text-red-600 rounded-xl border border-red-100 p-6 mb-8">
+      <section className="bg-red-50 text-red-600 rounded-2xl border border-red-100 p-6">
         Failed to load profile details. Please try again later.
-      </div>
+      </section>
     );
   }
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8 relative overflow-hidden group">
-        <div className="absolute top-6 right-6">
+      <section className="bg-white p-6 shadow-[0_4px_20px_rgba(15,23,42,0.04)] border border-gray-200 relative overflow-hidden rounded-2xl">
+        {/* Decorative blur circle */}
+        <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#009ADA]/5 rounded-full blur-3xl"></div>
+
+        <div className="flex flex-col items-center text-center gap-4 relative z-10">
+          {/* Avatar with edit button */}
+          <div className="relative group">
+            <div className="w-32 h-32 rounded-2xl bg-sky-100 flex items-center justify-center text-[#006591] overflow-hidden ring-4 ring-white shadow-md">
+              <User className="w-16 h-16" />
+            </div>
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-[#006591] text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+              title="Edit Profile"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Name & ID */}
+          <div>
+            <h3 className="text-xl font-bold text-gray-900">{profile.fullName}</h3>
+            <p className="text-sm text-gray-500 mt-1">Patient ID: #PB-{profile.id?.toString().slice(0, 5) || '---'}</p>
+          </div>
+
+          {/* Contact Info */}
+          <div className="w-full space-y-2 pt-4 border-t border-gray-200">
+            <div className="flex items-center gap-4 text-gray-500">
+              <Mail className="w-5 h-5 text-[#009ADA] shrink-0" />
+              <span className="text-sm truncate">{profile.email}</span>
+            </div>
+            <div className="flex items-center gap-4 text-gray-500">
+              <Phone className="w-5 h-5 text-[#009ADA] shrink-0" />
+              {profile.phoneNumber ? (
+                <span className="text-sm">{profile.phoneNumber}</span>
+              ) : (
+                <button
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="text-sm text-[#009ADA] hover:text-[#006591] hover:underline font-medium"
+                >
+                  Add phone number
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Edit Button */}
           <button
             onClick={() => setIsEditModalOpen(true)}
-            className="flex items-center justify-center w-10 h-10 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded-full transition-colors"
-            title="Edit Profile"
+            className="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold text-sm rounded-lg transition-colors mt-4"
           >
-            <Pencil className="w-5 h-5" />
+            Edit Detailed Info
           </button>
         </div>
+      </section>
 
-        <div className="flex items-start gap-5">
-          <div className="w-16 h-16 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center shrink-0">
-            <User className="w-8 h-8" />
-          </div>
-          
-          <div className="pt-1">
-            <h2 className="text-xl font-bold text-gray-900 mb-3">{profile.fullName}</h2>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-gray-600">
-                <Mail className="w-4 h-4 text-gray-400" />
-                <span className="text-sm">{profile.email}</span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <Phone className="w-4 h-4 text-gray-400" />
-                {profile.phoneNumber ? (
-                  <span className="text-sm">{profile.phoneNumber}</span>
-                ) : (
-                  <button 
-                    onClick={() => setIsEditModalOpen(true)}
-                    className="text-sm text-teal-600 hover:text-teal-700 hover:underline font-medium"
-                  >
-                    No phone number provided (Add Phone)
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Statistics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6 mt-6 border-t border-gray-100">
-          <div className="bg-teal-50/50 border border-teal-100 rounded-xl p-4 flex items-center gap-4 transition-colors hover:bg-teal-50">
-            <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 shrink-0">
-              <FileText className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-sm text-teal-600/80 font-medium mb-0.5">Total Requests</p>
-              <p className="text-xl font-bold text-teal-900 leading-none">{profile.totalPrescriptionRequests}</p>
-            </div>
-          </div>
-
-          <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 flex items-center gap-4 transition-colors hover:bg-blue-50">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
-              <Package className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-sm text-blue-600/80 font-medium mb-0.5">Orders</p>
-              <p className="text-xl font-bold text-blue-900 leading-none">{profile.ordersCount}</p>
-            </div>
-          </div>
-
-          <div className="bg-orange-50/50 border border-orange-100 rounded-xl p-4 flex items-center gap-4 transition-colors hover:bg-orange-50">
-            <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 shrink-0">
-              <AlertCircle className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-sm text-orange-600/80 font-medium mb-0.5">Complaints</p>
-              <p className="text-xl font-bold text-orange-900 leading-none">{profile.complaintsSubmitted}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <EditProfileModal 
-        isOpen={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)} 
-        profile={profile} 
+      <EditProfileModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        profile={profile}
       />
     </>
   );

@@ -22,47 +22,49 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="w-full px-4 md:px-8">
+        <div className="flex justify-between items-center h-16 w-full">
           
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 text-teal-600 hover:text-teal-700 transition-colors">
-            <Pill className="h-8 w-8" />
-            <span className="text-2xl font-bold tracking-tight">PharmaBridge</span>
+          <Link to="/" className="flex items-center gap-2 text-[#006591]">
+            <Pill className="h-8 w-8 fill-[#006591] text-[#006591] transform -rotate-45" />
+            <span className="text-2xl font-bold tracking-tight text-[#006591]">PharmaBridge</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8 mx-8">
+          <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <NavLink
                 key={link.name}
                 to={link.path}
                 className={({ isActive }) =>
-                  `text-sm font-medium transition-colors hover:text-teal-600 ${
-                    isActive ? 'text-teal-600 border-b-2 border-teal-600 pb-1' : 'text-gray-600'
+                  `text-sm font-semibold transition-colors duration-200 hover:text-[#006591] ${
+                    isActive 
+                      ? 'text-[#006591] border-b-2 border-[#006591] pb-1' 
+                      : 'text-gray-600'
                   }`
                 }
               >
                 {link.name}
               </NavLink>
             ))}
-          </div>
+          </nav>
 
           {/* Right Side Actions */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center gap-4">
             
             {!isAuthenticated ? (
               <div className="flex items-center space-x-3">
                 <Link 
                   to="/login"
-                  className="px-4 py-2 text-sm font-bold text-gray-700 hover:text-teal-600 transition-colors"
+                  className="px-4 py-2 text-sm font-bold text-gray-700 hover:text-[#009ADA] transition-colors"
                 >
                   Login
                 </Link>
                 <Link 
                   to="/register"
-                  className="px-4 py-2 text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg shadow-sm transition-colors"
+                  className="px-4 py-2 text-sm font-bold text-white bg-[#009ADA] hover:bg-[#007ba6] rounded-full shadow-sm transition-colors"
                 >
                   Sign Up
                 </Link>
@@ -79,31 +81,29 @@ export default function Navbar() {
                   <button 
                     onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                     onBlur={() => setTimeout(() => setIsProfileDropdownOpen(false), 200)}
-                    className="flex items-center gap-2 p-2 text-gray-600 hover:text-teal-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 hover:bg-gray-50 transition-all cursor-pointer"
                   >
-                    <div className="bg-teal-100 p-1.5 rounded-full text-teal-700">
-                      <User className="h-4 w-4" />
-                    </div>
-                    <span className="text-sm font-medium hidden lg:block">My Account</span>
-                    <ChevronDown className="h-4 w-4" />
+                    <User className="h-5 w-5 text-[#006591]" />
+                    <span className="text-sm font-semibold text-gray-900 hidden lg:inline">My Account</span>
+                    <ChevronDown className="h-4 w-4 text-gray-500" />
                   </button>
 
                   {/* Dropdown Menu */}
                   {isProfileDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5">
-                      <Link to="/profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <User className="h-4 w-4 mr-2 text-gray-400" />
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 border border-gray-100 ring-1 ring-black ring-opacity-5">
+                      <Link to="/profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                        <User className="h-4 w-4 mr-3 text-gray-400" />
                         Profile
                       </Link>
-                      <Link to="/settings" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <Settings className="h-4 w-4 mr-2 text-gray-400" />
+                      <Link to="/settings" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                        <Settings className="h-4 w-4 mr-3 text-gray-400" />
                         Settings
                       </Link>
                       <button 
                         onClick={handleLogout}
                         className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                       >
-                        <LogOut className="h-4 w-4 mr-2" />
+                        <LogOut className="h-4 w-4 mr-3" />
                         Sign out
                       </button>
                     </div>
@@ -122,7 +122,7 @@ export default function Navbar() {
             )}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-md text-gray-600 hover:text-teal-600 hover:bg-gray-100 focus:outline-none"
+              className="p-2 rounded-md text-gray-600 hover:text-[#009ADA] hover:bg-gray-100 focus:outline-none"
             >
               {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -137,7 +137,7 @@ export default function Navbar() {
             <Link
               key={link.name}
               to={link.path}
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-teal-600 hover:bg-teal-50"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#009ADA] hover:bg-blue-50"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {link.name}
@@ -155,7 +155,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   to="/register"
-                  className="block w-full text-center px-4 py-2.5 text-base font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg shadow-sm transition-colors"
+                  className="block w-full text-center px-4 py-2.5 text-base font-bold text-white bg-[#009ADA] hover:bg-[#007ba6] rounded-lg shadow-sm transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Sign Up
@@ -164,7 +164,7 @@ export default function Navbar() {
             ) : (
               <>
                 <div className="flex items-center px-3 mb-4">
-                  <div className="bg-teal-100 p-2 rounded-full text-teal-700 mr-3">
+                  <div className="bg-[#006591]/10 p-2 rounded-full text-[#006591] mr-3">
                     <User className="h-5 w-5" />
                   </div>
                   <div>
@@ -173,7 +173,7 @@ export default function Navbar() {
                 </div>
                 <Link
                   to="/profile"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-teal-600 hover:bg-teal-50"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#009ADA] hover:bg-blue-50"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Profile
@@ -189,6 +189,6 @@ export default function Navbar() {
           </div>
         </div>
       )}
-    </nav>
+    </header>
   );
 }

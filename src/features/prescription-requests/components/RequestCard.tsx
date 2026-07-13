@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FileText, Calendar, ChevronRight, ImageIcon, Store } from 'lucide-react';
+import { Calendar, ChevronRight, MapPin, Store, FileText, Image as ImageIcon } from 'lucide-react';
 import { PrescriptionRequestDto } from '../types';
 
 interface RequestCardProps {
@@ -7,76 +7,93 @@ interface RequestCardProps {
 }
 
 export default function RequestCard({ request }: RequestCardProps) {
-  const statusColors: Record<string, string> = {
-    Pending: 'bg-yellow-100 text-yellow-800',
-    HasBids: 'bg-blue-100 text-blue-800',
-    Closed: 'bg-green-100 text-green-800',
-    Cancelled: 'bg-red-100 text-red-800',
+  // Mapping status to colors based on the design
+  const statusConfig: Record<string, { bg: string, text: string, iconBg: string, iconColor: string }> = {
+    Pending: { 
+      bg: 'bg-[#FFDCBC]', 
+      text: 'text-[#402300]',
+      iconBg: 'bg-[#C8E6FF]',
+      iconColor: 'text-[#009ADA]'
+    },
+    HasBids: { 
+      bg: 'bg-[#C8E6FF]', 
+      text: 'text-[#004C6E]',
+      iconBg: 'bg-[#85CBFD]/20',
+      iconColor: 'text-[#006591]'
+    },
+    Closed: { 
+      bg: 'bg-gray-200', 
+      text: 'text-gray-700',
+      iconBg: 'bg-gray-100',
+      iconColor: 'text-gray-600'
+    },
+    Cancelled: { 
+      bg: 'bg-red-100', 
+      text: 'text-red-800',
+      iconBg: 'bg-red-50',
+      iconColor: 'text-red-600'
+    },
   };
+
+  const config = statusConfig[request.status] || statusConfig.Pending;
   const hasBids = request.bidsCount > 0;
   const bidsCount = request.bidsCount;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all group">
-      <div className="p-5">
+    <article className="bg-white border border-gray-200 rounded-3xl overflow-hidden hover:shadow-lg transition-shadow group flex flex-col">
+      <div className="p-6 flex-grow">
         <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0">
-              {request.imageUrl ? (
-                <ImageIcon className="w-5 h-5 text-teal-600" />
-              ) : (
-                <FileText className="w-5 h-5 text-gray-400" />
-              )}
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-gray-900">
-                {request.medicineName || "Prescription Image Attached"}
-              </h3>
-              <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>{new Date(request.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                </div>
-              </div>
-            </div>
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${config.iconBg} ${config.iconColor}`}>
+            {request.imageUrl ? (
+              <ImageIcon className="w-6 h-6" />
+            ) : (
+              <FileText className="w-6 h-6" />
+            )}
           </div>
-          <span className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${statusColors[request.status]}`}>
+          <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${config.bg} ${config.text}`}>
             {request.status}
           </span>
         </div>
-
-        <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-3">
-          <Store className="w-4 h-4 text-gray-400" />
-          <span>{request.deliveryArea}</span>
+        
+        <h3 className="text-2xl font-semibold text-gray-900 mb-4 line-clamp-1">
+          {request.medicineName || "Prescription Image Attached"}
+        </h3>
+        
+        <div className="flex items-center gap-2 text-gray-600 text-sm font-medium mb-3">
+          <Calendar className="w-4 h-4" />
+          {new Date(request.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
         </div>
-
-        <p className="text-sm text-gray-600 line-clamp-2 mb-4 h-10">
+        
+        <div className="flex items-center gap-2 text-gray-600 text-sm font-medium mb-4">
+          <MapPin className="w-4 h-4" />
+          <span className="line-clamp-1">{request.deliveryArea}</span>
+        </div>
+        
+        <p className="text-gray-600 text-sm italic border-l-2 border-gray-200 pl-4 py-1 line-clamp-2">
           {request.patientNotes || 'No additional notes provided.'}
         </p>
-
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-          <div>
-            {hasBids ? (
-              <div className="flex items-center gap-1.5 text-sm font-medium text-teal-600 bg-teal-50 px-2.5 py-1 rounded-md">
-                <Store className="w-4 h-4" />
-                {bidsCount} {bidsCount === 1 ? 'Offer' : 'Offers'}
-              </div>
-            ) : (
-              <div className="text-sm font-medium text-gray-500 bg-gray-50 px-2.5 py-1 rounded-md">
-                0 Offers
-              </div>
-            )}
-          </div>
-
-          <Link 
-            to={`/requests/${request.id}`}
-            className="inline-flex items-center gap-1 text-sm font-bold text-teal-600 hover:text-teal-700 transition-colors"
-          >
-            View Details
-            <ChevronRight className="w-4 h-4 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
-          </Link>
-        </div>
       </div>
-    </div>
+
+      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center mt-auto">
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${
+          hasBids 
+            ? 'bg-[#009ADA]/10 border-[#009ADA]/20 text-[#009ADA]' 
+            : 'bg-white/50 border-gray-200/50 text-gray-500'
+        }`}>
+          <Store className={`w-4 h-4 ${hasBids ? 'text-[#009ADA]' : 'text-gray-400'}`} />
+          <span className={`text-sm font-bold ${hasBids ? 'text-[#009ADA]' : 'text-gray-600'}`}>
+            {bidsCount} {bidsCount === 1 ? 'Offer' : 'Offers'}
+          </span>
+        </div>
+
+        <Link 
+          to={`/requests/${request.id}`}
+          className="flex items-center gap-1 text-[#009ADA] font-bold text-sm group-hover:gap-2 transition-all"
+        >
+          View Details
+          <ChevronRight className="w-4 h-4 rtl:rotate-180" />
+        </Link>
+      </div>
+    </article>
   );
 }
