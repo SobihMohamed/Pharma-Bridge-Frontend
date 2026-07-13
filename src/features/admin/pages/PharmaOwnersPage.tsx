@@ -3,14 +3,62 @@ import { useNavigate } from "react-router-dom";
 import AdminLayout from "../components/layout/AdminLayout";
 import { useAdminPharmaOwnersQuery } from "../hooks/useAdminPharmaOwnersQuery";
 import { PharmaOwnerDto } from "../services/adminPharmaOwnersService";
+import {
+  Search,
+  Users,
+  CheckCircle,
+  Clock,
+  XCircle,
+  ChevronLeft,
+  ChevronRight,
+  UserCheck,
+  UserX,
+  SlidersHorizontal,
+  Mail,
+  Phone,
+  Eye,
+  Sliders,
+} from "lucide-react";
 
-const AVATAR_BG = [
-  "bg-primary/10 text-primary border border-primary/20",
-  "bg-indigo-50 text-indigo-700 border border-indigo-150",
-  "bg-sky-50 text-sky-700 border border-sky-150",
-  "bg-violet-50 text-violet-700 border border-violet-150",
-  "bg-secondary-fixed text-on-secondary-fixed border border-outline-variant",
+// ---------- Constants ----------
+
+const STATUS_TABS = [
+  { label: "All Owners", value: "All", color: "bg-slate-400" },
+  { label: "Pending Review", value: "Pending", color: "bg-amber-500" },
+  { label: "Approved", value: "Approved", color: "bg-emerald-500" },
+  { label: "Rejected", value: "Rejected", color: "bg-rose-500" },
+  { label: "Blocked", value: "Blocked", color: "bg-slate-700" },
 ];
+
+const STATUS_STYLES: Record<string, string> = {
+  Pending: "bg-amber-50 text-amber-700 border border-amber-200/50",
+  Approved: "bg-emerald-50 text-emerald-700 border border-emerald-200/50",
+  Rejected: "bg-rose-50 text-rose-700 border border-rose-200/50",
+  Blocked: "bg-slate-100 text-slate-700 border border-slate-350",
+};
+
+const STATUS_DOT: Record<string, string> = {
+  Pending: "bg-amber-500",
+  Approved: "bg-emerald-500",
+  Rejected: "bg-rose-500",
+  Blocked: "bg-slate-500",
+};
+
+// Modern Hex Colors for Avatars
+const AVATAR_HEX = [
+  "#3b82f6", // blue
+  "#fb7185", // rose
+  "#8b5cf6", // violet
+  "#10b981", // emerald
+  "#f59e0b", // amber
+  "#14b8a6", // teal
+];
+
+function avatarBg(i: number): React.CSSProperties {
+  return { backgroundColor: AVATAR_HEX[i % AVATAR_HEX.length] };
+}
+
+// ---------- Helpers ----------
 
 const getInitials = (name: string) => {
   if (!name) return "P";
@@ -22,7 +70,6 @@ const getInitials = (name: string) => {
 const getPaginationRange = (current: number, total: number) => {
   const range: (number | string)[] = [];
   const delta = 1;
-
   for (let i = 1; i <= total; i++) {
     if (i === 1 || i === total || (i >= current - delta && i <= current + delta)) {
       range.push(i);
@@ -33,115 +80,57 @@ const getPaginationRange = (current: number, total: number) => {
   return range;
 };
 
-function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    Pending: "bg-amber-50 text-amber-700 border border-amber-200/50",
-    Approved: "bg-emerald-50 text-emerald-700 border border-emerald-200/50",
-    Rejected: "bg-rose-50 text-rose-700 border border-rose-200/50",
-    Blocked: "bg-slate-100 text-slate-700 border border-slate-350",
-  };
-  const dots: Record<string, string> = {
-    Pending: "bg-amber-500",
-    Approved: "bg-emerald-500",
-    Rejected: "bg-rose-500",
-    Blocked: "bg-slate-500",
-  };
-
-  const normalized = status || "Pending";
-  const badgeClass = styles[normalized] || "bg-slate-50 text-slate-700 border border-slate-200/50";
-  const dotClass = dots[normalized] || "bg-slate-500";
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${badgeClass}`}
-    >
-      <span className={`w-1.5 h-1.5 rounded-full ${dotClass}`} />
-      {normalized}
-    </span>
-  );
-}
+// ---------- Sub-components ----------
 
 function StatCard({
-  title,
+  label,
   value,
   icon,
-  description,
-  trend,
-  trendType = "neutral",
+  gradient,
+  subtext,
 }: {
-  title: string;
+  label: string;
   value: string | number;
-  icon: string;
-  description: string;
-  trend?: string;
-  trendType?: "positive" | "negative" | "neutral";
+  icon: React.ReactNode;
+  gradient: string;
+  subtext?: string;
 }) {
-  const trendColor = {
-    positive: "text-primary bg-primary/10 border-primary/25",
-    negative: "text-rose-600 bg-rose-50 border-rose-100",
-    neutral: "text-slate-600 bg-slate-50 border-slate-100",
-  }[trendType];
-
   return (
-    <div className="bg-white border border-slate-200/80 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group hover:border-primary/30">
+    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient}`} />
       <div className="flex justify-between items-start">
-        <div className="space-y-1">
-          <span className="text-slate-400 font-label-md text-[11px] uppercase tracking-wider font-semibold">
-            {title}
-          </span>
-          <h4 className="text-2xl font-bold font-display-sm text-slate-800 tracking-tight">
-            {value}
-          </h4>
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</p>
+          <p className="text-3xl font-black text-slate-800 tracking-tight tabular-nums">
+            {typeof value === 'number' ? value.toLocaleString() : value}
+          </p>
         </div>
-        <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-all duration-300">
-          <span className="material-symbols-outlined text-[22px]">{icon}</span>
+        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform duration-300`}>
+          {icon}
         </div>
       </div>
-      <div className="mt-4 flex items-center gap-2">
-        {trend && (
-          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${trendColor}`}>
-            {trend}
-          </span>
-        )}
-        <span className="text-slate-400 text-[13px]">{description}</span>
-      </div>
-    </div>
-  );
-}
-
-function StatCardSkeleton() {
-  return (
-    <div className="bg-white border border-slate-200/80 rounded-xl p-5 shadow-sm flex flex-col justify-between animate-pulse">
-      <div className="flex justify-between items-start">
-        <div className="space-y-2 flex-1">
-          <div className="h-3 bg-slate-100 rounded w-1/2" />
-          <div className="h-7 bg-slate-200 rounded w-1/3" />
-        </div>
-        <div className="w-10 h-10 rounded-lg bg-slate-100" />
-      </div>
-      <div className="mt-4 flex items-center gap-2">
-        <div className="h-4 bg-slate-100 rounded w-12" />
-        <div className="h-3 bg-slate-100 rounded w-24" />
-      </div>
+      {subtext && (
+        <p className="text-xs text-slate-400 font-medium mt-3.5 flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-pulse" />
+          {subtext}
+        </p>
+      )}
     </div>
   );
 }
 
 function TableSkeleton() {
   return (
-    <div className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-sm animate-pulse">
-      <div className="h-12 bg-slate-50 border-b border-slate-200/80" />
-      <div className="divide-y divide-slate-100">
+    <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm animate-pulse">
+      <div className="h-14 bg-slate-50/50 border-b border-slate-100" />
+      <div className="divide-y divide-slate-150">
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="flex px-6 py-4 items-center justify-between space-x-4">
-            <div className="flex items-center space-x-3 flex-1">
-              <div className="w-9 h-9 bg-slate-100 rounded-full" />
-              <div className="h-4 bg-slate-100 rounded w-1/3" />
-            </div>
-            <div className="h-4 bg-slate-100 rounded w-1/3 flex-1" />
             <div className="h-4 bg-slate-100 rounded w-24" />
+            <div className="h-4 bg-slate-100 rounded w-20" />
+            <div className="h-4 bg-slate-100 rounded w-32 flex-1" />
             <div className="h-4 bg-slate-100 rounded w-24" />
-            <div className="h-4 bg-slate-100 rounded w-24" />
+            <div className="h-4 bg-slate-100 rounded w-16" />
           </div>
         ))}
       </div>
@@ -151,17 +140,17 @@ function TableSkeleton() {
 
 function EmptyState({ onClear }: { onClear: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 bg-white border border-dashed border-slate-350 rounded-xl p-8 text-center max-w-xl mx-auto shadow-sm">
+    <div className="flex flex-col items-center justify-center py-16 bg-white border border-dashed border-slate-200 rounded-2xl p-8 text-center max-w-xl mx-auto shadow-sm">
       <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100 text-slate-400">
-        <span className="material-symbols-outlined text-[32px]">person_off</span>
+        <Users className="w-8 h-8" />
       </div>
       <h3 className="text-lg font-bold text-slate-800 mb-1">No pharma owners found</h3>
-      <p className="text-slate-555 text-sm max-w-sm mb-5">
+      <p className="text-slate-400 text-sm max-w-sm mb-5">
         We couldn't find any pharma owner profile matching your search query or filters. Try clearing the filters or adjusting terms.
       </p>
       <button
         onClick={onClear}
-        className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-label-md text-label-md rounded-lg border border-slate-200 transition-colors"
+        className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-sm"
       >
         Clear All Filters
       </button>
@@ -177,11 +166,11 @@ export default function PharmaOwnersPage() {
   const [pageIndex, setPageIndex] = useState(1);
   const pageSize = 10;
 
-  // Debounce search input to limit API calls (around 600 ms)
+  // Debounce search input to limit API calls
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
-      setPageIndex(1); // Reset to page 1 on new search
+      setPageIndex(1);
     }, 600);
     return () => clearTimeout(handler);
   }, [search]);
@@ -197,6 +186,11 @@ export default function PharmaOwnersPage() {
   const pharmaOwnersList: PharmaOwnerDto[] = data?.data || [];
   const totalCount = data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
+  const pageCount = pharmaOwnersList.length;
+
+  const approvedCount = pharmaOwnersList.filter((owner) => owner.status === "Approved").length;
+  const pendingCount = pharmaOwnersList.filter((owner) => owner.status === "Pending").length;
+  const blockedCount = pharmaOwnersList.filter((owner) => owner.status === "Blocked").length;
 
   const handleClearFilters = () => {
     setSearch("");
@@ -204,83 +198,105 @@ export default function PharmaOwnersPage() {
     setPageIndex(1);
   };
 
+  const handleStatusTabChange = (statusVal: string) => {
+    setStatus(statusVal);
+    setPageIndex(1);
+  };
+
   return (
-    <AdminLayout title="PharmaBridge Admin">
-      <div className="p-6 md:p-8 min-h-[calc(100vh-48px)] space-y-8 bg-[#F8FAFC]">
-        {/* Screen Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <AdminLayout title="Pharma Owners">
+      <div className="p-6 space-y-6 bg-[#F4F6FA] min-h-screen">
+        {/* Page Header */}
+        <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-2xl font-bold text-slate-800">Pharma Owners</h3>
-            <p className="text-slate-500 text-sm mt-0.5">
-              Browse, search and view details of pharmacy owners registered in the network.
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Pharma Owners</h1>
+            <p className="text-sm text-slate-400 mt-0.5">
+              Review and manage registration requests for network pharmacy owners.
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            {/* Status Dropdown Filter */}
-            <select
-              className="h-10 bg-white border border-slate-200 rounded-lg px-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer shadow-sm min-w-[140px]"
-              value={status}
-              onChange={(e) => {
-                setStatus(e.target.value);
-                setPageIndex(1); // Reset to page 1 when status filter changes
-              }}
-            >
-              <option value="All">All Statuses</option>
-              <option value="Pending">Pending</option>
-              <option value="Approved">Approved</option>
-              <option value="Rejected">Rejected</option>
-              <option value="Blocked">Blocked</option>
-            </select>
+          <div className="flex items-center gap-2 text-xs text-emerald-600 font-bold bg-emerald-50 border border-emerald-200/50 rounded-full px-3.5 py-1.5 shadow-sm">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            Platform Database
+          </div>
+        </div>
 
-            {/* Search Input Box */}
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <StatCard
+            label="Total Owners"
+            value={totalCount}
+            icon={<Users className="w-5 h-5" />}
+            gradient="from-indigo-500 to-violet-600"
+            subtext="Registered pharmacy owners"
+          />
+          <StatCard
+            label="Approved"
+            value={approvedCount}
+            icon={<UserCheck className="w-5 h-5" />}
+            gradient="from-emerald-500 to-teal-600"
+            subtext="Verified profiles ready"
+          />
+          <StatCard
+            label="Pending Review"
+            value={pendingCount}
+            icon={<Clock className="w-5 h-5" />}
+            gradient="from-amber-500 to-orange-600"
+            subtext="Awaiting verification"
+          />
+          <StatCard
+            label="Blocked Accounts"
+            value={blockedCount}
+            icon={<UserX className="w-5 h-5" />}
+            gradient="from-slate-600 to-slate-800"
+            subtext="Restricted platform access"
+          />
+        </div>
+
+        {/* Filters and Search Panel */}
+        <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-5">
+          
+          <div className="border-b border-slate-100 pb-3 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            {/* Status Tabs Selection */}
+            <div className="flex flex-wrap bg-slate-50 p-1 rounded-xl gap-1">
+              {STATUS_TABS.map((tab) => {
+                const isActive = status === tab.value;
+                return (
+                  <button
+                    key={tab.value}
+                    onClick={() => handleStatusTabChange(tab.value)}
+                    className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-2 ${
+                      isActive
+                        ? "bg-slate-900 text-white shadow-sm"
+                        : "text-slate-500 hover:text-slate-800 hover:bg-slate-100/50"
+                    }`}
+                  >
+                    {tab.value !== "All" && <span className={`w-2 h-2 rounded-full ${tab.color}`} />}
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Quick Search */}
             <div className="relative w-full md:w-80">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">
-                search
-              </span>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
-                className="w-full h-10 bg-white border border-slate-200 rounded-lg pl-10 pr-10 font-body-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-sm"
+                className="w-full h-10 bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 outline-none transition-all placeholder:text-slate-400 shadow-inner"
                 placeholder="Search by Name, Email..."
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
-              {search && (
-                <button
-                  onClick={() => {
-                    setSearch("");
-                    setPageIndex(1);
-                  }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 transition-colors p-0.5 rounded-full hover:bg-slate-100 flex items-center justify-center"
-                >
-                  <span className="material-symbols-outlined text-[16px]">close</span>
-                </button>
-              )}
             </div>
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="w-full md:w-80">
-          {isLoading ? (
-            <StatCardSkeleton />
-          ) : (
-            <StatCard
-              title="Total Owners"
-              value={totalCount.toLocaleString()}
-              icon="badge"
-              description="Registered pharmacy owners"
-              trend="+5%"
-              trendType="positive"
-            />
-          )}
-        </div>
-
-        {/* DataTable Container */}
+        {/* Data List Container */}
         {isLoading ? (
           <TableSkeleton />
         ) : isError ? (
-          <div className="bg-rose-50 text-rose-750 border border-rose-200/50 rounded-xl p-8 text-center max-w-xl mx-auto shadow-sm">
-            <span className="material-symbols-outlined text-[36px] mb-2 text-rose-500">warning</span>
+          <div className="bg-rose-50 text-rose-750 border border-rose-200/50 rounded-2xl p-8 text-center max-w-xl mx-auto shadow-sm">
+            <XCircle className="w-8 h-8 mx-auto text-rose-500 mb-2" />
             <h4 className="text-lg font-bold">Failed to load pharma owners</h4>
             <p className="text-sm mt-1 text-rose-600">
               {(error as any)?.message ||
@@ -290,44 +306,43 @@ export default function PharmaOwnersPage() {
         ) : pharmaOwnersList.length === 0 ? (
           <EmptyState onClear={handleClearFilters} />
         ) : (
-          <div className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-sm flex flex-col transition-all duration-300">
+          <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm flex flex-col transition-all duration-300">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200/80">
-                    <th className="px-6 py-4 font-label-md text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
-                      Full Name
+                  <tr className="bg-slate-50/50 border-b border-slate-100">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      Owner Profile
                     </th>
-                    <th className="px-6 py-4 font-label-md text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
-                      Email
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      Email Address
                     </th>
-                    <th className="px-6 py-4 font-label-md text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                       Phone Number
                     </th>
-                    <th className="px-6 py-4 font-label-md text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                       Status
                     </th>
-                    <th className="px-6 py-4 font-label-md text-slate-500 text-[11px] uppercase tracking-wider font-semibold text-right">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-50">
                   {pharmaOwnersList.map((owner, i) => {
                     const initials = getInitials(owner.fullName);
                     return (
                       <tr
                         key={owner.id}
                         onClick={() => navigate(`/admin/pharma-owners/${owner.id}`)}
-                        className="hover:bg-slate-50/50 transition-colors cursor-pointer group"
+                        className="hover:bg-slate-50/60 transition-colors cursor-pointer group"
                       >
                         {/* Profile Block */}
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div
-                                className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                                    AVATAR_BG[i % AVATAR_BG.length]
-                                }`}
+                              style={avatarBg(i)}
+                              className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-black shrink-0 shadow-sm"
                             >
                               {initials}
                             </div>
@@ -339,27 +354,38 @@ export default function PharmaOwnersPage() {
 
                         {/* Email */}
                         <td className="px-6 py-4">
-                          <span className="text-[14px] text-slate-700">{owner.email}</span>
+                          <span className="text-[14px] text-slate-500 font-medium flex items-center gap-1.5">
+                            <Mail className="w-3.5 h-3.5 text-slate-400" />
+                            {owner.email}
+                          </span>
                         </td>
 
                         {/* Phone Number */}
                         <td className="px-6 py-4">
-                          <span className="text-[14px] text-slate-700">{owner.phoneNumber || "—"}</span>
+                          <span className="text-[14px] text-slate-500 font-medium flex items-center gap-1.5">
+                            <Phone className="w-3.5 h-3.5 text-slate-400" />
+                            {owner.phoneNumber || "—"}
+                          </span>
                         </td>
 
                         {/* Status */}
                         <td className="px-6 py-4">
-                          <StatusBadge status={owner.status} />
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${STATUS_STYLES[owner.status] || STATUS_STYLES.Pending}`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[owner.status] || STATUS_DOT.Pending}`} />
+                            {owner.status}
+                          </span>
                         </td>
 
                         {/* Actions */}
                         <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => navigate(`/admin/pharma-owners/${owner.id}`)}
-                            className="px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 border border-primary/20 hover:border-primary/30 rounded-lg transition-colors inline-flex items-center gap-1"
+                            className="px-3.5 py-1.5 text-xs font-bold text-slate-600 hover:text-slate-800 border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-sm inline-flex items-center gap-1"
                           >
-                            <span className="material-symbols-outlined text-[14px]">visibility</span>
-                            View Details
+                            <Eye className="w-3.5 h-3.5" />
+                            Inspect
                           </button>
                         </td>
                       </tr>
@@ -370,28 +396,29 @@ export default function PharmaOwnersPage() {
             </div>
 
             {/* Pagination Footer */}
-            {totalPages > 1 && (
-              <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <span className="text-[13px] text-slate-500">
-                  Showing <span className="font-semibold text-slate-700">{(pageIndex - 1) * pageSize + 1}</span> to{" "}
-                  <span className="font-semibold text-slate-700">
-                    {Math.min(pageIndex * pageSize, totalCount)}
-                  </span>{" "}
-                  of <span className="font-semibold text-slate-700">{totalCount.toLocaleString()}</span> owners
-                </span>
+            <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-xs text-slate-400 font-medium">
+                Showing <span className="font-semibold text-slate-700">{(pageIndex - 1) * pageSize + 1}</span> to{" "}
+                <span className="font-semibold text-slate-700">
+                  {Math.min(pageIndex * pageSize, totalCount)}
+                </span>{" "}
+                of <span className="font-semibold text-slate-700">{totalCount.toLocaleString()}</span> owners
+              </span>
+              
+              {totalPages > 1 && (
                 <div className="flex items-center gap-1.5">
                   <button
                     disabled={pageIndex === 1}
                     onClick={() => setPageIndex((p) => Math.max(1, p - 1))}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-100 disabled:opacity-50 disabled:hover:bg-transparent disabled:text-slate-300 transition-all shadow-sm"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:hover:bg-white disabled:text-slate-350 transition-all shadow-sm"
                   >
-                    <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+                    <ChevronLeft className="w-4 h-4" />
                   </button>
 
                   {getPaginationRange(pageIndex, totalPages).map((p, index) => {
                     if (p === "...") {
                       return (
-                        <span key={`dots-${index}`} className="px-2 text-slate-400 text-sm">
+                        <span key={`dots-${index}`} className="px-2 text-slate-400 text-sm font-bold">
                           ...
                         </span>
                       );
@@ -400,10 +427,10 @@ export default function PharmaOwnersPage() {
                       <button
                         key={`page-${p}`}
                         onClick={() => setPageIndex(Number(p))}
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-semibold transition-all ${
+                        className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all ${
                           pageIndex === p
-                            ? "bg-primary text-white shadow-sm"
-                            : "border border-slate-200 hover:bg-slate-100 text-slate-650"
+                            ? "bg-slate-900 text-white shadow-sm"
+                            : "border border-slate-200 bg-white hover:bg-slate-50 text-slate-650"
                         }`}
                       >
                         {p}
@@ -414,13 +441,13 @@ export default function PharmaOwnersPage() {
                   <button
                     disabled={pageIndex >= totalPages}
                     onClick={() => setPageIndex((p) => Math.min(totalPages, p + 1))}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-100 disabled:opacity-50 disabled:hover:bg-transparent disabled:text-slate-300 transition-all shadow-sm"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:hover:bg-white disabled:text-slate-350 transition-all shadow-sm"
                   >
-                    <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                    <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
       </div>

@@ -26,7 +26,7 @@ export interface PharmacyDashboardData {
   recentActivities: RecentActivityDto[];
 }
 
-export const useGetPharmacyDashboardQuery = (pharmacyId: number | undefined) => {
+export const useGetPharmacyDashboardQuery = (pharmacyId: string | number | undefined) => {
   return useQuery<PharmacyDashboardData>({
     queryKey: ['pharmacyDashboard', pharmacyId],
     queryFn: async () => {

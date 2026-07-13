@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import type { CSSProperties } from "react";
 
 interface NavItem {
   label: string;
@@ -7,22 +8,50 @@ interface NavItem {
   to: string;
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", icon: "dashboard", to: "/admin/dashboard" },
-  { label: "Patients", icon: "group", to: "/admin/patients" },
-  { label: "Pharma Owners", icon: "badge", to: "/admin/pharma-owners" },
-  { label: "Pharmacies", icon: "store", to: "/admin/pharmacies" },
-  { label: "Prescriptions", icon: "description", to: "/admin/prescription-requests" },
-  { label: "Bids", icon: "local_offer", to: "/admin/bids" },
-  { label: "Complaints", icon: "report_problem", to: "/admin/complaints" },
-  { label: "Orders", icon: "shopping_cart", to: "/admin/orders" },
+const MAIN_NAV: NavItem[] = [
+  { label: "Dashboard",      icon: "dashboard",     to: "/admin/dashboard" },
+  { label: "Patients",       icon: "group",         to: "/admin/patients" },
+  { label: "Pharma Owners",  icon: "badge",         to: "/admin/pharma-owners" },
+  { label: "Pharmacies",     icon: "store",         to: "/admin/pharmacies" },
 ];
+
+const OPERATIONS_NAV: NavItem[] = [
+  { label: "Prescriptions",  icon: "description",   to: "/admin/prescription-requests" },
+  { label: "Bids",           icon: "local_offer",   to: "/admin/bids" },
+  { label: "Complaints",     icon: "report_problem",to: "/admin/complaints" },
+  { label: "Orders",         icon: "shopping_cart", to: "/admin/orders" },
+];
+
+// Color dot per operations item
+const OP_COLORS = ["bg-orange-400", "bg-blue-500", "bg-red-400", "bg-violet-500"];
 
 interface AdminSidebarProps {
   userName?: string;
   userRole?: string;
   userAvatarUrl?: string;
   isCollapsed?: boolean;
+}
+
+const AVATAR_BACKGROUNDS = [
+  { from: "#0ea5e9", to: "#0369a1" },
+  { from: "#10b981", to: "#0f766e" },
+  { from: "#f59e0b", to: "#ea580c" },
+  { from: "#f43f5e", to: "#db2777" },
+  { from: "#8b5cf6", to: "#4f46e5" },
+];
+
+const LOGO_GRADIENT: CSSProperties = {
+  backgroundImage: "linear-gradient(135deg, #0ea5e9, #0369a1)",
+};
+
+function getAvatarBackground(name: string): CSSProperties {
+  const seed = name.trim().toLowerCase();
+  const hash = seed.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const palette = AVATAR_BACKGROUNDS[hash % AVATAR_BACKGROUNDS.length];
+
+  return {
+    backgroundImage: `linear-gradient(135deg, ${palette.from}, ${palette.to})`,
+  };
 }
 
 export default function AdminSidebar({
@@ -40,49 +69,135 @@ export default function AdminSidebar({
   };
 
   return (
-    <aside className={`h-screen w-64 fixed left-0 top-0 bg-surface dark:bg-inverse-surface border-r border-outline-variant dark:border-outline flex flex-col py-4 z-50 transition-transform duration-300 ${isCollapsed ? "-translate-x-full" : "translate-x-0"}`}>
-      <div className="px-6 mb-8 flex items-center gap-3">
-        <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-          <span className="material-symbols-outlined text-white text-[20px]">medication</span>
+    <aside
+      className={`
+        h-screen w-64 fixed left-0 top-0 z-50 flex flex-col
+        bg-white border-r border-slate-100
+        transition-transform duration-300
+        ${isCollapsed ? "-translate-x-full" : "translate-x-0"}
+      `}
+    >
+      {/* ── Logo ───────────────────────────────────────────── */}
+      <div className="px-6 py-6 flex items-center gap-3 border-b border-slate-50">
+        <div
+          className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm"
+          style={LOGO_GRADIENT}
+        >
+          <span className="material-symbols-outlined text-white">medication</span>
         </div>
         <div>
-          <h1 className="font-display-sm text-display-sm font-bold text-primary dark:text-primary-fixed leading-tight">
+          <h1 className="text-[15px] font-black text-slate-800 leading-none tracking-tight">
             PharmaBridge
           </h1>
-          <p className="font-label-md text-label-md text-on-surface-variant opacity-70">Admin Portal</p>
+          <p className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase mt-0.5">
+            Admin Portal
+          </p>
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 px-3">
-        {NAV_ITEMS.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              [
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-                isActive
-                  ? "bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary border-l-4 border-primary opacity-90"
-                  : "text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low",
-              ].join(" ")
-            }
-          >
-            <span className="material-symbols-outlined">{item.icon}</span>
-            <span className="font-label-md text-label-md">{item.label}</span>
-          </NavLink>
-        ))}
-      </nav>
+      {/* ── Scrollable nav ─────────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto py-4 space-y-6 px-4">
 
-      <div className="px-6 pt-4 border-t border-outline-variant mt-auto space-y-3">
-        <div className="flex items-center gap-3">
+        {/* MAIN MENU */}
+        <div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-2">
+            Main Menu
+          </p>
+          <nav className="space-y-0.5">
+            {MAIN_NAV.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  [
+                    "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150",
+                    isActive
+                      ? "bg-slate-900 text-white shadow-sm"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-800",
+                  ].join(" ")
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <span
+                      className={`material-symbols-outlined text-[20px] ${isActive ? "text-white" : "text-slate-400"}`}
+                    >
+                      {item.icon}
+                    </span>
+                    <span>{item.label}</span>
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+
+        {/* OPERATIONS */}
+        <div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-2">
+            Operations
+          </p>
+          <nav className="space-y-0.5">
+            {OPERATIONS_NAV.map((item, idx) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  [
+                    "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150",
+                    isActive
+                      ? "bg-slate-900 text-white shadow-sm"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-800",
+                  ].join(" ")
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <span
+                      className={`w-2 h-2 rounded-full shrink-0 ${OP_COLORS[idx % OP_COLORS.length]}`}
+                    />
+                    <span className={isActive ? "text-white" : ""}>{item.label}</span>
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      {/* ── Bottom: user + settings + logout ───────────────── */}
+      <div className="border-t border-slate-100 px-4 py-4 space-y-0.5">
+        {/* Settings */}
+        {/* <button
+          onClick={() => {}}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all duration-150"
+        >
+          <span className="material-symbols-outlined text-[20px] text-slate-400">settings</span>
+          Settings
+        </button> */}
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all duration-150"
+        >
+          <span className="material-symbols-outlined text-[20px] text-slate-400">logout</span>
+          Log Out
+        </button>
+
+        {/* User info */}
+        <div className="flex items-center gap-3 px-3 pt-3 mt-1 border-t border-slate-50">
           {userAvatarUrl ? (
             <img
-              className="w-8 h-8 rounded-full object-cover border border-outline-variant"
+              className="w-8 h-8 rounded-full object-cover border border-slate-200"
               src={userAvatarUrl}
               alt={userName}
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-xs">
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm ring-2 ring-white"
+              style={getAvatarBackground(userName)}
+            >
               {userName
                 .split(" ")
                 .map((n) => n[0])
@@ -92,18 +207,12 @@ export default function AdminSidebar({
             </div>
           )}
           <div className="overflow-hidden flex-1">
-            <p className="font-label-md text-label-md truncate">{userName}</p>
-            <p className="text-[10px] text-on-surface-variant uppercase tracking-wider truncate">{userRole}</p>
+            <p className="text-sm font-bold text-slate-700 truncate leading-none">{userName}</p>
+            <p className="text-[10px] text-slate-400 uppercase tracking-wider truncate mt-0.5">
+              {userRole}
+            </p>
           </div>
         </div>
-
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
-        >
-          <span className="material-symbols-outlined text-[20px]">logout</span>
-          <span className="font-label-md text-label-md font-semibold">Logout</span>
-        </button>
       </div>
     </aside>
   );

@@ -99,6 +99,16 @@ function StatCardSkeleton() {
   );
 }
 
+function StatsSkeletonGrid() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      {[1, 2, 3, 4].map((i) => (
+        <StatCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
+
 function TableSkeleton() {
   return (
     <div className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-sm animate-pulse">
@@ -166,6 +176,16 @@ export default function PatientsPage() {
   const patientsList: PatientProfileDto[] = data?.data || [];
   const totalCount = data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
+  const withComplaintsCount = patientsList.filter((patient) => (patient.complaintsSubmitted || 0) > 0).length;
+  const totalPrescriptionRequests = patientsList.reduce(
+    (sum, patient) => sum + (patient.totalPrescriptionRequests || 0),
+    0,
+  );
+  const totalOrders = patientsList.reduce((sum, patient) => sum + (patient.ordersCount || 0), 0);
+  const totalComplaints = patientsList.reduce(
+    (sum, patient) => sum + (patient.complaintsSubmitted || 0),
+    0,
+  );
 
   const handleClearSearch = () => {
     setSearch("");
@@ -207,11 +227,11 @@ export default function PatientsPage() {
           </div>
         </div>
 
-        {/* Bento Grid Stats (Smaller Total Patients card only) */}
-        <div className="w-full md:w-80">
-          {isLoading ? (
-            <StatCardSkeleton />
-          ) : (
+        {/* Bento Grid Stats */}
+        {isLoading ? (
+          <StatsSkeletonGrid />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <StatCard
               title="Total Patients"
               value={totalCount.toLocaleString()}
@@ -220,8 +240,32 @@ export default function PatientsPage() {
               trend="+12%"
               trendType="positive"
             />
-          )}
-        </div>
+            <StatCard
+              title="With Complaints"
+              value={withComplaintsCount.toLocaleString()}
+              icon="report"
+              description="Profiles that submitted complaints"
+              trend={`${totalCount ? Math.round((withComplaintsCount / totalCount) * 100) : 0}%`}
+              trendType="negative"
+            />
+            <StatCard
+              title="Prescription Requests"
+              value={totalPrescriptionRequests.toLocaleString()}
+              icon="description"
+              description="Requests submitted by patients"
+              trend="Active"
+              trendType="neutral"
+            />
+            <StatCard
+              title="Orders"
+              value={totalOrders.toLocaleString()}
+              icon="shopping_cart"
+              description="Total orders placed by patients"
+              trend="Active"
+              trendType="neutral"
+            />
+          </div>
+        )}
 
         {/* DataTable Container */}
         {isLoading ? (
