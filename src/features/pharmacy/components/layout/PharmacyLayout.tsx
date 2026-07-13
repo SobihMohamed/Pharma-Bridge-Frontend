@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { PharmacyTopNav } from './PharmacyTopNav';
 import { PharmacySidebar } from './PharmacySidebar';
@@ -8,13 +8,28 @@ import { PharmacyProtectedRoute } from './PharmacyProtectedRoute';
 export const PharmacyLayout: React.FC = () => {
   usePharmacyRealTimeUpdates(); // Global SignalR listener for the entire Pharmacy Dashboard
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('pharmacy-theme') === 'dark';
+  });
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('pharmacy-theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('pharmacy-theme', 'light');
+    }
+  }, [darkMode]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-gray-900">
+    <div className="min-h-screen bg-slate-50 font-sans text-gray-900 dark:bg-[#0b0f19] dark:text-[#f8fafc] transition-colors duration-300">
       {/* Mobile menu overlay */}
       {isMobileMenuOpen && (
         <div 
@@ -26,16 +41,22 @@ export const PharmacyLayout: React.FC = () => {
       {/* Fixed Sidebar */}
       <PharmacySidebar 
         isOpen={isMobileMenuOpen} 
-        onClose={() => setIsMobileMenuOpen(false)} 
+        onClose={() => setIsMobileMenuOpen(false)}
+        onCollapseChange={setIsSidebarCollapsed}
       />
       
       {/* Main Content Area (offset by sidebar on desktop) */}
-      <div className="md:ml-64 min-h-screen flex flex-col">
+      <div className={`min-h-screen flex flex-col transition-[margin] duration-300 ease-in-out ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
         {/* Fixed TopNav (left aligned to sidebar edge on desktop) */}
-        <PharmacyTopNav onMenuToggle={toggleMobileMenu} />
+        <PharmacyTopNav 
+          onMenuToggle={toggleMobileMenu} 
+          isSidebarCollapsed={isSidebarCollapsed} 
+          darkMode={darkMode}
+          onToggleDarkMode={() => setDarkMode(!darkMode)}
+        />
         
         {/* Scrollable Main View */}
-        <main className="flex-1 w-full pt-16 p-4 md:p-8">
+        <main className="flex-1 w-full p-4 md:p-8" style={{ paddingTop: '80px' }}>
           <div className="max-w-6xl mx-auto">
             <PharmacyProtectedRoute>
               <Outlet />

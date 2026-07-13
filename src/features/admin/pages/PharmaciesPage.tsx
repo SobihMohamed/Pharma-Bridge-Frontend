@@ -125,6 +125,16 @@ function StatCardSkeleton() {
   );
 }
 
+function StatsSkeletonGrid() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      {[1, 2, 3, 4].map((i) => (
+        <StatCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
+
 function TableSkeleton() {
   return (
     <div className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-sm animate-pulse">
@@ -195,6 +205,10 @@ export default function PharmaciesPage() {
   const pharmaciesList: PharmacyDto[] = data?.data || [];
   const totalCount = data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
+  const pageCount = pharmaciesList.length;
+  const activeCount = pharmaciesList.filter((pharmacy) => pharmacy.status === "Active").length;
+  const pendingCount = pharmaciesList.filter((pharmacy) => pharmacy.status === "Pending").length;
+  const blockedCount = pharmaciesList.filter((pharmacy) => pharmacy.status === "Blocked").length;
 
   const handleClearFilters = () => {
     setSearch("");
@@ -257,10 +271,10 @@ export default function PharmaciesPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="w-full md:w-80">
-          {isLoading ? (
-            <StatCardSkeleton />
-          ) : (
+        {isLoading ? (
+          <StatsSkeletonGrid />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <StatCard
               title="Total Pharmacies"
               value={totalCount.toLocaleString()}
@@ -269,8 +283,42 @@ export default function PharmaciesPage() {
               trend="+3%"
               trendType="positive"
             />
-          )}
-        </div>
+            <StatCard
+              title="Active"
+              value={activeCount.toString()}
+              icon="verified"
+              description="Operational pharmacy profiles"
+              trend={`${totalCount ? Math.round((activeCount / totalCount) * 100) : 0}%`}
+              trendType="positive"
+            />
+            <StatCard
+              title="Pending"
+              value={pendingCount.toString()}
+              icon="schedule"
+              description="Waiting for review"
+              trend={`${totalCount ? Math.round((pendingCount / totalCount) * 100) : 0}%`}
+              trendType="neutral"
+            />
+            <StatCard
+              title="Blocked"
+              value={blockedCount.toString()}
+              icon="block"
+              description="Restricted pharmacy accounts"
+              trend={`${totalCount ? Math.round((blockedCount / totalCount) * 100) : 0}%`}
+              trendType="negative"
+            />
+          </div>
+        )}
+
+        {!isLoading && (
+          <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm px-5 py-4 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+            <span className="font-semibold text-slate-700">Current page:</span>
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">{pageCount} pharmacies shown</span>
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">{activeCount} active</span>
+            <span className="rounded-full bg-amber-50 px-3 py-1 text-amber-700">{pendingCount} pending</span>
+            <span className="rounded-full bg-rose-50 px-3 py-1 text-rose-700">{blockedCount} blocked</span>
+          </div>
+        )}
 
         {/* DataTable Container */}
         {isLoading ? (

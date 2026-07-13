@@ -1,62 +1,86 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import AdminLayout from "../components/layout/AdminLayout";
 import { usePharmaOwnerDetailsQuery, useUpdatePharmaOwnerStatusMutation } from "../hooks/useAdminPharmaOwnersQuery";
 import { useToast } from "@/hooks/useToast";
+import {
+  ArrowLeft,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Info,
+  FileText,
+  User,
+  Mail,
+  Phone,
+  Shield,
+  Eye,
+} from "lucide-react";
 
-function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-0">
-      <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider sm:w-48 shrink-0">
-        {label}
-      </span>
-      <span className="text-[14px] text-slate-800 font-medium">{children}</span>
-    </div>
-  );
-}
+// ---------- Constants ----------
+
+const STATUS_STYLES: Record<string, string> = {
+  Pending: "bg-amber-50 text-amber-700 border border-amber-200/50",
+  Approved: "bg-emerald-50 text-emerald-700 border border-emerald-200/50",
+  Rejected: "bg-rose-50 text-rose-700 border border-rose-200/50",
+  Blocked: "bg-slate-100 text-slate-700 border border-slate-350",
+};
+
+const STATUS_DOT: Record<string, string> = {
+  Pending: "bg-amber-500",
+  Approved: "bg-emerald-500",
+  Rejected: "bg-rose-500",
+  Blocked: "bg-slate-500",
+};
+
+// ---------- Sub-components ----------
 
 function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    Pending: "bg-amber-50 text-amber-700 border border-amber-200/50",
-    Approved: "bg-emerald-50 text-emerald-700 border border-emerald-200/50",
-    Rejected: "bg-rose-50 text-rose-700 border border-rose-200/50",
-    Blocked: "bg-slate-100 text-slate-700 border border-slate-350",
-  };
-  const dots: Record<string, string> = {
-    Pending: "bg-amber-500",
-    Approved: "bg-emerald-500",
-    Rejected: "bg-rose-500",
-    Blocked: "bg-slate-500",
-  };
-
   const normalized = status || "Pending";
-  const badgeClass = styles[normalized] || "bg-slate-50 text-slate-700 border border-slate-200/50";
-  const dotClass = dots[normalized] || "bg-slate-500";
-
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${badgeClass}`}
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${STATUS_STYLES[normalized] || STATUS_STYLES.Pending}`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${dotClass}`} />
+      <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[normalized] || STATUS_DOT.Pending}`} />
       {normalized}
     </span>
   );
 }
 
+function DetailItem({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: React.ReactNode;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-start gap-3 p-4 bg-slate-50/50 rounded-xl border border-slate-100">
+      <div className="text-slate-400 mt-0.5 shrink-0">{icon}</div>
+      <div className="space-y-0.5">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</p>
+        <div className="text-sm font-semibold text-slate-800 leading-tight">{value}</div>
+      </div>
+    </div>
+  );
+}
+
 function PageSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse">
-      <div className="bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm space-y-4">
-        <div className="h-5 bg-slate-100 rounded w-1/3" />
-        <div className="h-4 bg-slate-100 rounded w-1/2" />
-        <div className="h-4 bg-slate-100 rounded w-1/4" />
-        <div className="h-4 bg-slate-100 rounded w-1/3" />
+    <div className="space-y-6 animate-pulse p-6 md:p-8">
+      <div className="h-4 w-28 bg-slate-100 rounded" />
+      <div className="space-y-2">
+        <div className="h-6 w-48 bg-slate-200 rounded" />
+        <div className="h-4 w-32 bg-slate-100 rounded" />
       </div>
-      <div className="bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm space-y-4">
-        <div className="h-5 bg-slate-100 rounded w-1/4" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="h-48 bg-slate-100 rounded-lg" />
-          <div className="h-48 bg-slate-100 rounded-lg" />
-          <div className="h-48 bg-slate-100 rounded-lg" />
+      <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="h-5 bg-slate-100 rounded w-1/3" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="h-16 bg-slate-50 rounded-xl border border-slate-100" />
+          ))}
         </div>
       </div>
     </div>
@@ -65,29 +89,30 @@ function PageSkeleton() {
 
 function ImageThumbnail({ label, src }: { label: string; src: string | null | undefined }) {
   return (
-    <div className="space-y-1.5">
-      <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+    <div className="space-y-2">
+      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
         {label}
       </span>
       {src ? (
         <a href={src} target="_blank" rel="noopener noreferrer" className="inline-block group w-full max-w-sm">
-          <div className="relative rounded-lg border border-slate-200 overflow-hidden bg-slate-50 hover:border-primary transition-all duration-300 shadow-sm">
+          <div className="relative rounded-2xl border border-slate-250 overflow-hidden bg-slate-50 hover:border-blue-500 transition-all duration-300 shadow-sm">
             <img
               src={src}
               alt={label}
               className="max-h-48 md:max-h-60 object-contain w-full mx-auto"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center transition-colors">
-              <span className="material-symbols-outlined text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                open_in_new
+              <span className="bg-white/95 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 opacity-0 group-hover:opacity-100 shadow-md transition-opacity">
+                <Eye className="w-3.5 h-3.5" />
+                View Document
               </span>
             </div>
           </div>
         </a>
       ) : (
-        <div className="max-w-sm h-36 rounded-lg border border-dashed border-slate-200 bg-slate-50/50 flex flex-col items-center justify-center text-slate-400 gap-1.5 p-4">
-          <span className="material-symbols-outlined text-[24px]">image_not_supported</span>
-          <span className="text-xs font-medium">Not Available</span>
+        <div className="max-w-sm h-36 rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 flex flex-col items-center justify-center text-slate-400 gap-1.5 p-4">
+          <AlertCircle className="w-6 h-6 text-slate-350" />
+          <span className="text-xs font-bold text-slate-450">Not Uploaded</span>
         </div>
       )}
     </div>
@@ -98,6 +123,7 @@ export default function PharmaOwnerDetailsPage() {
   const { ownerId } = useParams<{ ownerId: string }>();
   const navigate = useNavigate();
   const toast = useToast();
+  const [showBlockConfirm, setShowBlockConfirm] = useState(false);
 
   const { data: details, isLoading, isError, error } = usePharmaOwnerDetailsQuery(ownerId || "");
   const updateMutation = useUpdatePharmaOwnerStatusMutation(ownerId || "");
@@ -105,6 +131,7 @@ export default function PharmaOwnerDetailsPage() {
   const handleUpdateStatus = (newStatus: string) => {
     updateMutation.mutate(newStatus, {
       onSuccess: () => {
+        setShowBlockConfirm(false);
         toast.success(`Pharma owner status updated to ${newStatus} successfully.`);
       },
       onError: (err: any) => {
@@ -121,24 +148,24 @@ export default function PharmaOwnerDetailsPage() {
   const showBlock = currentStatus === "Pending" || currentStatus === "Approved" || currentStatus === "Rejected";
 
   return (
-    <AdminLayout title="PharmaBridge Admin">
-      <div className="p-6 md:p-8 min-h-[calc(100vh-48px)] space-y-6 bg-[#F8FAFC]">
-        {/* Back Button */}
-        <div className="flex items-center gap-3">
+    <AdminLayout title="Owner verification">
+      <div className="p-6 space-y-6 bg-[#F4F6FA] min-h-screen">
+        {/* Back Link */}
+        <div>
           <button
             onClick={() => navigate("/admin/pharma-owners")}
-            className="flex items-center gap-1.5 text-slate-500 hover:text-primary transition-colors text-sm"
+            className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors bg-white px-3 py-2 rounded-xl border border-slate-200/60 shadow-sm"
           >
-            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-            Back to Pharma Owners
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to owners list
           </button>
         </div>
 
         {isLoading ? (
           <PageSkeleton />
         ) : isError || !details ? (
-          <div className="bg-rose-50 text-rose-755 border border-rose-200/50 rounded-xl p-8 text-center max-w-xl mx-auto shadow-sm">
-            <span className="material-symbols-outlined text-[36px] mb-2 text-rose-500">warning</span>
+          <div className="bg-rose-50 text-rose-750 border border-rose-200/50 rounded-2xl p-8 text-center max-w-xl mx-auto shadow-sm">
+            <AlertCircle className="w-8 h-8 mx-auto text-rose-500 mb-2" />
             <h4 className="text-lg font-bold">Failed to load pharma owner details</h4>
             <p className="text-sm mt-1 text-rose-600">
               {(error as any)?.message ||
@@ -147,12 +174,12 @@ export default function PharmaOwnerDetailsPage() {
           </div>
         ) : (
           <>
-            {/* Page Heading */}
+            {/* Page Heading & Actions bar */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h3 className="text-2xl font-bold text-slate-800">Pharma Owner Details</h3>
-                <p className="text-slate-500 text-sm mt-0.5">
-                  Viewing details for owner ID: {details.id}
+                <h3 className="text-2xl font-black text-slate-900 tracking-tight">Owner Verification</h3>
+                <p className="text-sm text-slate-400 mt-0.5 font-medium">
+                  Reviewing credentials for ID: <span className="font-bold text-slate-700">{details.id}</span>
                 </p>
               </div>
 
@@ -162,12 +189,12 @@ export default function PharmaOwnerDetailsPage() {
                   <button
                     disabled={isUpdating}
                     onClick={() => handleUpdateStatus("Approved")}
-                    className="h-10 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
+                    className="h-10 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
                   >
                     {isUpdating ? (
-                      <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                      <CheckCircle className="w-4.5 h-4.5" />
                     )}
                     Approve
                   </button>
@@ -177,65 +204,121 @@ export default function PharmaOwnerDetailsPage() {
                   <button
                     disabled={isUpdating}
                     onClick={() => handleUpdateStatus("Rejected")}
-                    className="h-10 px-4 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-lg flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
+                    className="h-10 px-4 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
                   >
                     {isUpdating ? (
-                      <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <span className="material-symbols-outlined text-[18px]">cancel</span>
+                      <XCircle className="w-4.5 h-4.5" />
                     )}
                     Reject
                   </button>
                 )}
 
                 {showBlock && (
-                  <button
-                    disabled={isUpdating}
-                    onClick={() => handleUpdateStatus("Blocked")}
-                    className="h-10 px-4 bg-slate-700 hover:bg-slate-800 text-white text-sm font-semibold rounded-lg flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
-                  >
-                    {isUpdating ? (
-                      <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
-                    ) : (
-                      <span className="material-symbols-outlined text-[18px]">block</span>
+                  <div className="relative">
+                    <button
+                      disabled={isUpdating}
+                      onClick={() => setShowBlockConfirm((current) => !current)}
+                      className="h-10 px-4 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
+                    >
+                      <XCircle className="w-4.5 h-4.5" />
+                      Block Owner
+                    </button>
+
+                    {showBlockConfirm && !isUpdating && (
+                      <div className="fixed inset-0 z-55 flex items-center justify-center px-4">
+                        <button
+                          type="button"
+                          aria-label="Close block confirmation"
+                          onClick={() => setShowBlockConfirm(false)}
+                          className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
+                        />
+
+                        <div className="relative z-10 w-full max-w-md rounded-2xl border border-slate-100 bg-white p-6 shadow-2xl space-y-4">
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-600">
+                              <XCircle className="w-5 h-5" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-base font-bold text-slate-900">Block this pharma owner?</p>
+                              <p className="text-sm leading-relaxed text-slate-500">
+                                Are you sure you want to restrict this owner? They will lose access to login and manage their linked pharmacies.
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-end gap-3 pt-2">
+                            <button
+                              onClick={() => setShowBlockConfirm(false)}
+                              className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-650 hover:bg-slate-50"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleUpdateStatus("Blocked")}
+                              className="px-4 py-2 bg-red-600 text-white rounded-xl text-xs font-bold hover:bg-red-700 shadow-sm"
+                            >
+                              Confirm Block
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     )}
-                    Block
-                  </button>
+                  </div>
                 )}
               </div>
             </div>
 
-            {/* Details Card */}
-            <div className="bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm space-y-6">
-              <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                <span className="material-symbols-outlined text-slate-400 text-[20px]">info</span>
-                <span className="text-sm font-bold text-slate-600 uppercase tracking-wider">
+            {/* Profile Info Details container */}
+            <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-6">
+              <div className="flex items-center gap-2 border-b border-slate-50 pb-3">
+                <Info className="w-5 h-5 text-slate-400" />
+                <span className="text-xs font-black text-slate-800 uppercase tracking-widest">
                   Profile Information
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                <DetailRow label="Full Name">{details.fullName}</DetailRow>
-                <DetailRow label="Status">
-                  <StatusBadge status={details.status} />
-                </DetailRow>
-                <DetailRow label="Email">{details.email}</DetailRow>
-                <DetailRow label="Phone Number">{details.phoneNumber || "—"}</DetailRow>
-                <DetailRow label="National ID">{details.nationalId || "—"}</DetailRow>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <DetailItem
+                  label="Full Name"
+                  value={details.fullName}
+                  icon={<User className="w-4 h-4" />}
+                />
+                <DetailItem
+                  label="Verification Status"
+                  value={<StatusBadge status={details.status} />}
+                  icon={<Shield className="w-4 h-4" />}
+                />
+                <DetailItem
+                  label="Email Address"
+                  value={details.email}
+                  icon={<Mail className="w-4 h-4" />}
+                />
+                <DetailItem
+                  label="Phone Number"
+                  value={details.phoneNumber || "—"}
+                  icon={<Phone className="w-4 h-4" />}
+                />
+                <DetailItem
+                  label="National ID Number"
+                  value={details.nationalId || "—"}
+                  icon={<FileText className="w-4 h-4" />}
+                />
               </div>
 
               {/* Images Grid */}
-              <div className="pt-6 border-t border-slate-100">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="material-symbols-outlined text-slate-400 text-[20px]">assignment</span>
-                  <span className="text-sm font-bold text-slate-600 uppercase tracking-wider">
+              <div className="pt-6 border-t border-slate-50 space-y-4">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-slate-400" />
+                  <span className="text-xs font-black text-slate-800 uppercase tracking-widest">
                     Verification Documents
                   </span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                   <ImageThumbnail label="National ID Front" src={details.nationalIdFront} />
                   <ImageThumbnail label="National ID Back" src={details.nationalIdBack} />
-                  <ImageThumbnail label="Syndicate Card Image" src={details.syndicateCardImage} />
+                  <ImageThumbnail label="Syndicate Card Scan" src={details.syndicateCardImage} />
                 </div>
               </div>
             </div>

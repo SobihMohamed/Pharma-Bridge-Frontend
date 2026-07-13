@@ -33,6 +33,10 @@ export interface DashboardActivity {
   activityAt: string;
   status: string;
   performedBy?: string;
+  applicationUserId?: string;
+  patientId?: string;
+  pharmacyId?: string;
+  ownerId?: string;
 }
 
 export interface AdminDashboardData {

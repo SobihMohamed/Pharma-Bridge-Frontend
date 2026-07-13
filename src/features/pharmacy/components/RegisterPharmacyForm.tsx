@@ -126,54 +126,54 @@ export default function RegisterPharmacyForm() {
     <div className="space-y-6">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900 mb-1">Pharmacy Location & Registration</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Pharmacy Location & Registration</h2>
+          <p className="text-sm text-gray-500 dark:text-slate-400">
             Manage your pharmacy location, credentials, and operating hours.
           </p>
         </div>
         {isApprovedStatus && (
-          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 font-bold text-sm shadow-sm">
+          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 dark:text-emerald-400 dark:bg-emerald-950/30 dark:border-emerald-900/30 font-bold text-sm shadow-sm">
             Status: {actualProfileStatus?.status || 'Active'} 🏪
           </div>
         )}
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-base font-bold text-gray-900 flex items-center gap-2 mb-5">
-            <Building2 className="w-5 h-5 text-teal-600" />
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
+          <h3 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-5">
+            <Building2 className="w-5 h-5 text-teal-600 dark:text-teal-400" />
             Basic Information
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Pharmacy Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Pharmacy Name</label>
               <input
                 {...register('pharmacyName', { required: true })}
                 disabled={isReadOnly}
-                className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500"
                 placeholder="e.g. El-Ezaby Pharmacy"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">License Number</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">License Number</label>
               <input
                 {...register('licenseNumber', { required: true })}
                 disabled={isReadOnly}
-                className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500"
                 placeholder="e.g. L-12345678"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Contact Phone</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Contact Phone</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Phone className="h-4 w-4 text-gray-400" />
+                  <Phone className="h-4 w-4 text-gray-400 dark:text-slate-500" />
                 </div>
                 <input
                   {...register('contactPhone', { required: true })}
                   disabled={isReadOnly}
-                  className="block w-full pl-10 rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                  className="block w-full pl-10 rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500"
                   placeholder="010XXXXXXXX"
                 />
               </div>
@@ -181,31 +181,31 @@ export default function RegisterPharmacyForm() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-base font-bold text-gray-900 flex items-center gap-2 mb-5">
-            <FileBadge className="w-5 h-5 text-teal-600" />
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
+          <h3 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-5">
+            <FileBadge className="w-5 h-5 text-teal-600 dark:text-teal-400" />
             License Document
           </h3>
 
           {!imagePreview ? (
             <div
               onClick={() => !isReadOnly && fileInputRef.current?.click()}
-              className={`flex flex-col items-center justify-center px-6 py-8 border-2 border-dashed border-gray-300 rounded-xl transition-all duration-200 ${isReadOnly ? 'bg-gray-100 cursor-not-allowed opacity-70' : 'cursor-pointer hover:border-teal-400 bg-gray-50/50 hover:bg-teal-50/30'}`}
+              className={`flex flex-col items-center justify-center px-6 py-8 border-2 border-dashed border-gray-300 dark:border-slate-700 rounded-xl transition-all duration-200 ${isReadOnly ? 'bg-gray-100 dark:bg-slate-900/50 cursor-not-allowed opacity-70' : 'cursor-pointer hover:border-teal-400 dark:hover:border-teal-500 bg-gray-50/50 dark:bg-slate-950 hover:bg-teal-50/30 dark:hover:bg-teal-950/20'}`}
             >
-              <UploadCloud className="h-10 w-10 text-teal-600/60 mb-2" />
-              <p className="text-sm text-gray-600">
-                <span className="font-semibold text-teal-600">Click to upload</span>
+              <UploadCloud className="h-10 w-10 text-teal-600/60 dark:text-teal-400/60 mb-2" />
+              <p className="text-sm text-gray-600 dark:text-slate-300">
+                <span className="font-semibold text-teal-600 dark:text-teal-400">Click to upload</span>
               </p>
-              <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
+              <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">PNG, JPG up to 5MB</p>
             </div>
           ) : (
-            <div className="relative rounded-xl border border-gray-200 overflow-hidden bg-gray-50 h-48 flex items-center justify-center">
+            <div className="relative rounded-xl border border-gray-200 dark:border-slate-800 overflow-hidden bg-gray-50 dark:bg-slate-950 h-48 flex items-center justify-center">
               <img src={imagePreview} alt="Preview" className="max-h-full max-w-full object-contain" />
               <button
                 type="button"
                 onClick={clearImage}
                 disabled={isReadOnly}
-                className={`absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm ${isReadOnly ? 'hidden' : 'text-gray-600 hover:text-red-500'}`}
+                className={`absolute top-2 right-2 p-1.5 bg-white dark:bg-slate-800 rounded-full shadow-sm ${isReadOnly ? 'hidden' : 'text-gray-600 dark:text-slate-300 hover:text-red-500 dark:hover:text-red-400'}`}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -220,33 +220,33 @@ export default function RegisterPharmacyForm() {
           />
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-base font-bold text-gray-900 flex items-center gap-2 mb-5">
-            <MapPin className="w-5 h-5 text-teal-600" />
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
+          <h3 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-5">
+            <MapPin className="w-5 h-5 text-teal-600 dark:text-teal-400" />
             Location & Operations
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Street Address</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Street Address</label>
               <input
                 {...register('textAddress', { required: true })}
                 disabled={isReadOnly}
-                className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Area</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Area</label>
               <input
                 {...register('area', { required: true })}
                 disabled={isReadOnly}
-                className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500"
               />
             </div>
           </div>
 
           <div className="mb-5">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Pin Location</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Pin Location</label>
             <div className={isReadOnly ? 'pointer-events-none opacity-80' : ''}>
               <MapLocationPicker
                 initialLat={location?.lat}
@@ -256,37 +256,37 @@ export default function RegisterPharmacyForm() {
             </div>
           </div>
 
-          <div className="pt-5 border-t border-gray-100">
+          <div className="pt-5 border-t border-gray-100 dark:border-slate-800">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                <Clock className="w-4 h-4 text-teal-600" /> Operating Hours
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <Clock className="w-4 h-4 text-teal-600 dark:text-teal-400" /> Operating Hours
               </h4>
               <label className="flex items-center cursor-pointer">
-                <span className="text-sm font-medium text-gray-600 mr-3">24 Hours</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-slate-400 mr-3">24 Hours</span>
                 <div className="relative">
                   <input type="checkbox" {...register('is24Hours')} disabled={isReadOnly} className="sr-only" />
-                  <div className={`block w-11 h-6 rounded-full ${is24Hours ? 'bg-teal-600' : 'bg-gray-300'} ${isReadOnly ? 'opacity-50' : ''}`} />
+                  <div className={`block w-11 h-6 rounded-full ${is24Hours ? 'bg-teal-600 dark:bg-teal-500' : 'bg-gray-300 dark:bg-slate-700'} ${isReadOnly ? 'opacity-50' : ''}`} />
                   <div className={`absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full transition-transform ${is24Hours ? 'translate-x-5' : 'translate-x-0'}`} />
                 </div>
               </label>
             </div>
             <div className={`grid grid-cols-1 sm:grid-cols-2 gap-5 ${is24Hours ? 'opacity-40 pointer-events-none' : ''}`}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Open Time</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Open Time</label>
                 <input
                   type="time"
                   {...register('openTime', { required: !is24Hours })}
                   disabled={is24Hours || isReadOnly}
-                  className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 disabled:bg-gray-100 disabled:text-gray-500"
+                  className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Close Time</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Close Time</label>
                 <input
                   type="time"
                   {...register('closeTime', { required: !is24Hours })}
                   disabled={is24Hours || isReadOnly}
-                  className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 disabled:bg-gray-100 disabled:text-gray-500"
+                  className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500"
                 />
               </div>
             </div>
@@ -295,7 +295,7 @@ export default function RegisterPharmacyForm() {
 
         <div className="flex justify-end">
           {isPendingStatus && (
-            <div className="w-full text-center p-3 bg-blue-50 border border-blue-200 text-blue-700 font-medium rounded-xl">
+            <div className="w-full text-center p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/30 text-blue-700 dark:text-blue-400 font-medium rounded-xl">
               Your pharmacy is currently under review.
             </div>
           )}
@@ -303,7 +303,7 @@ export default function RegisterPharmacyForm() {
             <button
               type="submit"
               disabled={isPending}
-              className="px-8 py-3 rounded-xl text-white bg-teal-600 hover:bg-teal-700 font-semibold disabled:opacity-60 transition-all min-w-[200px]"
+              className="px-8 py-3 rounded-xl text-white bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 font-semibold disabled:opacity-60 transition-all min-w-[200px]"
             >
               {isPending ? 'Submitting...' : 'Register Pharmacy'}
             </button>

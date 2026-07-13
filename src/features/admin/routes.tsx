@@ -60,7 +60,7 @@ export const adminRoutes = {
         { index: true, element: <Navigate to="dashboard" replace /> },
         { path: "dashboard", element: <SuspenseWrapper><AdminDashboardPage /></SuspenseWrapper> },
         { path: "patients", element: <SuspenseWrapper><AdminPatientsPage /></SuspenseWrapper> },
-        { path: "patients/:applicationUserId", element: <SuspenseWrapper><AdminPatientDetailsPage /></SuspenseWrapper> },
+        { path: "patients/:id", element: <SuspenseWrapper><AdminPatientDetailsPage /></SuspenseWrapper> },
         { path: "pharma-owners", element: <SuspenseWrapper><AdminPharmaOwnersPage /></SuspenseWrapper> },
         { path: "pharma-owners/:ownerId", element: <SuspenseWrapper><AdminPharmaOwnerDetailsPage /></SuspenseWrapper> },
         { path: "pharmacies", element: <SuspenseWrapper><AdminPharmaciesPage /></SuspenseWrapper> },
