@@ -44,18 +44,18 @@ export default function AddAddressModal({ isOpen, onClose }: AddAddressModalProp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200 my-auto">
-        <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50/50">
+      <div className="bg-white dark:bg-[#0f172a] rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200 my-auto border border-transparent dark:border-slate-800">
+        <div className="flex justify-between items-center p-5 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-[#0b0f19]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-[#009ADA]">
+            <div className="w-8 h-8 rounded-full bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center text-[#009ADA] dark:text-sky-400">
               <MapPin className="w-4 h-4" />
             </div>
-            <h2 className="text-lg font-bold text-gray-900">Add New Address</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Add New Address</h2>
           </div>
           <button 
             onClick={onClose}
             disabled={isPending}
-            className="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50"
+            className="p-1 text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
           >
             <X className="w-5 h-5" />
           </button>
@@ -64,8 +64,8 @@ export default function AddAddressModal({ isOpen, onClose }: AddAddressModalProp
         <form onSubmit={handleSubmit} className="p-5 space-y-5">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                City <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
+                City <span className="text-red-500 dark:text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -73,13 +73,13 @@ export default function AddAddressModal({ isOpen, onClose }: AddAddressModalProp
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="e.g. Cairo"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009ADA] focus:border-transparent transition-shadow text-sm"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009ADA] dark:focus:ring-sky-500 focus:border-transparent transition-shadow text-sm dark:bg-[#131b2e] dark:text-white dark:placeholder-slate-500"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Address Line <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
+                Address Line <span className="text-red-500 dark:text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -87,29 +87,29 @@ export default function AddAddressModal({ isOpen, onClose }: AddAddressModalProp
                 value={addressLine}
                 onChange={(e) => setAddressLine(e.target.value)}
                 placeholder="Street name, building number, apartment"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009ADA] focus:border-transparent transition-shadow text-sm"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009ADA] dark:focus:ring-sky-500 focus:border-transparent transition-shadow text-sm dark:bg-[#131b2e] dark:text-white dark:placeholder-slate-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Pin Location on Map <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+              Pin Location on Map <span className="text-red-500 dark:text-red-400">*</span>
             </label>
             <MapLocationPicker 
               onLocationChange={(lat, lng) => setLocation({ lat, lng })} 
             />
           </div>
 
-          <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg border border-gray-100">
+          <div className="flex items-center gap-3 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-lg border border-gray-100 dark:border-slate-700">
             <input
               id="isDefault"
               type="checkbox"
               checked={isDefault}
               onChange={(e) => setIsDefault(e.target.checked)}
-              className="w-4 h-4 text-[#009ADA] bg-white border-gray-300 rounded focus:ring-[#009ADA] cursor-pointer"
+              className="w-4 h-4 text-[#009ADA] dark:text-sky-500 bg-white dark:bg-[#131b2e] border-gray-300 dark:border-slate-600 rounded focus:ring-[#009ADA] dark:focus:ring-sky-500 cursor-pointer"
             />
-            <label htmlFor="isDefault" className="text-sm font-medium text-gray-700 cursor-pointer select-none flex-1">
+            <label htmlFor="isDefault" className="text-sm font-medium text-gray-700 dark:text-slate-200 cursor-pointer select-none flex-1">
               Set as my default address
             </label>
           </div>
@@ -119,14 +119,14 @@ export default function AddAddressModal({ isOpen, onClose }: AddAddressModalProp
               type="button"
               onClick={onClose}
               disabled={isPending}
-              className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 bg-white rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-slate-200 bg-white dark:bg-[#131b2e] rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isPending || !location || !city.trim() || !addressLine.trim()}
-              className="flex-1 px-4 py-2.5 bg-[#006591] text-white rounded-lg text-sm font-medium hover:bg-[#005478] transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
+              className="flex-1 px-4 py-2.5 bg-[#006591] dark:bg-sky-600 text-white rounded-lg text-sm font-medium hover:bg-[#005478] dark:hover:bg-sky-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
             >
               {isPending ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

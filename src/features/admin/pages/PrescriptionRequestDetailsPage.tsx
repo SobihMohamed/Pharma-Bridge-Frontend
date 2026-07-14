@@ -84,11 +84,13 @@ function DetailItem({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-3 p-4 bg-slate-50/50 rounded-xl border border-slate-100">
-      <div className="text-slate-400 mt-0.5 shrink-0">{icon}</div>
-      <div className="space-y-0.5">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</p>
-        <div className="text-sm font-semibold text-slate-800 leading-tight">{value}</div>
+    <div className="flex items-start gap-3 p-4 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300">
+      <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 shrink-0 border border-slate-100 dark:border-slate-800 transition-colors duration-300">
+        {icon}
+      </div>
+      <div className="space-y-1">
+        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest transition-colors duration-300">{label}</p>
+        <div className="text-sm font-bold text-slate-700 dark:text-slate-200 leading-tight transition-colors duration-300">{value}</div>
       </div>
     </div>
   );
@@ -97,16 +99,16 @@ function DetailItem({
 function PageSkeleton() {
   return (
     <div className="space-y-6 animate-pulse p-6 md:p-8">
-      <div className="h-4 w-28 bg-slate-100 rounded" />
+      <div className="h-4 w-28 bg-slate-100 dark:bg-slate-800 rounded" />
       <div className="space-y-2">
-        <div className="h-6 w-48 bg-slate-200 rounded" />
-        <div className="h-4 w-32 bg-slate-100 rounded" />
+        <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded" />
+        <div className="h-4 w-32 bg-slate-100 dark:bg-slate-800 rounded" />
       </div>
-      <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-4">
-        <div className="h-5 bg-slate-100 rounded w-1/3" />
+      <div className="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800 rounded-3xl p-8 shadow-sm space-y-4">
+        <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded w-1/3" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-16 bg-slate-50 rounded-xl border border-slate-100 animate-pulse" />
+            <div key={i} className="h-20 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 animate-pulse" />
           ))}
         </div>
       </div>
@@ -117,40 +119,45 @@ function PageSkeleton() {
 function BidItemsTable({ items }: { items: AdminBidItemDto[] }) {
   if (!items || items.length === 0) {
     return (
-      <p className="text-slate-400 text-sm italic py-4 text-center">No items listed in this offer.</p>
+      <p className="text-slate-400 dark:text-slate-500 text-sm font-semibold py-4 text-center">No items listed in this offer.</p>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-100">
+    <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm mt-3 transition-colors duration-300">
       <table className="w-full text-left border-collapse text-sm">
         <thead>
-          <tr className="bg-slate-50/50 border-b border-slate-100">
-            <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Item Name</th>
-            <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Qty</th>
-            <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Unit Price</th>
-            <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Line Total</th>
-            <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Alt?</th>
-            <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Alt. Note</th>
+          <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 transition-colors duration-300">
+            <th className="px-5 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Item Name</th>
+            <th className="px-5 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-center">Qty</th>
+            <th className="px-5 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-right">Unit Price</th>
+            <th className="px-5 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-right">Line Total</th>
+            <th className="px-5 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-center">Alt?</th>
+            <th className="px-5 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Alt. Note</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-50">
+        <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50 bg-white dark:bg-[#0f172a] transition-colors duration-300">
           {items.map((item, idx) => (
-            <tr key={idx} className="hover:bg-slate-50/40 transition-colors">
-              <td className="px-4 py-3 text-slate-800 font-semibold">{item.itemName}</td>
-              <td className="px-4 py-3 text-slate-600 text-center font-medium">{item.quantity}</td>
-              <td className="px-4 py-3 text-slate-500 text-right font-mono font-medium">EGP {item.unitPrice.toFixed(2)}</td>
-              <td className="px-4 py-3 text-slate-800 font-bold text-right font-mono">EGP {item.lineTotal.toFixed(2)}</td>
-              <td className="px-4 py-3 text-center">
+            <tr key={idx} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50 transition-colors duration-300 group">
+              <td className="px-5 py-4 text-slate-700 dark:text-slate-200 font-bold flex items-center gap-2">
+                <div className="w-7 h-7 rounded bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-500 group-hover:bg-primary/5 group-hover:text-primary transition-colors">
+                  <Tag className="w-3.5 h-3.5" />
+                </div>
+                {item.itemName}
+              </td>
+              <td className="px-5 py-4 text-slate-600 dark:text-slate-300 text-center font-medium">{item.quantity}</td>
+              <td className="px-5 py-4 text-slate-500 dark:text-slate-400 text-right font-medium">EGP {item.unitPrice.toFixed(2)}</td>
+              <td className="px-5 py-4 text-slate-800 dark:text-white font-black text-right">EGP {item.lineTotal.toFixed(2)}</td>
+              <td className="px-5 py-4 text-center">
                 {item.isAlternative ? (
                   <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-100 text-[10px] font-bold">
                     Alt
                   </span>
                 ) : (
-                  <span className="text-slate-300">—</span>
+                  <span className="text-slate-300 dark:text-slate-600 font-bold text-[11px] uppercase">—</span>
                 )}
               </td>
-              <td className="px-4 py-3 text-slate-500 text-xs max-w-[180px] truncate" title={item.alternativeNote || undefined}>
+              <td className="px-5 py-4 text-slate-500 dark:text-slate-400 text-xs font-medium max-w-[180px] truncate" title={item.alternativeNote || undefined}>
                 {item.alternativeNote || "—"}
               </td>
             </tr>
@@ -163,36 +170,41 @@ function BidItemsTable({ items }: { items: AdminBidItemDto[] }) {
 
 function BidCard({ bid, index }: { bid: AdminBidDto; index: number }) {
   return (
-    <div className="border border-slate-100 rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
+    <div className="border border-slate-100 dark:border-slate-800 rounded-3xl overflow-hidden bg-white dark:bg-[#0f172a] shadow-sm hover:shadow-md transition-all duration-300 relative group">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-400 to-emerald-500 opacity-80" />
       {/* Bid Header */}
-      <div className="bg-slate-50/50 px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100">
+      <div className="px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-3">
-          <span className="text-xs font-bold text-slate-400">OFFER #{index + 1}</span>
-          <span className="font-bold text-slate-800 text-base">{bid.pharmacyName}</span>
-          {bid.pharmacyPhone && (
-            <span className="text-xs text-slate-400 font-semibold flex items-center gap-1">
-              <Phone className="w-3.5 h-3.5 shrink-0" />
-              {bid.pharmacyPhone}
-            </span>
-          )}
+          <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-black text-xs">
+            #{index + 1}
+          </div>
+          <div>
+            <span className="font-bold text-slate-800 dark:text-white text-base block transition-colors duration-300">{bid.pharmacyName}</span>
+            {bid.pharmacyPhone && (
+              <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold flex items-center gap-1 mt-0.5 transition-colors duration-300">
+                <Phone className="w-3 h-3" />
+                {bid.pharmacyPhone}
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-4">
           <StatusBadge status={bid.status} />
-          <span className="text-lg font-black text-slate-800 font-mono">
+          <span className="text-xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight transition-colors duration-300">
             EGP {bid.totalPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
         </div>
       </div>
 
       {/* Bid Meta */}
-      <div className="px-5 py-3 text-xs text-slate-450 font-semibold border-b border-slate-50 flex items-center gap-1.5">
-        <Clock className="w-3.5 h-3.5" />
+      <div className="px-6 py-3 text-[11px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider border-b border-slate-50 dark:border-slate-800/50 flex items-center gap-1.5 bg-slate-50/30 dark:bg-slate-800/30 transition-colors duration-300">
+        <Clock className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600" />
         Submitted: {formatDateTime(bid.submittedAt)}
       </div>
 
       {/* Bid Items */}
-      <div className="p-5">
-        <BidItemsTable items={bid.items} />
+      <div className="p-6">
+        <BidItemsTable items={bid.bidItems} />
       </div>
     </div>
   );
@@ -209,25 +221,25 @@ export default function PrescriptionRequestDetailsPage() {
 
   return (
     <AdminLayout title="Request Overview">
-      <div className="p-6 space-y-6 bg-[#F4F6FA] min-h-screen">
+      <div className="p-6 space-y-6 bg-[#F4F6FA] dark:bg-[#0b0f19] min-h-screen transition-colors duration-300">
         {/* Back Navigation */}
         <div>
           <button
             onClick={() => navigate("/admin/prescription-requests")}
-            className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors bg-white px-3 py-2 rounded-xl border border-slate-200/60 shadow-sm"
+            className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 text-sm font-bold bg-white dark:bg-[#0f172a] px-4 py-2 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md dark:hover:bg-slate-800/50"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Back to requests list
+            <ArrowLeft className="w-4 h-4" />
+            Back to Requests List
           </button>
         </div>
 
         {isLoading ? (
           <PageSkeleton />
         ) : isError || !details ? (
-          <div className="bg-rose-50 text-rose-700 border border-rose-200/50 rounded-2xl p-8 text-center max-w-xl mx-auto shadow-sm">
-            <AlertCircle className="w-8 h-8 mx-auto text-rose-500 mb-2" />
-            <h4 className="text-lg font-bold">Failed to load request details</h4>
-            <p className="text-sm mt-1 text-rose-600">
+          <div className="bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200/50 dark:border-rose-500/20 rounded-3xl p-10 text-center max-w-xl mx-auto shadow-sm transition-colors duration-300">
+            <AlertCircle className="w-12 h-12 mx-auto text-rose-500 mb-4 opacity-80" />
+            <h4 className="text-xl font-bold">Failed to load request details</h4>
+            <p className="text-sm mt-2 text-rose-600 dark:text-rose-400 font-medium">
               Could not fetch prescription request data. The request may not exist or the API may be offline.
             </p>
           </div>
@@ -236,9 +248,9 @@ export default function PrescriptionRequestDetailsPage() {
             {/* Page Title Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight">Request Details</h3>
-                <p className="text-sm text-slate-400 mt-0.5">
-                  Auditing Request ID: <span className="font-bold text-slate-700">#{details.id}</span>
+                <h3 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight transition-colors duration-300">Request Details</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium transition-colors duration-300">
+                  Auditing Request ID: <span className="font-bold text-slate-700 dark:text-slate-300">#{details.id}</span>
                 </p>
               </div>
               <div>
@@ -251,10 +263,13 @@ export default function PrescriptionRequestDetailsPage() {
               
               {/* Left Column: Info Card */}
               <div className="lg:col-span-2 space-y-6">
-                <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-5">
-                  <div className="flex items-center gap-2 pb-3 border-b border-slate-50">
-                    <Info className="w-5 h-5 text-slate-400" />
-                    <span className="text-xs font-black text-slate-800 uppercase tracking-widest">
+                <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden group hover:shadow-md transition-all duration-300">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 opacity-80" />
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center transition-colors duration-300">
+                      <Info className="w-5 h-5" />
+                    </div>
+                    <span className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-widest transition-colors duration-300">
                       Request Information
                     </span>
                   </div>
@@ -293,36 +308,36 @@ export default function PrescriptionRequestDetailsPage() {
                   </div>
 
                   {details.fullAddress && (
-                    <div className="p-4 bg-slate-50/50 rounded-xl border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Full Address Details</p>
-                      <p className="text-sm font-semibold text-slate-700 leading-relaxed">{details.fullAddress}</p>
+                    <div className="mt-4 p-5 bg-slate-50/80 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors duration-300">
+                      <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5 transition-colors duration-300">Full Address Details</p>
+                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 leading-relaxed transition-colors duration-300">{details.fullAddress}</p>
                     </div>
                   )}
 
                   {details.patientNotes && (
-                    <div className="p-4 bg-slate-50/50 rounded-xl border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Patient Notes</p>
-                      <p className="text-sm font-semibold text-slate-700 leading-relaxed">{details.patientNotes}</p>
+                    <div className="mt-4 p-5 bg-slate-50/80 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors duration-300">
+                      <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5 transition-colors duration-300">Patient Notes</p>
+                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 leading-relaxed transition-colors duration-300">{details.patientNotes}</p>
                     </div>
                   )}
                 </div>
 
                 {/* Bids Section */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Tag className="w-4.5 h-4.5 text-slate-500" />
-                      <h4 className="text-base font-bold text-slate-800">
-                        Submitted Offers ({details.bids?.length || 0})
-                      </h4>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center transition-colors duration-300">
+                      <Tag className="w-5 h-5" />
                     </div>
+                    <h4 className="text-lg font-black text-slate-800 dark:text-white tracking-tight transition-colors duration-300">
+                      Submitted Offers ({details.bids?.length || 0})
+                    </h4>
                   </div>
 
                   {!details.bids || details.bids.length === 0 ? (
-                    <div className="bg-white border border-slate-100 rounded-2xl p-10 text-center shadow-sm">
-                      <Tag className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                      <p className="text-slate-555 text-sm font-semibold">No offers submitted yet</p>
-                      <p className="text-xs text-slate-450 mt-1">Pharmacies have not placed bids on this request.</p>
+                    <div className="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800 rounded-3xl p-12 text-center shadow-sm transition-colors duration-300">
+                      <Tag className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3 transition-colors duration-300" />
+                      <p className="text-slate-600 dark:text-slate-300 text-base font-bold transition-colors duration-300">No offers submitted yet</p>
+                      <p className="text-sm font-medium text-slate-400 dark:text-slate-500 mt-1 transition-colors duration-300">Pharmacies have not placed bids on this request.</p>
                     </div>
                   ) : (
                     <div className="space-y-4 animate-fadeIn">
@@ -338,10 +353,13 @@ export default function PrescriptionRequestDetailsPage() {
               <div className="space-y-6">
                 
                 {/* Prescription Image */}
-                <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-4">
-                  <div className="flex items-center gap-2 pb-3 border-b border-slate-50">
-                    <ImageIcon className="w-5 h-5 text-slate-400" />
-                    <span className="text-xs font-black text-slate-800 uppercase tracking-widest">
+                <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden group hover:shadow-md transition-all duration-300">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 opacity-80" />
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center transition-colors duration-300">
+                      <ImageIcon className="w-5 h-5" />
+                    </div>
+                    <span className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-widest transition-colors duration-300">
                       Prescription File
                     </span>
                   </div>
@@ -352,56 +370,63 @@ export default function PrescriptionRequestDetailsPage() {
                         href={details.imageUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group relative block rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm"
+                        className="group relative block rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 shadow-sm transition-colors duration-300"
                       >
                         <img
                           src={details.imageUrl}
                           alt="Prescription Scan"
-                          className="w-full max-h-72 object-contain mx-auto group-hover:scale-102 transition-transform duration-300"
+                          className="w-full max-h-72 object-contain mx-auto group-hover:scale-105 transition-transform duration-300"
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 flex items-center justify-center transition-colors">
-                          <span className="bg-white/95 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 opacity-0 group-hover:opacity-100 shadow-md transition-opacity">
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            Open full size
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center transition-colors">
+                          <span className="bg-white/95 dark:bg-slate-900/95 text-slate-800 dark:text-white font-black text-xs px-4 py-2 rounded-xl flex items-center gap-2 opacity-0 group-hover:opacity-100 shadow-xl transition-opacity">
+                            <ExternalLink className="w-4 h-4" />
+                            Open Full Size
                           </span>
                         </div>
                       </a>
                     </div>
                   ) : (
-                    <div className="rounded-xl border border-dashed border-slate-200 p-8 text-center bg-slate-50/50 flex flex-col items-center justify-center gap-2">
-                      <ImageIcon className="w-7 h-7 text-slate-350" />
-                      <p className="text-xs font-bold text-slate-400">No Image Uploaded</p>
-                      <p className="text-[10px] text-slate-400 max-w-[180px]">Patient requested medication by name without uploading a prescription file.</p>
+                    <div className="rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 p-8 text-center bg-slate-50/50 dark:bg-slate-800/50 flex flex-col items-center justify-center gap-3 transition-colors duration-300">
+                      <ImageIcon className="w-8 h-8 text-slate-300 dark:text-slate-600 transition-colors duration-300" />
+                      <div>
+                        <p className="text-sm font-bold text-slate-500 dark:text-slate-400 transition-colors duration-300">No Image Uploaded</p>
+                        <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500 max-w-[200px] mt-1 transition-colors duration-300">Patient requested medication by name without uploading a prescription file.</p>
+                      </div>
                     </div>
                   )}
                 </div>
 
                 {/* platform Audit Trail */}
-                <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-4">
-                  <div className="flex items-center gap-2 pb-3 border-b border-slate-50">
-                    <History className="w-5 h-5 text-slate-400" />
-                    <span className="text-xs font-black text-slate-800 uppercase tracking-widest">
+                <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden group hover:shadow-md transition-all duration-300">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 to-orange-500 opacity-80" />
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center transition-colors duration-300">
+                      <History className="w-5 h-5" />
+                    </div>
+                    <span className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-widest transition-colors duration-300">
                       History / Logs
                     </span>
                   </div>
 
                   {!details.history || details.history.length === 0 ? (
-                    <p className="text-slate-400 text-xs italic py-4 text-center">No platform history available.</p>
+                    <p className="text-slate-400 dark:text-slate-500 text-sm font-semibold italic py-4 text-center transition-colors duration-300">No platform history available.</p>
                   ) : (
-                    <div className="space-y-4 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100 animate-fadeIn">
+                    <div className="space-y-5 relative before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100 dark:before:bg-slate-800 animate-fadeIn transition-colors duration-300">
                       {details.history.map((entry, idx) => (
-                        <div key={idx} className="flex gap-4 relative pl-7 group">
+                        <div key={idx} className="flex gap-4 relative pl-8 group">
                           {/* Timeline dot */}
-                          <div className="absolute left-[9px] top-1.5 w-2 h-2 rounded-full bg-slate-300 group-hover:bg-blue-500 transition-colors border border-white ring-4 ring-white" />
+                          <div className="absolute left-[10px] top-1.5 w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600 group-hover:bg-amber-500 transition-colors border border-white dark:border-[#0f172a] ring-4 ring-white dark:ring-[#0f172a] shadow-sm" />
                           <div className="space-y-1">
-                            <p className="text-xs font-bold text-slate-800 leading-tight">
-                              {entry.action}
+                            <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-tight transition-colors duration-300">
+                              {entry.oldStatus
+                                ? `Status changed from ${entry.oldStatus} to ${entry.newStatus}`
+                                : `Status set to ${entry.newStatus}`}
                             </p>
-                            <p className="text-[10px] text-slate-400 font-semibold">
-                              {entry.performedBy} · {formatDateTime(entry.performedAt)}
+                            <p className="text-[11px] text-slate-400 dark:text-slate-500 font-bold tracking-wide transition-colors duration-300">
+                              {entry.changedByName || "System / Patient"} <span className="mx-1 text-slate-300 dark:text-slate-600">•</span> {formatDateTime(entry.changedAt)}
                             </p>
                             {entry.notes && (
-                              <p className="text-xs text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100 mt-1">
+                              <p className="text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 font-medium p-3 rounded-xl border border-slate-100 dark:border-slate-700 mt-2 transition-colors duration-300">
                                 {entry.notes}
                               </p>
                             )}

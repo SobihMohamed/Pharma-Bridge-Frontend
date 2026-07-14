@@ -76,15 +76,15 @@ export default function RequestDetailsPage() {
     return (
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="animate-pulse flex items-center gap-4 mb-6">
-          <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+          <div className="w-10 h-10 bg-gray-200 dark:bg-slate-700 rounded-full"></div>
           <div className="space-y-2">
-            <div className="w-48 h-6 bg-gray-200 rounded"></div>
-            <div className="w-64 h-4 bg-gray-200 rounded"></div>
+            <div className="w-48 h-6 bg-gray-200 dark:bg-slate-700 rounded"></div>
+            <div className="w-64 h-4 bg-gray-200 dark:bg-slate-700 rounded"></div>
           </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-4 h-96 bg-gray-100 rounded-xl animate-pulse"></div>
-          <div className="lg:col-span-8 h-96 bg-gray-100 rounded-xl animate-pulse"></div>
+          <div className="lg:col-span-4 h-96 bg-gray-100 dark:bg-slate-800 rounded-xl animate-pulse"></div>
+          <div className="lg:col-span-8 h-96 bg-gray-100 dark:bg-slate-800 rounded-xl animate-pulse"></div>
         </div>
       </div>
     );
@@ -96,8 +96,8 @@ export default function RequestDetailsPage() {
         <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-2">
           <AlertTriangle className="w-8 h-8" />
         </div>
-        <h2 className="text-2xl font-bold text-slate-900">Request Not Found</h2>
-        <p className="text-slate-500 max-w-md">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Request Not Found</h2>
+        <p className="text-slate-500 dark:text-slate-400 max-w-md">
           The prescription request you are looking for does not exist or has been removed.
         </p>
         <Button onClick={() => navigate('/requests')} className="mt-4 bg-teal-600 hover:bg-teal-700">
@@ -116,7 +116,7 @@ export default function RequestDetailsPage() {
       case 'Closed':
         return <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-green-200">Completed</Badge>;
       case 'Cancelled':
-        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100 border-gray-200">Cancelled</Badge>;
+        return <Badge className="bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 border-gray-200 dark:border-slate-700">Cancelled</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -142,7 +142,7 @@ export default function RequestDetailsPage() {
   const bids = request.bids || [];
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
+    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8 transition-colors duration-300">
       
       {/* Header Row */}
       <div className="flex items-center gap-4">
@@ -150,13 +150,13 @@ export default function RequestDetailsPage() {
           variant="outline" 
           size="icon" 
           onClick={() => navigate('/requests')} 
-          className="rounded-full shadow-sm hover:bg-slate-50"
+          className="rounded-full shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800"
         >
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Prescription Request</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Submitted on {formatDate(request.createdAt)}</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Prescription Request</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Submitted on {formatDate(request.createdAt)}</p>
         </div>
       </div>
 
@@ -164,11 +164,11 @@ export default function RequestDetailsPage() {
         
         {/* LEFT COLUMN: Request Context */}
         <div className="lg:col-span-4 space-y-6 sticky top-24">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-300">
             
             {/* Image Section */}
             {request.imageUrl ? (
-              <div className="w-full h-64 bg-slate-100 relative group overflow-hidden">
+              <div className="w-full h-64 bg-slate-100 dark:bg-slate-800 relative group overflow-hidden">
                 <img 
                   src={request.imageUrl} 
                   alt="Prescription" 
@@ -182,11 +182,11 @@ export default function RequestDetailsPage() {
                 </div>
               </div>
             ) : (
-              <div className="w-full h-48 bg-slate-50 flex flex-col items-center justify-center border-b border-slate-100">
-                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
-                  <ImageIcon className="w-6 h-6 text-slate-400" />
+              <div className="w-full h-48 bg-slate-50 dark:bg-[#0b0f19] flex flex-col items-center justify-center border-b border-slate-100 dark:border-slate-800">
+                <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
+                  <ImageIcon className="w-6 h-6 text-slate-400 dark:text-slate-500" />
                 </div>
-                <span className="text-sm font-medium text-slate-500">No image attached</span>
+                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">No image attached</span>
               </div>
             )}
 
@@ -194,7 +194,7 @@ export default function RequestDetailsPage() {
             <div className="p-6 space-y-6">
               <div className="flex justify-between items-start gap-4">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900 line-clamp-2">
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white line-clamp-2">
                     {request.medicineName || "General Prescription"}
                   </h2>
                 </div>
@@ -203,22 +203,22 @@ export default function RequestDetailsPage() {
                 </div>
               </div>
 
-              <div className="space-y-5 pt-2 border-t border-slate-100">
-                <div className="flex gap-3 text-slate-600 mt-4">
+              <div className="space-y-5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex gap-3 text-slate-600 dark:text-slate-400 mt-4">
                   <MapPin className="w-5 h-5 text-teal-600 shrink-0" />
                   <div>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Delivery Area</p>
-                    <p className="text-sm font-medium text-slate-900">{request.deliveryArea || "Nearby"}</p>
+                    <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Delivery Area</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-white">{request.deliveryArea || "Nearby"}</p>
                   </div>
                 </div>
 
                 {request.patientNotes && request.patientNotes.trim() !== '' && request.patientNotes.toLowerCase() !== 'null' && (
-                  <div className="flex gap-3 text-slate-600">
+                  <div className="flex gap-3 text-slate-600 dark:text-slate-400">
                     <FileText className="w-5 h-5 text-blue-500 shrink-0" />
                     <div>
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">My Notes</p>
-                      <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 mt-1">
-                        <p className="text-sm text-slate-700 italic">"{request.patientNotes}"</p>
+                      <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">My Notes</p>
+                      <div className="bg-slate-50 dark:bg-[#0b0f19] p-3 rounded-lg border border-slate-100 dark:border-slate-800 mt-1">
+                        <p className="text-sm text-slate-700 dark:text-slate-300 italic">"{request.patientNotes}"</p>
                       </div>
                     </div>
                   </div>
@@ -228,7 +228,7 @@ export default function RequestDetailsPage() {
             
             {/* Action Footer */}
             {canCancel && (
-              <div className="p-4 bg-slate-50 border-t border-slate-100">
+              <div className="p-4 bg-slate-50 dark:bg-[#0b0f19] border-t border-slate-100 dark:border-slate-800">
                 <Button 
                   variant="outline" 
                   className="w-full text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 transition-colors"
@@ -243,8 +243,8 @@ export default function RequestDetailsPage() {
 
         {/* RIGHT COLUMN: Real-Time Offers List */}
         <div className="lg:col-span-8 space-y-6">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
               Offers Received ({request.bidsCount})
             </h2>
             
@@ -261,13 +261,13 @@ export default function RequestDetailsPage() {
           </div>
 
           {bids.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 px-6 bg-white rounded-2xl border border-dashed border-slate-300 text-center shadow-sm">
+            <div className="flex flex-col items-center justify-center py-20 px-6 bg-white dark:bg-[#0f172a] rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 text-center shadow-sm">
               <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mb-6 relative shadow-inner">
                 <Activity className="w-8 h-8 text-teal-600" />
                 <div className="absolute inset-0 border-[3px] border-teal-200 border-t-teal-600 rounded-full animate-spin opacity-50"></div>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Waiting for pharmacies...</h3>
-              <p className="text-slate-500 text-base max-w-md leading-relaxed">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Waiting for pharmacies...</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-base max-w-md leading-relaxed">
                 We have notified nearby pharmacies about your request. Relax, offers will appear here automatically in real-time.
               </p>
             </div>
@@ -280,9 +280,9 @@ export default function RequestDetailsPage() {
                 
                 return (
                   <div key={bid.id} className={`rounded-2xl border shadow-sm hover:shadow-md transition-all duration-200 group overflow-hidden ${
-                    bid.status === 'Rejected' ? 'opacity-75 grayscale-[20%] border-slate-200 bg-white' :
-                    bid.status === 'Accepted' ? 'border-emerald-500 bg-emerald-50/30' :
-                    'bg-white border-slate-200 hover:border-teal-300'
+                    bid.status === 'Rejected' ? 'opacity-75 grayscale-[20%] border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0f172a]' :
+                    bid.status === 'Accepted' ? 'border-emerald-500 bg-emerald-50/30 dark:bg-emerald-950/20' :
+                    'bg-white dark:bg-[#0f172a] border-slate-200 dark:border-slate-800 hover:border-teal-300'
                   }`}>
                     <div className="flex flex-col md:flex-row justify-between">
                       
@@ -292,7 +292,7 @@ export default function RequestDetailsPage() {
                         {/* Header Row */}
                         <div className="flex items-start justify-between">
                           <div>
-                            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                               <Store className="w-5 h-5 text-teal-600 shrink-0" />
                               {bid.pharmacyName}
                             </h3>
@@ -300,26 +300,26 @@ export default function RequestDetailsPage() {
                               {bid.pharmacyRating > 0 ? (
                                 <>
                                   <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                                  <span className="font-bold text-slate-700">{bid.pharmacyRating.toFixed(1)}</span>
+                                  <span className="font-bold text-slate-700 dark:text-slate-300">{bid.pharmacyRating.toFixed(1)}</span>
                                 </>
                               ) : (
-                                <Badge variant="secondary" className="bg-slate-100 text-slate-600 text-[10px] uppercase tracking-wider py-0 px-1.5 h-5">New</Badge>
+                                <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] uppercase tracking-wider py-0 px-1.5 h-5">New</Badge>
                               )}
-                              <span className="text-slate-300 mx-1">•</span>
-                              <span className="text-slate-500 font-medium">Offered at {new Date(bid.submittedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+                              <span className="text-slate-300 dark:text-slate-600 mx-1">•</span>
+                              <span className="text-slate-500 dark:text-slate-400 font-medium">Offered at {new Date(bid.submittedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
                             </div>
                           </div>
                           
                           {/* Mobile Pricing Top-Right */}
                           <div className="md:hidden text-right">
                             <span className="text-2xl font-black text-teal-600 tracking-tight">{bid.totalPrice.toFixed(2)}</span>
-                            <span className="text-sm font-bold text-slate-400 ml-1">EGP</span>
+                            <span className="text-sm font-bold text-slate-400 dark:text-slate-500 ml-1">EGP</span>
                           </div>
                         </div>
 
                         {/* Nested Bid Items List */}
-                        <div className="bg-slate-50 rounded-xl border border-slate-100 p-4 space-y-3">
-                          <div className="flex items-center gap-2 text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        <div className="bg-slate-50 dark:bg-[#0b0f19] rounded-xl border border-slate-100 dark:border-slate-800 p-4 space-y-3">
+                          <div className="flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
                             <PackageOpen className="w-4 h-4" />
                             Included Items ({bid.bidItems.length})
                           </div>
@@ -330,13 +330,13 @@ export default function RequestDetailsPage() {
                                 {/* Item Row */}
                                 <div className="flex items-start justify-between text-sm">
                                   <div className="flex items-start gap-2">
-                                    <span className="font-bold text-slate-400 min-w-[24px]">{item.quantity}x</span>
-                                    <span className={`font-medium ${item.isAlternative ? 'text-amber-700' : 'text-slate-900'}`}>
+                                    <span className="font-bold text-slate-400 dark:text-slate-500 min-w-[24px]">{item.quantity}x</span>
+                                    <span className={`font-medium ${item.isAlternative ? 'text-amber-700' : 'text-slate-900 dark:text-white'}`}>
                                       {item.itemName}
                                     </span>
                                   </div>
-                                  <div className="font-medium text-slate-900 shrink-0 ml-4">
-                                    {item.lineTotal.toFixed(2)} <span className="text-slate-400 text-xs">EGP</span>
+                                  <div className="font-medium text-slate-900 dark:text-white shrink-0 ml-4">
+                                    {item.lineTotal.toFixed(2)} <span className="text-slate-400 dark:text-slate-500 text-xs">EGP</span>
                                   </div>
                                 </div>
                                 
@@ -359,10 +359,10 @@ export default function RequestDetailsPage() {
 
                         {/* Pharmacy Notes Quote */}
                         {bid.notes && bid.notes.trim() !== '' && bid.notes.toLowerCase() !== 'no' && (
-                          <div className="flex gap-2.5 text-sm text-slate-700 bg-blue-50/50 p-4 rounded-xl border border-blue-100/60 shadow-sm">
+                          <div className="flex gap-2.5 text-sm text-slate-700 dark:text-slate-300 bg-blue-50/50 dark:bg-blue-950/20 p-4 rounded-xl border border-blue-100/60 dark:border-blue-900/40 shadow-sm">
                             <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
                             <div>
-                              <p className="font-semibold text-blue-900/80 mb-0.5">Pharmacy Note</p>
+                              <p className="font-semibold text-blue-900/80 dark:text-blue-300 mb-0.5">Pharmacy Note</p>
                               <p className="italic">"{bid.notes}"</p>
                             </div>
                           </div>
@@ -370,17 +370,17 @@ export default function RequestDetailsPage() {
                       </div>
 
                       {/* Financial Summary & Action CTA Column (Desktop) */}
-                      <div className="bg-slate-50 md:bg-transparent md:border-l border-slate-100 p-6 md:w-64 shrink-0 flex flex-col justify-between gap-6">
+                      <div className="bg-slate-50 dark:bg-[#0b0f19] md:bg-transparent dark:md:bg-transparent md:border-l border-slate-100 dark:border-slate-800 p-6 md:w-64 shrink-0 flex flex-col justify-between gap-6">
                         <div className="space-y-4">
                           {/* Logistics Summary */}
                           <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
-                              <span className="text-slate-500">Subtotal</span>
-                              <span className="font-bold text-slate-900">{subtotal.toFixed(2)} EGP</span>
+                              <span className="text-slate-500 dark:text-slate-400">Subtotal</span>
+                              <span className="font-bold text-slate-900 dark:text-white">{subtotal.toFixed(2)} EGP</span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
-                              <span className="text-slate-500 flex items-center gap-1.5"><Receipt className="w-4 h-4"/> Delivery Fee</span>
-                              <span className="font-bold text-slate-900">
+                              <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><Receipt className="w-4 h-4"/> Delivery Fee</span>
+                              <span className="font-bold text-slate-900 dark:text-white">
                                 {bid.deliveryFee > 0 ? `${bid.deliveryFee.toFixed(2)} EGP` : <span className="text-green-600 uppercase">Free</span>}
                               </span>
                             </div>
@@ -390,17 +390,17 @@ export default function RequestDetailsPage() {
                                 <span className="text-emerald-600 font-bold">- {calculatedDiscount.toFixed(2)} EGP</span>
                               </div>
                             )}
-                            <div className="flex items-center justify-between text-sm pt-1 border-t border-slate-100">
-                              <span className="text-slate-500 flex items-center gap-1.5"><Clock className="w-4 h-4"/> Arrives In</span>
-                              <span className="font-bold text-slate-900">{bid.deliveryTimeInMinutes} Mins</span>
+                            <div className="flex items-center justify-between text-sm pt-1 border-t border-slate-100 dark:border-slate-800">
+                              <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><Clock className="w-4 h-4"/> Arrives In</span>
+                              <span className="font-bold text-slate-900 dark:text-white">{bid.deliveryTimeInMinutes} Mins</span>
                             </div>
                           </div>
                           
-                          <div className="h-px bg-slate-200 w-full" />
+                          <div className="h-px bg-slate-200 dark:bg-slate-700 w-full" />
                           
                           {/* Total Price Block */}
                           <div className="text-right">
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total</p>
+                            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Total</p>
                             <div className="text-3xl font-black text-teal-600 tracking-tight">
                               {bid.totalPrice.toFixed(2)} <span className="text-base text-teal-600/60 font-medium">EGP</span>
                             </div>
@@ -417,7 +417,7 @@ export default function RequestDetailsPage() {
                             <CheckCircle className="w-5 h-5 mr-2" /> Offer Accepted - Preparing Order
                           </div>
                         ) : request.status === 'Closed' ? (
-                          <div className="flex items-center justify-center text-sm font-bold text-slate-500 bg-slate-100 px-4 py-3 rounded-md">
+                          <div className="flex items-center justify-center text-sm font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-4 py-3 rounded-md">
                             Request Closed
                           </div>
                         ) : (

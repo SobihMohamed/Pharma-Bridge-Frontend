@@ -6,33 +6,33 @@ import { useToast } from "@/hooks/useToast";
 function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-0">
-      <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider sm:w-48 shrink-0">
+      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider sm:w-48 shrink-0">
         {label}
       </span>
-      <span className="text-[14px] text-slate-800 font-medium">{children}</span>
+      <span className="text-[14px] text-slate-800 dark:text-slate-200 font-medium">{children}</span>
     </div>
   );
 }
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    Pending: "bg-amber-50 text-amber-700 border border-amber-200/50",
-    Active: "bg-emerald-50 text-emerald-700 border border-emerald-200/50",
-    Blocked: "bg-slate-100 text-slate-700 border border-slate-350",
+    Pending: "bg-amber-50 text-amber-700 border border-amber-200/50 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
+    Active: "bg-emerald-50 text-emerald-700 border border-emerald-200/50 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
+    Blocked: "bg-slate-100 text-slate-700 border border-slate-350 dark:bg-slate-500/10 dark:text-slate-300 dark:border-slate-500/20",
   };
   const dots: Record<string, string> = {
-    Pending: "bg-amber-500",
-    Active: "bg-emerald-500",
-    Blocked: "bg-slate-500",
+    Pending: "bg-amber-500 dark:bg-amber-400",
+    Active: "bg-emerald-500 dark:bg-emerald-400",
+    Blocked: "bg-slate-500 dark:bg-slate-400",
   };
 
   const normalized = status || "Pending";
-  const badgeClass = styles[normalized] || "bg-slate-50 text-slate-700 border border-slate-200/50";
-  const dotClass = dots[normalized] || "bg-slate-500";
+  const badgeClass = styles[normalized] || "bg-slate-50 text-slate-700 border border-slate-200/50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
+  const dotClass = dots[normalized] || "bg-slate-500 dark:bg-slate-400";
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${badgeClass}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors duration-300 ${badgeClass}`}
     >
       <span className={`w-1.5 h-1.5 rounded-full ${dotClass}`} />
       {normalized}
@@ -43,15 +43,15 @@ function StatusBadge({ status }: { status: string }) {
 function PageSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <div className="bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm space-y-4">
-        <div className="h-5 bg-slate-100 rounded w-1/3" />
-        <div className="h-4 bg-slate-100 rounded w-1/2" />
-        <div className="h-4 bg-slate-100 rounded w-1/4" />
-        <div className="h-4 bg-slate-100 rounded w-1/3" />
+      <div className="bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-slate-800 rounded-xl p-6 shadow-sm space-y-4 transition-colors duration-300">
+        <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded w-1/3" />
+        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/2" />
+        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/4" />
+        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/3" />
       </div>
-      <div className="bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm space-y-4">
-        <div className="h-5 bg-slate-100 rounded w-1/4" />
-        <div className="h-48 bg-slate-100 rounded-lg max-w-sm" />
+      <div className="bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-slate-800 rounded-xl p-6 shadow-sm space-y-4 transition-colors duration-300">
+        <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded w-1/4" />
+        <div className="h-48 bg-slate-100 dark:bg-slate-800 rounded-lg max-w-sm" />
       </div>
     </div>
   );
@@ -60,12 +60,12 @@ function PageSkeleton() {
 function ImageThumbnail({ label, src }: { label: string; src: string | null | undefined }) {
   return (
     <div className="space-y-1.5">
-      <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
         {label}
       </span>
       {src ? (
         <a href={src} target="_blank" rel="noopener noreferrer" className="inline-block group w-full max-w-sm">
-          <div className="relative rounded-lg border border-slate-200 overflow-hidden bg-slate-50 hover:border-primary transition-all duration-300 shadow-sm">
+          <div className="relative rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-50 dark:bg-slate-800 hover:border-primary dark:hover:border-primary transition-all duration-300 shadow-sm">
             <img
               src={src}
               alt={label}
@@ -79,7 +79,7 @@ function ImageThumbnail({ label, src }: { label: string; src: string | null | un
           </div>
         </a>
       ) : (
-        <div className="max-w-sm h-36 rounded-lg border border-dashed border-slate-200 bg-slate-50/50 flex flex-col items-center justify-center text-slate-400 gap-1.5 p-4">
+        <div className="max-w-sm h-36 rounded-lg border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 gap-1.5 p-4 transition-colors duration-300">
           <span className="material-symbols-outlined text-[24px]">image_not_supported</span>
           <span className="text-xs font-medium">Not Available</span>
         </div>
@@ -128,12 +128,12 @@ export default function PharmacyDetailsPage() {
 
   return (
     <AdminLayout title="PharmaBridge Admin">
-      <div className="p-6 md:p-8 min-h-[calc(100vh-48px)] space-y-6 bg-[#F8FAFC]">
+      <div className="p-6 md:p-8 min-h-[calc(100vh-48px)] space-y-6 bg-[#F8FAFC] dark:bg-[#0b0f19] transition-colors duration-300">
         {/* Back Button */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate("/admin/pharmacies")}
-            className="flex items-center gap-1.5 text-slate-500 hover:text-primary transition-colors text-sm"
+            className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm"
           >
             <span className="material-symbols-outlined text-[18px]">arrow_back</span>
             Back to Pharmacies
@@ -143,10 +143,10 @@ export default function PharmacyDetailsPage() {
         {isLoading ? (
           <PageSkeleton />
         ) : isError || !details ? (
-          <div className="bg-rose-50 text-rose-755 border border-rose-200/50 rounded-xl p-8 text-center max-w-xl mx-auto shadow-sm">
-            <span className="material-symbols-outlined text-[36px] mb-2 text-rose-500">warning</span>
+          <div className="bg-rose-50 dark:bg-rose-500/10 text-rose-755 dark:text-rose-400 border border-rose-200/50 dark:border-rose-500/20 rounded-xl p-8 text-center max-w-xl mx-auto shadow-sm transition-colors duration-300">
+            <span className="material-symbols-outlined text-[36px] mb-2 text-rose-500 dark:text-rose-400">warning</span>
             <h4 className="text-lg font-bold">Failed to load pharmacy details</h4>
-            <p className="text-sm mt-1 text-rose-600">
+            <p className="text-sm mt-1 text-rose-600 dark:text-rose-400/80">
               {(error as any)?.message ||
                 "There was an issue retrieving the details. Please verify the endpoint is online."}
             </p>
@@ -156,8 +156,8 @@ export default function PharmacyDetailsPage() {
             {/* Page Heading */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h3 className="text-2xl font-bold text-slate-800">{details.pharmacyName}</h3>
-                <p className="text-slate-500 text-sm mt-0.5">
+                <h3 className="text-2xl font-bold text-slate-800 dark:text-white">{details.pharmacyName}</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
                   Comprehensive profile details and registration status verification.
                 </p>
               </div>
@@ -183,7 +183,7 @@ export default function PharmacyDetailsPage() {
                   <button
                     disabled={isUpdating}
                     onClick={() => handleUpdateStatus("Blocked")}
-                    className="h-10 px-4 bg-slate-700 hover:bg-slate-800 text-white text-sm font-semibold rounded-lg flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
+                    className="h-10 px-4 bg-slate-700 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-sm font-semibold rounded-lg flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
                   >
                     {isUpdating ? (
                       <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
@@ -201,10 +201,10 @@ export default function PharmacyDetailsPage() {
               {/* Left Column - Pharmacy Info & Documents */}
               <div className="lg:col-span-2 space-y-6">
                 {/* Pharmacy Information Card */}
-                <div className="bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm space-y-6">
-                  <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                    <span className="material-symbols-outlined text-slate-400 text-[20px]">store</span>
-                    <span className="text-sm font-bold text-slate-600 uppercase tracking-wider">
+                <div className="bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-slate-800 rounded-xl p-6 shadow-sm space-y-6 transition-colors duration-300">
+                  <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                    <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-[20px]">store</span>
+                    <span className="text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                       Pharmacy Information
                     </span>
                   </div>
@@ -223,15 +223,15 @@ export default function PharmacyDetailsPage() {
                     </DetailRow>
                     <DetailRow label="Registration Date">{formatDate(details.registrationDate)}</DetailRow>
                     <DetailRow label="Average Rating">
-                      <div className="flex items-center gap-1 text-slate-800 font-medium">
+                      <div className="flex items-center gap-1 text-slate-800 dark:text-slate-200 font-medium">
                         <span className="material-symbols-outlined text-amber-500 text-[18px]">star</span>
                         <span className="font-bold">{details.averageRating != null ? details.averageRating.toFixed(1) : "0.0"}</span>
-                        <span className="text-slate-400 text-xs">/ 5.0</span>
+                        <span className="text-slate-400 dark:text-slate-500 text-xs">/ 5.0</span>
                       </div>
                     </DetailRow>
                     <DetailRow label="Completed Orders">
-                      <div className="flex items-center gap-1.5 text-slate-800 font-semibold">
-                        <span className="material-symbols-outlined text-slate-400 text-[18px]">shopping_bag</span>
+                      <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200 font-semibold">
+                        <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-[18px]">shopping_bag</span>
                         <span>{details.completeOrderCount ?? 0} orders</span>
                       </div>
                     </DetailRow>
@@ -239,10 +239,10 @@ export default function PharmacyDetailsPage() {
                 </div>
 
                 {/* Documents Card */}
-                <div className="bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm space-y-6">
-                  <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                    <span className="material-symbols-outlined text-slate-400 text-[20px]">assignment</span>
-                    <span className="text-sm font-bold text-slate-600 uppercase tracking-wider">
+                <div className="bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-slate-800 rounded-xl p-6 shadow-sm space-y-6 transition-colors duration-300">
+                  <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                    <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-[20px]">assignment</span>
+                    <span className="text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                       Verification Documents
                     </span>
                   </div>
@@ -254,10 +254,10 @@ export default function PharmacyDetailsPage() {
 
               {/* Right Column - Owner Details */}
               <div className="space-y-6">
-                <div className="bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm space-y-6">
-                  <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                    <span className="material-symbols-outlined text-slate-400 text-[20px]">person</span>
-                    <span className="text-sm font-bold text-slate-600 uppercase tracking-wider">
+                <div className="bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-slate-800 rounded-xl p-6 shadow-sm space-y-6 transition-colors duration-300">
+                  <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                    <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-[20px]">person</span>
+                    <span className="text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                       Pharmacy Owner
                     </span>
                   </div>
@@ -265,13 +265,13 @@ export default function PharmacyDetailsPage() {
                   {details.owner ? (
                     <div className="space-y-4">
                       <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                        <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                           Full Name
                         </span>
-                        <span className="text-[14px] text-slate-800 font-bold">{details.owner.fullName}</span>
+                        <span className="text-[14px] text-slate-800 dark:text-slate-200 font-bold">{details.owner.fullName}</span>
                       </div>
                       <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                        <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                           Email Address
                         </span>
                         <a
@@ -282,15 +282,15 @@ export default function PharmacyDetailsPage() {
                         </a>
                       </div>
                       <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                        <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                           Phone Number
                         </span>
-                        <span className="text-[14px] text-slate-800 font-medium">
+                        <span className="text-[14px] text-slate-800 dark:text-slate-200 font-medium">
                           {details.owner.phoneNumber || "—"}
                         </span>
                       </div>
                       <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                        <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                           Owner Status
                         </span>
                         <div>
@@ -299,7 +299,7 @@ export default function PharmacyDetailsPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="py-8 text-center text-slate-400 space-y-2">
+                    <div className="py-8 text-center text-slate-400 dark:text-slate-500 space-y-2">
                       <span className="material-symbols-outlined text-[36px]">no_accounts</span>
                       <p className="text-xs font-medium">No owner information linked</p>
                     </div>

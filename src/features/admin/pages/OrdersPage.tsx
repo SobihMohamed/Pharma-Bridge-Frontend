@@ -2,30 +2,42 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../components/layout/AdminLayout";
 import { useAdminOrdersQuery, AdminOrdersParams } from "../hooks/useAdminOrdersQuery";
-import { useAllPatientsDropdownQuery } from "../hooks/useAdminPrescriptionRequestsQuery";
-import { useAllPharmaciesDropdownQuery } from "../hooks/useAdminComplaintsQuery";
 import { AdminOrderDto } from "../services/adminService";
+import {
+  Search,
+  Calendar,
+  Clock,
+  CheckCircle,
+  Truck,
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  AlertCircle,
+  SlidersHorizontal,
+  ChevronDown,
+  ChevronUp,
+  ShoppingCart,
+} from "lucide-react";
 
 // ---------- Constants ----------
 
-const STATUS_OPTIONS = [
-  { label: "Pending", value: "Pending" },
-  { label: "Accepted", value: "Accepted" },
-  { label: "In Transit", value: "InTransit" },
-  { label: "Preparing", value: "Preparing" },
-  { label: "Completed", value: "Completed" },
-  { label: "Cancelled", value: "Cancelled" },
-  { label: "Returned", value: "Returned" },
+const STATUS_TABS = [
+  { label: "All Orders", value: "", color: "bg-slate-400 dark:bg-slate-500" },
+  { label: "Pending", value: "Pending", color: "bg-amber-500" },
+  { label: "Preparing", value: "Preparing", color: "bg-blue-500" },
+  { label: "In Transit", value: "InTransit", color: "bg-sky-500" },
+  { label: "Completed", value: "Completed", color: "bg-emerald-500" },
+  { label: "Cancelled", value: "Cancelled", color: "bg-rose-500" },
 ];
 
 const STATUS_STYLES: Record<string, string> = {
-  Pending: "bg-amber-50 text-amber-700 border border-amber-200/50",
-  Accepted: "bg-emerald-50 text-emerald-700 border border-emerald-200/50",
-  InTransit: "bg-sky-50 text-sky-700 border border-sky-200/50",
-  Preparing: "bg-blue-50 text-blue-700 border border-blue-200/50",
-  Completed: "bg-primary/15 text-primary border border-primary/30",
-  Cancelled: "bg-rose-50 text-rose-700 border border-rose-200/50",
-  Returned: "bg-slate-500/10 text-slate-700 border border-slate-300/50",
+  Pending: "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-500/20",
+  Accepted: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20",
+  InTransit: "bg-sky-50 dark:bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-200/50 dark:border-sky-500/20",
+  Preparing: "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200/50 dark:border-blue-500/20",
+  Completed: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20",
+  Cancelled: "bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200/50 dark:border-rose-500/20",
+  Returned: "bg-slate-50 dark:bg-slate-500/10 text-slate-700 dark:text-slate-400 border border-slate-200/50 dark:border-slate-500/20",
 };
 
 const STATUS_DOT: Record<string, string> = {
@@ -33,11 +45,10 @@ const STATUS_DOT: Record<string, string> = {
   Accepted: "bg-emerald-500",
   InTransit: "bg-sky-500",
   Preparing: "bg-blue-500",
-  Completed: "bg-primary",
+  Completed: "bg-emerald-500",
   Cancelled: "bg-rose-500",
   Returned: "bg-slate-500",
 };
-
 
 // ---------- Helpers ----------
 
@@ -71,21 +82,57 @@ const formatDateTime = (iso: string) => {
 
 // ---------- Sub-components ----------
 
+function StatCard({
+  label,
+  value,
+  icon,
+  gradient,
+  subtext,
+}: {
+  label: string;
+  value: string | number;
+  icon: React.ReactNode;
+  gradient: string;
+  subtext?: string;
+}) {
+  return (
+    <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-5 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient}`} />
+      <div className="flex justify-between items-start">
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{label}</p>
+          <p className="text-3xl font-black text-slate-800 dark:text-white tracking-tight tabular-nums">
+            {typeof value === 'number' ? value.toLocaleString() : value}
+          </p>
+        </div>
+        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform duration-300`}>
+          {icon}
+        </div>
+      </div>
+      {subtext && (
+        <p className="text-xs text-slate-400 dark:text-slate-500 font-medium mt-3.5 flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 animate-pulse" />
+          {subtext}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function TableSkeleton() {
   return (
-    <div className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-sm animate-pulse">
-      <div className="h-12 bg-slate-50 border-b border-slate-200/80" />
-      <div className="divide-y divide-slate-100">
+    <div className="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm animate-pulse">
+      <div className="h-14 bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800" />
+      <div className="divide-y divide-slate-150 dark:divide-slate-800">
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="flex px-6 py-4 items-center justify-between space-x-4">
-            <div className="h-4 bg-slate-100 rounded w-24" />
-            <div className="h-4 bg-slate-100 rounded w-28 flex-1" />
-            <div className="h-4 bg-slate-100 rounded w-28 flex-1" />
-            <div className="h-4 bg-slate-100 rounded w-16" />
-            <div className="h-4 bg-slate-100 rounded w-20" />
-            <div className="h-4 bg-slate-100 rounded w-16" />
-            <div className="h-4 bg-slate-100 rounded w-20" />
-            <div className="h-4 bg-slate-100 rounded w-24" />
+            <div className="h-4 bg-slate-100 dark:bg-slate-700 rounded w-24" />
+            <div className="h-4 bg-slate-100 dark:bg-slate-700 rounded w-28 flex-1" />
+            <div className="h-4 bg-slate-100 dark:bg-slate-700 rounded w-28 flex-1" />
+            <div className="h-4 bg-slate-100 dark:bg-slate-700 rounded w-16" />
+            <div className="h-4 bg-slate-100 dark:bg-slate-700 rounded w-20" />
+            <div className="h-4 bg-slate-100 dark:bg-slate-700 rounded w-16" />
+            <div className="h-4 bg-slate-100 dark:bg-slate-700 rounded w-24" />
           </div>
         ))}
       </div>
@@ -95,17 +142,17 @@ function TableSkeleton() {
 
 function EmptyState({ onClear }: { onClear: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 bg-white border border-dashed border-slate-300 rounded-xl p-8 text-center max-w-xl mx-auto shadow-sm">
-      <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100 text-slate-400">
-        <span className="material-symbols-outlined text-[32px]">shopping_cart</span>
+    <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-[#0f172a] border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-8 text-center max-w-xl mx-auto shadow-sm transition-colors duration-300">
+      <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-700 text-slate-400 dark:text-slate-500">
+        <ShoppingCart className="w-8 h-8" />
       </div>
-      <h3 className="text-lg font-bold text-slate-800 mb-1">No orders found</h3>
-      <p className="text-slate-550 text-sm max-w-sm mb-5">
+      <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">No orders found</h3>
+      <p className="text-slate-400 dark:text-slate-500 text-sm max-w-sm mb-5">
         No orders match your current filter criteria. Try adjusting the filters or clearing them.
       </p>
       <button
         onClick={onClear}
-        className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-label-md text-label-md rounded-lg border border-slate-200 transition-colors"
+        className="px-5 py-2.5 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white font-bold text-xs rounded-xl transition-all shadow-sm"
       >
         Clear All Filters
       </button>
@@ -120,8 +167,6 @@ interface FilterState {
   Status: string;
   FromDate: string;
   ToDate: string;
-  PharmacyId: string;
-  PatientId: string;
 }
 
 const INITIAL_FILTERS: FilterState = {
@@ -129,20 +174,15 @@ const INITIAL_FILTERS: FilterState = {
   Status: "",
   FromDate: "",
   ToDate: "",
-  PharmacyId: "",
-  PatientId: "",
 };
 
 export default function OrdersPage() {
   const navigate = useNavigate();
 
-  // Filter form state (not yet applied)
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
-
-  // Applied filters (sent to API)
   const [appliedFilters, setAppliedFilters] = useState<FilterState>(INITIAL_FILTERS);
-
   const [pageIndex, setPageIndex] = useState(1);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const pageSize = 10;
 
   // Build query params from applied filters
@@ -153,34 +193,35 @@ export default function OrdersPage() {
     Status: appliedFilters.Status || undefined,
     FromDate: appliedFilters.FromDate || undefined,
     ToDate: appliedFilters.ToDate || undefined,
-    PharmacyId: appliedFilters.PharmacyId || undefined,
-    PatientId: appliedFilters.PatientId || undefined,
   };
 
-  const { data, isLoading, isError, error } = useAdminOrdersQuery(queryParams);
-  const { data: patientsData } = useAllPatientsDropdownQuery();
-  const { data: pharmaciesData } = useAllPharmaciesDropdownQuery();
+  const { data, isLoading, isError } = useAdminOrdersQuery(queryParams);
 
   const ordersList: AdminOrderDto[] = data?.data || [];
   const totalCount = data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  const patientOptions = patientsData?.data || [];
-  const pharmacyOptions = pharmaciesData?.data || [];
+  // Quick stats
+  const pendingCount = ordersList.filter((r) => r.orderStatus === "Pending" || r.orderStatus === "Preparing").length;
+  const inTransitCount = ordersList.filter((r) => r.orderStatus === "InTransit").length;
+  const completedCount = ordersList.filter((r) => r.orderStatus === "Completed").length;
 
   // ---- Handlers ----
 
   const handleFilterChange = (field: keyof FilterState, value: string) => {
     setFilters((prev) => {
       const next = { ...prev, [field]: value };
-      
-      // Auto-clear or restrict To Date if it is earlier than the new From Date
       if (field === "FromDate" && next.ToDate && next.ToDate < value) {
         next.ToDate = "";
       }
-      
       return next;
     });
+  };
+
+  const handleStatusTabChange = (statusVal: string) => {
+    setFilters((prev) => ({ ...prev, Status: statusVal }));
+    setAppliedFilters((prev) => ({ ...prev, Status: statusVal }));
+    setPageIndex(1);
   };
 
   const handleApplyFilters = () => {
@@ -197,240 +238,235 @@ export default function OrdersPage() {
   const hasActiveFilters = Object.values(appliedFilters).some((v) => v !== "");
 
   return (
-    <AdminLayout title="PharmaBridge Admin">
-      <div className="p-6 md:p-8 min-h-[calc(100vh-48px)] space-y-6 bg-[#F8FAFC]">
+    <AdminLayout title="Orders Management">
+      <div className="p-6 space-y-6 bg-[#F4F6FA] dark:bg-[#0b0f19] min-h-screen transition-colors duration-300">
         {/* Page Header */}
-        <div>
-          <h3 className="text-2xl font-bold text-slate-800">Orders</h3>
-          <p className="text-slate-550 text-sm mt-0.5">
-            Browse, filter and monitor all customer medication orders on the platform.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Orders</h1>
+            <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">
+              Browse, filter and monitor all customer medication orders on the platform.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-sky-600 dark:text-sky-400 font-bold bg-sky-50 dark:bg-sky-500/10 border border-sky-200/50 dark:border-sky-500/20 rounded-full px-3.5 py-1.5 shadow-sm self-start sm:self-auto transition-colors duration-300">
+            <span className="w-2.5 h-2.5 rounded-full bg-sky-500 animate-pulse" />
+            Live Dispatch Feed
+          </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <StatCard
+            label="Total Orders"
+            value={totalCount}
+            icon={<FileText className="w-5 h-5" />}
+            gradient="from-indigo-500 to-violet-600"
+            subtext="Orders matching parameters"
+          />
+          <StatCard
+            label="Pending & Preparing"
+            value={pendingCount}
+            icon={<Clock className="w-5 h-5" />}
+            gradient="from-amber-500 to-orange-600"
+            subtext="Needs fulfillment"
+          />
+          <StatCard
+            label="In Transit"
+            value={inTransitCount}
+            icon={<Truck className="w-5 h-5" />}
+            gradient="from-sky-400 to-blue-600"
+            subtext="On the way to customers"
+          />
+          <StatCard
+            label="Completed"
+            value={completedCount}
+            icon={<CheckCircle className="w-5 h-5" />}
+            gradient="from-emerald-500 to-teal-600"
+            subtext="Successfully delivered"
+          />
         </div>
 
         {/* Filter Section */}
-        <div className="bg-white border border-slate-200/80 rounded-xl p-5 shadow-sm space-y-4">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="material-symbols-outlined text-slate-400 text-[20px]">filter_list</span>
-            <span className="text-sm font-semibold text-slate-600 uppercase tracking-wider">Filters</span>
+        <div className="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-5 transition-colors duration-300">
+          {/* Status Tabs Navigation */}
+          <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-wrap bg-slate-50 dark:bg-slate-900/50 p-1 rounded-xl gap-1">
+              {STATUS_TABS.map((tab) => {
+                const isActive = appliedFilters.Status === tab.value;
+                return (
+                  <button
+                    key={tab.value}
+                    onClick={() => handleStatusTabChange(tab.value)}
+                    className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-2 ${
+                      isActive
+                        ? "bg-slate-900 dark:bg-slate-700 text-white shadow-sm"
+                        : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50"
+                    }`}
+                  >
+                    {tab.value !== "" && <span className={`w-2 h-2 rounded-full ${tab.color}`} />}
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+            
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm self-start md:self-auto"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              Advanced Filters
+              {showAdvanced ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Search */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Search</label>
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">
-                  search
-                </span>
+          {/* Advanced Filters Expandable Drawer */}
+          {showAdvanced && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-1 animate-fadeIn">
+              {/* Search */}
+              <div className="space-y-1.5 lg:col-span-1">
+                <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Search</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
+                  <input
+                    className="w-full h-10 bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-700 rounded-xl pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-300 dark:focus:border-blue-700 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 text-slate-800 dark:text-slate-200"
+                    placeholder="Search patient, pharmacy..."
+                    type="text"
+                    value={filters.Search}
+                    onChange={(e) => handleFilterChange("Search", e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* From Date */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">From Date</label>
                 <input
-                  className="w-full h-10 bg-white border border-slate-200 rounded-lg pl-10 pr-4 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                  placeholder="Search order ID, patient, pharmacy..."
-                  type="text"
-                  value={filters.Search}
-                  onChange={(e) => handleFilterChange("Search", e.target.value)}
+                  className="w-full h-10 bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-700 rounded-xl px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-300 dark:focus:border-blue-700 outline-none transition-all text-slate-800 dark:text-slate-200 [color-scheme:light] dark:[color-scheme:dark]"
+                  type="date"
+                  min="2026-01-01"
+                  value={filters.FromDate}
+                  onChange={(e) => handleFilterChange("FromDate", e.target.value)}
                 />
               </div>
-            </div>
 
-            {/* Status */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Status</label>
-              <select
-                className="w-full h-10 bg-white border border-slate-200 rounded-lg px-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none cursor-pointer"
-                value={filters.Status}
-                onChange={(e) => handleFilterChange("Status", e.target.value)}
-              >
-                <option value="">All Statuses</option>
-                {STATUS_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+              {/* To Date */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">To Date</label>
+                <input
+                  className="w-full h-10 bg-slate-50 dark:bg-slate-900/50 border border-slate-250 dark:border-slate-700 rounded-xl px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-300 dark:focus:border-blue-700 outline-none transition-all text-slate-800 dark:text-slate-200 [color-scheme:light] dark:[color-scheme:dark]"
+                  type="date"
+                  min={filters.FromDate || "2026-01-01"}
+                  value={filters.ToDate}
+                  onChange={(e) => handleFilterChange("ToDate", e.target.value)}
+                />
+              </div>
 
-            {/* Pharmacy */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Pharmacy</label>
-              <select
-                className="w-full h-10 bg-white border border-slate-200 rounded-lg px-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none cursor-pointer"
-                value={filters.PharmacyId}
-                onChange={(e) => handleFilterChange("PharmacyId", e.target.value)}
-              >
-                <option value="">All Pharmacies</option>
-                {pharmacyOptions.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.pharmacyName}
-                  </option>
-                ))}
-              </select>
+              {/* Action Buttons inside Drawer */}
+              <div className="flex items-end gap-3 pb-0.5 lg:col-start-3">
+                <button
+                  onClick={handleApplyFilters}
+                  className="flex-1 h-10 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                >
+                  <Search className="w-3.5 h-3.5" />
+                  Apply Filters
+                </button>
+                {hasActiveFilters && (
+                  <button
+                    onClick={handleClearFilters}
+                    className="flex-1 h-10 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-colors border border-slate-200 dark:border-slate-700"
+                  >
+                    Clear All
+                  </button>
+                )}
+              </div>
             </div>
-
-            {/* Patient */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Patient</label>
-              <select
-                className="w-full h-10 bg-white border border-slate-200 rounded-lg px-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none cursor-pointer"
-                value={filters.PatientId}
-                onChange={(e) => handleFilterChange("PatientId", e.target.value)}
-              >
-                <option value="">All Patients</option>
-                {patientOptions.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.fullName}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* From Date */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">From Date</label>
-              <input
-                className="w-full h-10 bg-white border border-slate-200 rounded-lg px-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                type="date"
-                min="2026-01-01"
-                value={filters.FromDate}
-                onChange={(e) => handleFilterChange("FromDate", e.target.value)}
-              />
-            </div>
-
-            {/* To Date */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">To Date</label>
-              <input
-                className="w-full h-10 bg-white border border-slate-200 rounded-lg px-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                type="date"
-                min={filters.FromDate || "2026-01-01"}
-                value={filters.ToDate}
-                onChange={(e) => handleFilterChange("ToDate", e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3 pt-2">
-            <button
-              onClick={handleApplyFilters}
-              className="h-10 px-5 bg-primary hover:opacity-90 text-white font-label-md text-label-md rounded-lg flex items-center gap-2 transition-colors shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[18px]">search</span>
-              Apply Filters
-            </button>
-            {hasActiveFilters && (
-              <button
-                onClick={handleClearFilters}
-                className="h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-label-md text-label-md rounded-lg flex items-center gap-2 transition-colors border border-slate-200"
-              >
-                <span className="material-symbols-outlined text-[16px]">close</span>
-                Clear
-              </button>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Data Table */}
         {isLoading ? (
           <TableSkeleton />
         ) : isError ? (
-          <div className="bg-rose-50 text-rose-750 border border-rose-200/50 rounded-xl p-8 text-center max-w-xl mx-auto shadow-sm">
-            <span className="material-symbols-outlined text-[36px] mb-2 text-rose-500">warning</span>
+          <div className="bg-rose-50 dark:bg-rose-500/10 text-rose-750 dark:text-rose-400 border border-rose-200/50 dark:border-rose-500/20 rounded-2xl p-8 text-center max-w-xl mx-auto shadow-sm transition-colors duration-300">
+            <AlertCircle className="w-8 h-8 mx-auto text-rose-500 mb-2" />
             <h4 className="text-lg font-bold">Failed to load orders</h4>
-            <p className="text-sm mt-1 text-rose-600">
-              {(error as any)?.message || "There was an issue communicating with the backend API. Please verify the endpoint is online."}
+            <p className="text-sm mt-1 text-rose-600 dark:text-rose-500">
+              There was an issue communicating with the backend API. Please verify the endpoint is online.
             </p>
           </div>
         ) : ordersList.length === 0 ? (
           <EmptyState onClear={handleClearFilters} />
         ) : (
-          <div className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-sm flex flex-col transition-all duration-300">
-            {/* Results count */}
-            <div className="px-6 py-3 border-b border-slate-100 flex items-center justify-between">
-              <span className="text-[13px] text-slate-500">
-                Showing <span className="font-semibold text-slate-700">{(pageIndex - 1) * pageSize + 1}</span> to{" "}
-                <span className="font-semibold text-slate-700">
-                  {Math.min(pageIndex * pageSize, totalCount)}
-                </span>{" "}
-                of <span className="font-semibold text-slate-700">{totalCount.toLocaleString()}</span> orders
-              </span>
-            </div>
-
+          <div className="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col transition-all duration-300">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200/80">
-                    <th className="px-6 py-4 font-label-md text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
+                  <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                       Order ID
                     </th>
-                    <th className="px-6 py-4 font-label-md text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
-                      Patient Name
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                      Patient
                     </th>
-                    <th className="px-6 py-4 font-label-md text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
-                      Pharmacy Name
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                      Pharmacy
                     </th>
-                    <th className="px-6 py-4 font-label-md text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                       Amount
                     </th>
-                    <th className="px-6 py-4 font-label-md text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
-                      Order Status
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                      Status
                     </th>
-                    <th className="px-6 py-4 font-label-md text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
-                      Payment Method
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                      Payment
                     </th>
-                    <th className="px-6 py-4 font-label-md text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                       Created At
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
                   {ordersList.map((order) => (
                     <tr
                       key={order.id}
                       onClick={() => navigate(`/admin/orders/${order.id}`)}
-                      className="hover:bg-slate-50/50 transition-colors cursor-pointer group"
+                      className="hover:bg-slate-50/60 dark:hover:bg-slate-800/60 transition-colors cursor-pointer group"
                     >
-                      {/* Order ID */}
                       <td className="px-6 py-4">
-                        <span className="font-mono-sm text-mono-sm text-primary font-bold">
+                        <span className="font-bold text-slate-800 dark:text-slate-200 text-[14px]">
                           #{order.id}
                         </span>
                       </td>
-
-                      {/* Patient Name */}
                       <td className="px-6 py-4">
-                        <span className="text-[14px] text-slate-700">{order.patientName || "—"}</span>
+                        <span className="text-[14px] text-slate-600 dark:text-slate-300 font-medium">{order.patientName || "—"}</span>
                       </td>
-
-                      {/* Pharmacy Name */}
                       <td className="px-6 py-4">
-                        <span className="text-[14px] text-slate-700 font-medium">{order.pharmacyName || "—"}</span>
+                        <span className="text-[14px] text-slate-600 dark:text-slate-300 font-medium">{order.pharmacyName || "—"}</span>
                       </td>
-
-                      {/* Amount */}
                       <td className="px-6 py-4">
-                        <span className="font-mono-sm text-mono-sm text-slate-800">
+                        <span className="font-bold text-slate-800 dark:text-slate-200 text-[14px]">
                           ${order.amount != null ? order.amount.toFixed(2) : "0.00"}
                         </span>
                       </td>
-
-                      {/* Order Status */}
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${STATUS_STYLES[order.orderStatus] || STATUS_STYLES.Processing}`}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${STATUS_STYLES[order.orderStatus] || STATUS_STYLES.Pending}`}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[order.orderStatus] || STATUS_DOT.Processing}`} />
-                          {order.orderStatus || "Processing"}
+                          <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[order.orderStatus] || STATUS_DOT.Pending}`} />
+                          {order.orderStatus || "Pending"}
                         </span>
                       </td>
-
-                      {/* Payment Method */}
                       <td className="px-6 py-4">
-                        <span className="text-[13px] text-slate-650">{order.paymentMethod || "—"}</span>
+                        <span className="text-[13px] text-slate-500 dark:text-slate-400 font-medium">
+                          {order.paymentMethod || "—"}
+                        </span>
                       </td>
-
-                      {/* Created At */}
                       <td className="px-6 py-4">
-                        <span className="text-[13px] text-slate-600">{formatDateTime(order.createdAt)}</span>
+                        <span className="text-[13px] text-slate-400 dark:text-slate-500 font-medium flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                          {formatDateTime(order.createdAt)}
+                        </span>
                       </td>
                     </tr>
                   ))}
@@ -439,29 +475,29 @@ export default function OrdersPage() {
             </div>
 
             {/* Pagination Footer */}
-            {totalPages > 1 && (
-              <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <span className="text-[13px] text-slate-500">
-                  Showing{" "}
-                  <span className="font-semibold text-slate-700">{(pageIndex - 1) * pageSize + 1}</span> to{" "}
-                  <span className="font-semibold text-slate-700">
-                    {Math.min(pageIndex * pageSize, totalCount)}
-                  </span>{" "}
-                  of <span className="font-semibold text-slate-700">{totalCount.toLocaleString()}</span> orders
-                </span>
+            <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                Showing <span className="font-semibold text-slate-700 dark:text-slate-300">{(pageIndex - 1) * pageSize + 1}</span> to{" "}
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
+                  {Math.min(pageIndex * pageSize, totalCount)}
+                </span>{" "}
+                of <span className="font-semibold text-slate-700 dark:text-slate-300">{totalCount.toLocaleString()}</span> orders
+              </span>
+              
+              {totalPages > 1 && (
                 <div className="flex items-center gap-1.5">
                   <button
                     disabled={pageIndex === 1}
                     onClick={() => setPageIndex((p) => Math.max(1, p - 1))}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-100 disabled:opacity-50 disabled:hover:bg-transparent disabled:text-slate-300 transition-all shadow-sm"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:hover:bg-white dark:disabled:hover:bg-slate-800 disabled:text-slate-350 transition-all shadow-sm text-slate-600 dark:text-slate-400"
                   >
-                    <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+                    <ChevronLeft className="w-4 h-4" />
                   </button>
 
                   {getPaginationRange(pageIndex, totalPages).map((p, index) => {
                     if (p === "...") {
                       return (
-                        <span key={`dots-${index}`} className="px-2 text-slate-400 text-sm">
+                        <span key={`dots-${index}`} className="px-2 text-slate-400 dark:text-slate-500 text-sm font-bold">
                           ...
                         </span>
                       );
@@ -470,10 +506,10 @@ export default function OrdersPage() {
                       <button
                         key={`page-${p}`}
                         onClick={() => setPageIndex(Number(p))}
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-semibold transition-all ${
+                        className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all ${
                           pageIndex === p
-                            ? "bg-primary text-white shadow-sm"
-                            : "border border-slate-200 hover:bg-slate-100 text-slate-650"
+                            ? "bg-slate-900 dark:bg-slate-600 text-white shadow-sm"
+                            : "border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400"
                         }`}
                       >
                         {p}
@@ -484,13 +520,13 @@ export default function OrdersPage() {
                   <button
                     disabled={pageIndex >= totalPages}
                     onClick={() => setPageIndex((p) => Math.min(totalPages, p + 1))}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-100 disabled:opacity-50 disabled:hover:bg-transparent disabled:text-slate-300 transition-all shadow-sm"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:hover:bg-white dark:disabled:hover:bg-slate-800 disabled:text-slate-350 transition-all shadow-sm text-slate-600 dark:text-slate-400"
                   >
-                    <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                    <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
       </div>

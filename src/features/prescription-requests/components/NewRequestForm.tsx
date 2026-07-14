@@ -92,45 +92,45 @@ export default function NewRequestForm({ onSubmit, isLoading }: NewRequestFormPr
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Medicine Name */}
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-semibold text-gray-900 tracking-wide">
-            Medicine Name <span className="text-gray-500 font-normal">(Optional if image provided)</span>
+          <label className="text-sm font-semibold text-gray-900 dark:text-white tracking-wide">
+            Medicine Name <span className="text-gray-500 dark:text-slate-400 font-normal">(Optional if image provided)</span>
           </label>
           <input
             type="text"
             value={medicineName}
             onChange={(e) => setMedicineName(e.target.value)}
-            className="w-full h-14 px-4 bg-[#f7f9fb] border border-[#bec8d1] rounded-2xl focus:ring-2 focus:ring-[#006590] focus:border-[#006590] transition-all text-base outline-none text-gray-900"
+            className="w-full h-14 px-4 bg-[#f7f9fb] dark:bg-[#131b2e] border border-[#bec8d1] dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#006590] dark:focus:ring-sky-500 focus:border-[#006590] dark:focus:border-sky-500 transition-all text-base outline-none text-gray-900 dark:text-white dark:placeholder-slate-500"
             placeholder="e.g. Panadol Extra"
           />
         </div>
 
         {/* Upload Zone */}
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-semibold text-gray-900 tracking-wide">
-            Prescription Image <span className="text-gray-500 font-normal">(Optional if name provided)</span>
+          <label className="text-sm font-semibold text-gray-900 dark:text-white tracking-wide">
+            Prescription Image <span className="text-gray-500 dark:text-slate-400 font-normal">(Optional if name provided)</span>
           </label>
           
           {!imagePreview ? (
             <div 
               onClick={() => fileInputRef.current?.click()}
-              onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-[#006590]', 'bg-[#006590]/5'); }}
-              onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-[#006590]', 'bg-[#006590]/5'); }}
+              onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-[#006590]', 'bg-[#006590]/5', 'dark:border-sky-500', 'dark:bg-sky-900/20'); }}
+              onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-[#006590]', 'bg-[#006590]/5', 'dark:border-sky-500', 'dark:bg-sky-900/20'); }}
               onDrop={(e) => {
                 e.preventDefault();
-                e.currentTarget.classList.remove('border-[#006590]', 'bg-[#006590]/5');
+                e.currentTarget.classList.remove('border-[#006590]', 'bg-[#006590]/5', 'dark:border-sky-500', 'dark:bg-sky-900/20');
                 const file = e.dataTransfer.files?.[0];
                 if (file) handleFile(file);
               }}
-              className="group relative flex flex-col items-center justify-center h-48 border-2 border-dashed border-[#bec8d1] rounded-2xl bg-[#f2f4f6] hover:bg-[#eceef0] transition-all cursor-pointer"
+              className="group relative flex flex-col items-center justify-center h-48 border-2 border-dashed border-[#bec8d1] dark:border-slate-700 rounded-2xl bg-[#f2f4f6] dark:bg-slate-800/50 hover:bg-[#eceef0] dark:hover:bg-slate-800 transition-all cursor-pointer"
             >
-              <CloudUpload className="text-[#006590] w-12 h-12 mb-2 group-hover:scale-110 transition-transform" />
-              <p className="text-sm font-medium text-gray-900">
-                <span className="text-[#006590] font-bold">Upload a file</span> or drag and drop
+              <CloudUpload className="text-[#006590] dark:text-sky-400 w-12 h-12 mb-2 group-hover:scale-110 transition-transform" />
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                <span className="text-[#006590] dark:text-sky-400 font-bold">Upload a file</span> or drag and drop
               </p>
-              <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB</p>
+              <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">PNG, JPG, GIF up to 10MB</p>
             </div>
           ) : (
-            <div className="relative flex flex-col items-center justify-center h-48 border-2 border-solid border-[#006590] rounded-2xl bg-[#f7f9fb] p-2">
+            <div className="relative flex flex-col items-center justify-center h-48 border-2 border-solid border-[#006590] dark:border-sky-500 rounded-2xl bg-[#f7f9fb] dark:bg-[#131b2e] p-2">
               <img 
                 src={imagePreview} 
                 alt="Prescription preview" 
@@ -139,7 +139,7 @@ export default function NewRequestForm({ onSubmit, isLoading }: NewRequestFormPr
               <button
                 type="button"
                 onClick={removeImage}
-                className="absolute top-3 right-3 p-1.5 bg-white text-gray-700 rounded-full shadow-md hover:bg-red-50 hover:text-red-600 transition-colors"
+                className="absolute top-3 right-3 p-1.5 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 rounded-full shadow-md hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -150,23 +150,23 @@ export default function NewRequestForm({ onSubmit, isLoading }: NewRequestFormPr
 
       {/* Additional Notes */}
       <div className="flex flex-col gap-2">
-        <label htmlFor="notes" className="text-sm font-semibold text-gray-900 tracking-wide">
-          Additional Notes <span className="text-gray-500 font-normal">(Optional)</span>
+        <label htmlFor="notes" className="text-sm font-semibold text-gray-900 dark:text-white tracking-wide">
+          Additional Notes <span className="text-gray-500 dark:text-slate-400 font-normal">(Optional)</span>
         </label>
         <textarea
           id="notes"
           rows={4}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="w-full p-4 bg-[#f7f9fb] border border-[#bec8d1] rounded-2xl focus:ring-2 focus:ring-[#006590] focus:border-[#006590] transition-all text-base outline-none resize-none text-gray-900"
+          className="w-full p-4 bg-[#f7f9fb] dark:bg-[#131b2e] border border-[#bec8d1] dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#006590] dark:focus:ring-sky-500 focus:border-[#006590] dark:focus:border-sky-500 transition-all text-base outline-none resize-none text-gray-900 dark:text-white dark:placeholder-slate-500"
           placeholder="Any specific instructions for the pharmacy..."
         />
       </div>
 
       {/* Delivery Address Dropdown */}
       <div className="flex flex-col gap-2">
-        <label htmlFor="address" className="text-sm font-semibold text-gray-900 tracking-wide">
-          Delivery Address <span className="text-[#ba1a1a]">*</span>
+        <label htmlFor="address" className="text-sm font-semibold text-gray-900 dark:text-white tracking-wide">
+          Delivery Address <span className="text-[#ba1a1a] dark:text-red-400">*</span>
         </label>
         
         <div className="relative group">
@@ -175,7 +175,7 @@ export default function NewRequestForm({ onSubmit, isLoading }: NewRequestFormPr
             value={deliveryAddressId}
             onChange={(e) => setDeliveryAddressId(Number(e.target.value))}
             disabled={isAddressesLoading || !addresses || addresses.length === 0}
-            className="w-full h-14 pl-4 pr-10 bg-[#f7f9fb] border border-[#bec8d1] rounded-2xl focus:ring-2 focus:ring-[#006590] focus:border-[#006590] transition-all text-base outline-none appearance-none disabled:bg-gray-100 disabled:text-gray-500 text-gray-900"
+            className="w-full h-14 pl-4 pr-10 bg-[#f7f9fb] dark:bg-[#131b2e] border border-[#bec8d1] dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#006590] dark:focus:ring-sky-500 focus:border-[#006590] dark:focus:border-sky-500 transition-all text-base outline-none appearance-none disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 text-gray-900 dark:text-white"
           >
             {isAddressesLoading ? (
               <option value="" disabled>Loading addresses...</option>
@@ -192,15 +192,15 @@ export default function NewRequestForm({ onSubmit, isLoading }: NewRequestFormPr
               </>
             )}
           </select>
-          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 w-5 h-5" />
+          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 dark:text-slate-400 w-5 h-5" />
         </div>
 
         {!isAddressesLoading && (!addresses || addresses.length === 0) && (
-          <div className="mt-3 flex items-start gap-2 text-sm text-amber-700 bg-amber-50 p-3 rounded-xl border border-amber-200">
+          <div className="mt-3 flex items-start gap-2 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 p-3 rounded-xl border border-amber-200 dark:border-amber-900/50">
             <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
             <p>
               You must add a delivery address in your Profile before submitting a request.{' '}
-              <Link to="/profile" className="font-bold underline hover:text-amber-800">
+              <Link to="/profile" className="font-bold underline hover:text-amber-800 dark:hover:text-amber-300">
                 Go to Profile
               </Link>
             </p>
@@ -223,7 +223,7 @@ export default function NewRequestForm({ onSubmit, isLoading }: NewRequestFormPr
         <button
           type="submit"
           disabled={isLoading || !addresses || addresses.length === 0}
-          className="w-full h-14 bg-[#009ada] text-white font-bold text-lg rounded-2xl hover:bg-[#006590] transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full h-14 bg-[#009ada] dark:bg-sky-600 text-white font-bold text-lg rounded-2xl hover:bg-[#006590] dark:hover:bg-sky-500 transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <>

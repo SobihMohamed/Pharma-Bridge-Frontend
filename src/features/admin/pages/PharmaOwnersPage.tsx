@@ -31,10 +31,10 @@ const STATUS_TABS = [
 ];
 
 const STATUS_STYLES: Record<string, string> = {
-  Pending: "bg-amber-50 text-amber-700 border border-amber-200/50",
-  Approved: "bg-emerald-50 text-emerald-700 border border-emerald-200/50",
-  Rejected: "bg-rose-50 text-rose-700 border border-rose-200/50",
-  Blocked: "bg-slate-100 text-slate-700 border border-slate-350",
+  Pending: "bg-amber-50 text-amber-700 border border-amber-200/50 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
+  Approved: "bg-emerald-50 text-emerald-700 border border-emerald-200/50 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
+  Rejected: "bg-rose-50 text-rose-700 border border-rose-200/50 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20",
+  Blocked: "bg-slate-100 text-slate-700 border border-slate-350 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700",
 };
 
 const STATUS_DOT: Record<string, string> = {
@@ -44,18 +44,18 @@ const STATUS_DOT: Record<string, string> = {
   Blocked: "bg-slate-500",
 };
 
-// Modern Hex Colors for Avatars
-const AVATAR_HEX = [
-  "#3b82f6", // blue
-  "#fb7185", // rose
-  "#8b5cf6", // violet
-  "#10b981", // emerald
-  "#f59e0b", // amber
-  "#14b8a6", // teal
+// Soft Pastel Colors for Avatars
+const AVATAR_COLORS = [
+  "bg-sky-50 text-sky-700 border-sky-100 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20",
+  "bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20",
+  "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
+  "bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20",
+  "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
+  "bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20",
 ];
 
-function avatarBg(i: number): React.CSSProperties {
-  return { backgroundColor: AVATAR_HEX[i % AVATAR_HEX.length] };
+function avatarClass(i: number): string {
+  return AVATAR_COLORS[i % AVATAR_COLORS.length];
 }
 
 // ---------- Helpers ----------
@@ -96,12 +96,12 @@ function StatCard({
   subtext?: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+    <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-5 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
       <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient}`} />
       <div className="flex justify-between items-start">
         <div className="space-y-1.5">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</p>
-          <p className="text-3xl font-black text-slate-800 tracking-tight tabular-nums">
+          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{label}</p>
+          <p className="text-3xl font-black text-slate-800 dark:text-white tracking-tight tabular-nums">
             {typeof value === 'number' ? value.toLocaleString() : value}
           </p>
         </div>
@@ -110,8 +110,8 @@ function StatCard({
         </div>
       </div>
       {subtext && (
-        <p className="text-xs text-slate-400 font-medium mt-3.5 flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-pulse" />
+        <p className="text-xs text-slate-400 dark:text-slate-500 font-medium mt-3.5 flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 animate-pulse" />
           {subtext}
         </p>
       )}
@@ -121,16 +121,16 @@ function StatCard({
 
 function TableSkeleton() {
   return (
-    <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm animate-pulse">
-      <div className="h-14 bg-slate-50/50 border-b border-slate-100" />
-      <div className="divide-y divide-slate-150">
+    <div className="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm animate-pulse transition-colors duration-300">
+      <div className="h-14 bg-slate-50/50 dark:bg-[#0b0f19] border-b border-slate-100 dark:border-slate-800" />
+      <div className="divide-y divide-slate-150 dark:divide-slate-800/50">
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="flex px-6 py-4 items-center justify-between space-x-4">
-            <div className="h-4 bg-slate-100 rounded w-24" />
-            <div className="h-4 bg-slate-100 rounded w-20" />
-            <div className="h-4 bg-slate-100 rounded w-32 flex-1" />
-            <div className="h-4 bg-slate-100 rounded w-24" />
-            <div className="h-4 bg-slate-100 rounded w-16" />
+            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24" />
+            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-20" />
+            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-32 flex-1" />
+            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-24" />
+            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-16" />
           </div>
         ))}
       </div>
@@ -140,17 +140,17 @@ function TableSkeleton() {
 
 function EmptyState({ onClear }: { onClear: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 bg-white border border-dashed border-slate-200 rounded-2xl p-8 text-center max-w-xl mx-auto shadow-sm">
-      <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100 text-slate-400">
+    <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-[#0f172a] border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-8 text-center max-w-xl mx-auto shadow-sm transition-colors duration-300">
+      <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-700 text-slate-400 dark:text-slate-500">
         <Users className="w-8 h-8" />
       </div>
-      <h3 className="text-lg font-bold text-slate-800 mb-1">No pharma owners found</h3>
-      <p className="text-slate-400 text-sm max-w-sm mb-5">
+      <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">No pharma owners found</h3>
+      <p className="text-slate-400 dark:text-slate-500 text-sm max-w-sm mb-5">
         We couldn't find any pharma owner profile matching your search query or filters. Try clearing the filters or adjusting terms.
       </p>
       <button
         onClick={onClear}
-        className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-sm"
+        className="px-5 py-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-xs rounded-xl transition-all shadow-sm"
       >
         Clear All Filters
       </button>
@@ -205,16 +205,16 @@ export default function PharmaOwnersPage() {
 
   return (
     <AdminLayout title="Pharma Owners">
-      <div className="p-6 space-y-6 bg-[#F4F6FA] min-h-screen">
+      <div className="p-6 space-y-6 bg-[#F4F6FA] dark:bg-[#0b0f19] min-h-screen transition-colors duration-300">
         {/* Page Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Pharma Owners</h1>
-            <p className="text-sm text-slate-400 mt-0.5">
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Pharma Owners</h1>
+            <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">
               Review and manage registration requests for network pharmacy owners.
             </p>
           </div>
-          <div className="flex items-center gap-2 text-xs text-emerald-600 font-bold bg-emerald-50 border border-emerald-200/50 rounded-full px-3.5 py-1.5 shadow-sm">
+          <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/50 dark:border-emerald-500/20 rounded-full px-3.5 py-1.5 shadow-sm">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             Platform Database
           </div>
@@ -253,11 +253,11 @@ export default function PharmaOwnersPage() {
         </div>
 
         {/* Filters and Search Panel */}
-        <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-5">
+        <div className="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-5 transition-colors duration-300">
           
-          <div className="border-b border-slate-100 pb-3 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex flex-col md:flex-row md:items-center justify-between gap-4">
             {/* Status Tabs Selection */}
-            <div className="flex flex-wrap bg-slate-50 p-1 rounded-xl gap-1">
+            <div className="flex flex-wrap bg-slate-50 dark:bg-[#0b0f19] p-1 rounded-xl gap-1">
               {STATUS_TABS.map((tab) => {
                 const isActive = status === tab.value;
                 return (
@@ -266,8 +266,8 @@ export default function PharmaOwnersPage() {
                     onClick={() => handleStatusTabChange(tab.value)}
                     className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-2 ${
                       isActive
-                        ? "bg-slate-900 text-white shadow-sm"
-                        : "text-slate-500 hover:text-slate-800 hover:bg-slate-100/50"
+                        ? "bg-slate-900 dark:bg-slate-700 text-white shadow-sm"
+                        : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50"
                     }`}
                   >
                     {tab.value !== "All" && <span className={`w-2 h-2 rounded-full ${tab.color}`} />}
@@ -279,9 +279,9 @@ export default function PharmaOwnersPage() {
 
             {/* Quick Search */}
             <div className="relative w-full md:w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
               <input
-                className="w-full h-10 bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 outline-none transition-all placeholder:text-slate-400 shadow-inner"
+                className="w-full h-10 bg-slate-50 dark:bg-[#0b0f19] border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:border-blue-300 dark:focus:border-blue-700 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-900 dark:text-white shadow-inner"
                 placeholder="Search by Name, Email..."
                 type="text"
                 value={search}
@@ -295,10 +295,10 @@ export default function PharmaOwnersPage() {
         {isLoading ? (
           <TableSkeleton />
         ) : isError ? (
-          <div className="bg-rose-50 text-rose-750 border border-rose-200/50 rounded-2xl p-8 text-center max-w-xl mx-auto shadow-sm">
+          <div className="bg-rose-50 dark:bg-rose-500/10 text-rose-750 dark:text-rose-400 border border-rose-200/50 dark:border-rose-500/20 rounded-2xl p-8 text-center max-w-xl mx-auto shadow-sm transition-colors duration-300">
             <XCircle className="w-8 h-8 mx-auto text-rose-500 mb-2" />
             <h4 className="text-lg font-bold">Failed to load pharma owners</h4>
-            <p className="text-sm mt-1 text-rose-600">
+            <p className="text-sm mt-1 text-rose-600 dark:text-rose-400">
               {(error as any)?.message ||
                 "There was an issue communicating with the backend API. Please verify the endpoint is online."}
             </p>
@@ -306,47 +306,46 @@ export default function PharmaOwnersPage() {
         ) : pharmaOwnersList.length === 0 ? (
           <EmptyState onClear={handleClearFilters} />
         ) : (
-          <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm flex flex-col transition-all duration-300">
+          <div className="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col transition-all duration-300">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50/50 border-b border-slate-100">
-                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <tr className="bg-slate-50/50 dark:bg-[#0b0f19] border-b border-slate-100 dark:border-slate-800">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                       Owner Profile
                     </th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                       Email Address
                     </th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                       Phone Number
                     </th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                       Status
                     </th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-right">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
                   {pharmaOwnersList.map((owner, i) => {
                     const initials = getInitials(owner.fullName);
                     return (
                       <tr
                         key={owner.id}
                         onClick={() => navigate(`/admin/pharma-owners/${owner.id}`)}
-                        className="hover:bg-slate-50/60 transition-colors cursor-pointer group"
+                        className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
                       >
                         {/* Profile Block */}
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div
-                              style={avatarBg(i)}
-                              className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-black shrink-0 shadow-sm"
+                              className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-black shrink-0 border ${avatarClass(i)}`}
                             >
                               {initials}
                             </div>
-                            <span className="font-semibold text-slate-800 text-[14px]">
+                            <span className="font-semibold text-slate-800 dark:text-slate-200 text-[14px]">
                               {owner.fullName}
                             </span>
                           </div>
@@ -354,16 +353,16 @@ export default function PharmaOwnersPage() {
 
                         {/* Email */}
                         <td className="px-6 py-4">
-                          <span className="text-[14px] text-slate-500 font-medium flex items-center gap-1.5">
-                            <Mail className="w-3.5 h-3.5 text-slate-400" />
+                          <span className="text-[14px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5">
+                            <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                             {owner.email}
                           </span>
                         </td>
 
                         {/* Phone Number */}
                         <td className="px-6 py-4">
-                          <span className="text-[14px] text-slate-500 font-medium flex items-center gap-1.5">
-                            <Phone className="w-3.5 h-3.5 text-slate-400" />
+                          <span className="text-[14px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5">
+                            <Phone className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                             {owner.phoneNumber || "—"}
                           </span>
                         </td>
@@ -382,7 +381,7 @@ export default function PharmaOwnersPage() {
                         <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => navigate(`/admin/pharma-owners/${owner.id}`)}
-                            className="px-3.5 py-1.5 text-xs font-bold text-slate-600 hover:text-slate-800 border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-sm inline-flex items-center gap-1"
+                            className="px-3.5 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors shadow-sm inline-flex items-center gap-1"
                           >
                             <Eye className="w-3.5 h-3.5" />
                             Inspect
@@ -396,13 +395,13 @@ export default function PharmaOwnersPage() {
             </div>
 
             {/* Pagination Footer */}
-            <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <span className="text-xs text-slate-400 font-medium">
-                Showing <span className="font-semibold text-slate-700">{(pageIndex - 1) * pageSize + 1}</span> to{" "}
-                <span className="font-semibold text-slate-700">
+            <div className="px-6 py-4 bg-slate-50/50 dark:bg-[#0b0f19] border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                Showing <span className="font-semibold text-slate-700 dark:text-slate-300">{(pageIndex - 1) * pageSize + 1}</span> to{" "}
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
                   {Math.min(pageIndex * pageSize, totalCount)}
                 </span>{" "}
-                of <span className="font-semibold text-slate-700">{totalCount.toLocaleString()}</span> owners
+                of <span className="font-semibold text-slate-700 dark:text-slate-300">{totalCount.toLocaleString()}</span> owners
               </span>
               
               {totalPages > 1 && (
@@ -410,7 +409,7 @@ export default function PharmaOwnersPage() {
                   <button
                     disabled={pageIndex === 1}
                     onClick={() => setPageIndex((p) => Math.max(1, p - 1))}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:hover:bg-white disabled:text-slate-350 transition-all shadow-sm"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:hover:bg-white disabled:dark:hover:bg-slate-800 disabled:text-slate-350 dark:disabled:text-slate-600 text-slate-700 dark:text-slate-300 transition-all shadow-sm"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
@@ -418,7 +417,7 @@ export default function PharmaOwnersPage() {
                   {getPaginationRange(pageIndex, totalPages).map((p, index) => {
                     if (p === "...") {
                       return (
-                        <span key={`dots-${index}`} className="px-2 text-slate-400 text-sm font-bold">
+                        <span key={`dots-${index}`} className="px-2 text-slate-400 dark:text-slate-500 text-sm font-bold">
                           ...
                         </span>
                       );
@@ -429,8 +428,8 @@ export default function PharmaOwnersPage() {
                         onClick={() => setPageIndex(Number(p))}
                         className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all ${
                           pageIndex === p
-                            ? "bg-slate-900 text-white shadow-sm"
-                            : "border border-slate-200 bg-white hover:bg-slate-50 text-slate-650"
+                            ? "bg-slate-900 dark:bg-slate-700 text-white shadow-sm"
+                            : "border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-650 dark:text-slate-300"
                         }`}
                       >
                         {p}
@@ -441,7 +440,7 @@ export default function PharmaOwnersPage() {
                   <button
                     disabled={pageIndex >= totalPages}
                     onClick={() => setPageIndex((p) => Math.min(totalPages, p + 1))}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:hover:bg-white disabled:text-slate-350 transition-all shadow-sm"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:hover:bg-white disabled:dark:hover:bg-slate-800 disabled:text-slate-350 dark:disabled:text-slate-600 text-slate-700 dark:text-slate-300 transition-all shadow-sm"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
