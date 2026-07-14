@@ -18,8 +18,7 @@ export interface DashboardButton {
 }
 
 export interface DashboardModule {
-  id: string | number;
-  title: string;
+  name: string;
   description: string;
   imageId?: string;
   primaryButton?: DashboardButton;
@@ -27,8 +26,7 @@ export interface DashboardModule {
 }
 
 export interface DashboardActivity {
-  id: string | number;
-  action: string;
+  description: string;
   category: string;
   activityAt: string;
   status: string;

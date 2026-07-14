@@ -5,6 +5,7 @@ import { Pill, Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles, Check
 import { toast } from "sonner";
 import { useLoginMutation } from "@/features/auth/hooks/useAuthMutations";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import logo from '@/assets/logo.png';
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
@@ -116,9 +117,7 @@ export default function AdminLoginPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="flex items-center gap-2.5"
           >
-            <div className="w-10 h-10 bg-white/10 border border-white/20 rounded-xl flex items-center justify-center shadow-lg backdrop-blur-md">
-              <Pill className="w-5 h-5 text-[#bae6fd]" />
-            </div>
+            <img src={logo} alt="PharmaBridge Logo" className="w-12 h-12 rounded-full object-contain shadow-lg" />
             <span className="text-xl font-bold tracking-tight text-white font-sans">PharmaBridge</span>
           </motion.div>
 
@@ -228,9 +227,7 @@ export default function AdminLoginPage() {
           {/* Brand Logo for Mobile */}
           <div className="flex lg:hidden justify-center mb-8">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-[#0284c7] rounded-xl flex items-center justify-center shadow-md">
-                <Pill className="w-5 h-5 text-white" />
-              </div>
+              <img src={logo} alt="PharmaBridge Logo" className="w-10 h-10 rounded-full object-contain shadow-md" />
               <span className="text-xl font-bold tracking-tight text-[#0369a1] font-sans">PharmaBridge</span>
             </div>
           </div>

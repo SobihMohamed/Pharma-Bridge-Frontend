@@ -54,7 +54,7 @@ export default function LiveRequestsPage() {
               </span>
   
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-sm">Real-time prescription requests appearing as they arrive via SignalR.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">Real-time prescription requests appearing instantly as they are submitted by patients in your area.</p>
         </div>
         <AnimatePresence>
           {!isEmpty && (
@@ -115,7 +115,7 @@ export default function LiveRequestsPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500" />
             </span>
-            SignalR Connected
+            Live Connection Active
           </div>
         </motion.div>
       )}

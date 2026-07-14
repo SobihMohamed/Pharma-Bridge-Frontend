@@ -4,20 +4,25 @@ import { PaginationResponse } from "@/types/api.types";
 export type PharmacyStatus = "Pending" | "Active" | "Blocked" | string;
 
 export interface PharmacyDto {
-  id: string;
+  id: string | number;
   pharmacyName: string;
-  licenseNumber: string;
-  licenseImageUrl: string | null;
-  latitude: number;
-  longitude: number;
-  openTime: string;
-  closeTime: string;
-  is24Hours: boolean;
-  textAddress: string;
-  area: string;
-  contactPhone: string;
-  createdAt: string;
+  pharmaOwnerName: string;
+  email: string;
+  phoneNumber: string | null;
+  contactPhone: string | null;
   status: PharmacyStatus;
+  
+  // Optional legacy fields that might still be returned or needed elsewhere
+  licenseNumber?: string;
+  licenseImageUrl?: string | null;
+  latitude?: number;
+  longitude?: number;
+  openTime?: string;
+  closeTime?: string;
+  is24Hours?: boolean;
+  textAddress?: string;
+  area?: string;
+  createdAt?: string;
 }
 
 export interface PharmacyOwnerInfo {

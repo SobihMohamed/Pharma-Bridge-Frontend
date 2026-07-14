@@ -22,8 +22,8 @@ export default function ProfilePage() {
         <div className="lg:col-span-8 space-y-8">
           {/* Page Title */}
           <div className="hidden lg:block">
-            <h2 className="text-2xl font-bold text-gray-900">My Dashboard</h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">My Dashboard</h2>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
               Welcome back{profile?.fullName ? `, ${profile.fullName.split(' ')[0]}` : ''}. Here's an overview of your recent activity.
             </p>
           </div>

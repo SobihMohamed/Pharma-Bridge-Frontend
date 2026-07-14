@@ -2,20 +2,36 @@ import { useParams, useNavigate } from "react-router-dom";
 import AdminLayout from "../components/layout/AdminLayout";
 import { useAdminOrderDetailsQuery } from "../hooks/useAdminOrdersQuery";
 import { AdminOrderDetailsDto, AdminOrderItemDto } from "../services/adminService";
+import {
+  ArrowLeft,
+  AlertCircle,
+  Info,
+  Calendar,
+  CreditCard,
+  MapPin,
+  User,
+  Phone,
+  Store,
+  Wallet,
+  ShoppingBag,
+  CheckCircle,
+} from "lucide-react";
 
 // ---------- Constants ----------
 
 const STATUS_STYLES: Record<string, string> = {
   Processing: "bg-amber-50 text-amber-700 border border-amber-200/50",
   "In Transit": "bg-sky-50 text-sky-700 border border-sky-200/50",
-  Delivered: "bg-primary/15 text-primary border border-primary/30",
+  Delivered: "bg-emerald-50 text-emerald-700 border border-emerald-200/50",
+  Completed: "bg-indigo-50 text-indigo-700 border border-indigo-200/50",
   Cancelled: "bg-rose-50 text-rose-700 border border-rose-200/50",
 };
 
 const STATUS_DOT: Record<string, string> = {
   Processing: "bg-amber-500",
   "In Transit": "bg-sky-500",
-  Delivered: "bg-primary",
+  Delivered: "bg-emerald-500",
+  Completed: "bg-indigo-500",
   Cancelled: "bg-rose-500",
 };
 
@@ -49,13 +65,17 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
+function DetailBox({ icon, label, value, subValue }: { icon: React.ReactNode, label: string, value: React.ReactNode, subValue?: string }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-0">
-      <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider sm:w-40 shrink-0">
-        {label}
-      </span>
-      <span className="text-[14px] text-slate-800">{children}</span>
+    <div className="flex items-start gap-3 p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800">
+      <div className="text-slate-400 dark:text-slate-500 mt-0.5">
+        {icon}
+      </div>
+      <div>
+        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">{label}</p>
+        <div className="text-sm font-semibold text-slate-800 dark:text-slate-200 break-words">{value}</div>
+        {subValue && <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{subValue}</div>}
+      </div>
     </div>
   );
 }
@@ -63,17 +83,12 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
 function PageSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <div className="bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm space-y-4">
-        <div className="h-5 bg-slate-100 rounded w-1/3" />
-        <div className="h-4 bg-slate-100 rounded w-1/2" />
-        <div className="h-4 bg-slate-100 rounded w-1/4" />
-        <div className="h-4 bg-slate-100 rounded w-1/3" />
-        <div className="h-4 bg-slate-100 rounded w-2/5" />
-        <div className="h-4 bg-slate-100 rounded w-1/4" />
-      </div>
-      <div className="bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm space-y-4">
-        <div className="h-5 bg-slate-100 rounded w-1/4" />
-        <div className="h-32 bg-slate-100 rounded" />
+      <div className="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded w-1/3" />
+        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/2" />
+        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/4" />
+        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/3" />
+        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-2/5" />
       </div>
     </div>
   );
@@ -82,38 +97,40 @@ function PageSkeleton() {
 function OrderItemsTable({ items }: { items: AdminOrderItemDto[] }) {
   if (!items || items.length === 0) {
     return (
-      <p className="text-slate-400 text-sm italic py-2 pl-2">No items in this order.</p>
+      <div className="p-8 text-center text-slate-400 dark:text-slate-500 text-sm italic border border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
+        No items in this order.
+      </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto mt-3 rounded-lg border border-slate-100">
+    <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-800">
       <table className="w-full text-left border-collapse text-sm">
         <thead>
-          <tr className="bg-slate-50/80">
-            <th className="px-4 py-2.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Item Name</th>
-            <th className="px-4 py-2.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider text-center">Qty</th>
-            <th className="px-4 py-2.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider text-right">Unit Price</th>
-            <th className="px-4 py-2.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider text-right">Line Total</th>
-            <th className="px-4 py-2.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider text-center">Alt?</th>
-            <th className="px-4 py-2.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Alt. Note</th>
+          <tr className="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+            <th className="px-5 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Item Name</th>
+            <th className="px-5 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-center">Qty</th>
+            <th className="px-5 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-right">Unit Price</th>
+            <th className="px-5 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-right">Line Total</th>
+            <th className="px-5 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-center">Alt?</th>
+            <th className="px-5 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Alt. Note</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
           {items.map((item, idx) => (
-            <tr key={idx} className="hover:bg-slate-50/40 transition-colors">
-              <td className="px-4 py-2.5 text-slate-800 font-medium">{item.itemName}</td>
-              <td className="px-4 py-2.5 text-slate-600 text-center">{item.quantity}</td>
-              <td className="px-4 py-2.5 text-slate-600 text-right">${item.unitPrice.toFixed(2)}</td>
-              <td className="px-4 py-2.5 text-slate-800 font-semibold text-right">${item.lineTotal.toFixed(2)}</td>
-              <td className="px-4 py-2.5 text-center">
+            <tr key={idx} className="hover:bg-slate-50/40 dark:hover:bg-slate-800/40 transition-colors">
+              <td className="px-5 py-3 text-slate-800 dark:text-slate-200 font-semibold">{item.itemName}</td>
+              <td className="px-5 py-3 text-slate-600 dark:text-slate-400 text-center font-medium">{item.quantity}</td>
+              <td className="px-5 py-3 text-slate-600 dark:text-slate-400 text-right">${item.unitPrice.toFixed(2)}</td>
+              <td className="px-5 py-3 text-slate-800 dark:text-slate-200 font-bold text-right">${item.lineTotal.toFixed(2)}</td>
+              <td className="px-5 py-3 text-center">
                 {item.isAlternative ? (
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-50 text-amber-600 border border-amber-200 text-[10px] font-bold">✓</span>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50 text-[10px] font-bold">✓</span>
                 ) : (
-                  <span className="text-slate-300">—</span>
+                  <span className="text-slate-300 dark:text-slate-600">—</span>
                 )}
               </td>
-              <td className="px-4 py-2.5 text-slate-500 text-[13px] max-w-[180px] truncate" title={item.alternativeNote || undefined}>
+              <td className="px-5 py-3 text-slate-500 dark:text-slate-400 text-[13px] max-w-[180px] truncate" title={item.alternativeNote || undefined}>
                 {item.alternativeNote || "—"}
               </td>
             </tr>
@@ -133,15 +150,15 @@ export default function OrderDetailsPage() {
   const { data: details, isLoading, isError } = useAdminOrderDetailsQuery(orderId || "");
 
   return (
-    <AdminLayout title="PharmaBridge Admin">
-      <div className="p-6 md:p-8 min-h-[calc(100vh-48px)] space-y-6 bg-[#F8FAFC]">
+    <AdminLayout title="Order Details">
+      <div className="p-6 md:p-8 min-h-screen space-y-6 bg-[#F4F6FA] dark:bg-[#0b0f19] transition-colors duration-300">
         {/* Back */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate("/admin/orders")}
-            className="flex items-center gap-1.5 text-slate-500 hover:text-primary transition-colors text-sm"
+            className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm font-semibold"
           >
-            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+            <ArrowLeft className="w-4 h-4" />
             Back to Orders
           </button>
         </div>
@@ -149,114 +166,200 @@ export default function OrderDetailsPage() {
         {isLoading ? (
           <PageSkeleton />
         ) : isError || !details ? (
-          <div className="bg-rose-50 text-rose-700 border border-rose-200/50 rounded-xl p-8 text-center max-w-xl mx-auto shadow-sm">
-            <span className="material-symbols-outlined text-[36px] mb-2 text-rose-500">warning</span>
+          <div className="bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 border border-rose-200/50 dark:border-rose-800/50 rounded-2xl p-8 text-center max-w-xl mx-auto shadow-sm">
+            <AlertCircle className="w-10 h-10 mx-auto text-rose-500 dark:text-rose-400 mb-2" />
             <h4 className="text-lg font-bold">Failed to load order details</h4>
-            <p className="text-sm mt-1 text-rose-600">
+            <p className="text-sm mt-1 text-rose-600 dark:text-rose-500">
               Could not fetch order data. The order may not exist or the API may be unavailable.
             </p>
           </div>
         ) : (
           <>
             {/* Page Heading */}
-            <div>
-              <h3 className="text-2xl font-bold text-slate-800">Order Details</h3>
-              <p className="text-slate-550 text-sm mt-0.5">
-                Order #{details.orderId}
-              </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Order Details</h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+                  Viewing detailed information for Order #{details.orderId}
+                </p>
+              </div>
+              <StatusBadge status={details.orderStatus} />
             </div>
 
-            {/* Order Information & Pricing Card */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Order Info */}
-              <div className="lg:col-span-2 bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="material-symbols-outlined text-slate-400 text-[20px]">info</span>
-                  <span className="text-sm font-semibold text-slate-600 uppercase tracking-wider">Order Information</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
-                  <DetailRow label="Order ID">#{details.orderId}</DetailRow>
-                  <DetailRow label="Status">
-                    <StatusBadge status={details.orderStatus} />
-                  </DetailRow>
-                  <DetailRow label="Payment Method">{details.paymentMethod || "—"}</DetailRow>
-                  <DetailRow label="Payment Status">{details.paymentStatus || "—"}</DetailRow>
-                  <DetailRow label="Created At">{formatDateTime(details.createdAt)}</DetailRow>
-                  {details.deliveredAt && (
-                    <DetailRow label="Delivered At">{formatDateTime(details.deliveredAt)}</DetailRow>
-                  )}
-                  {details.completedAt && (
-                    <DetailRow label="Completed At">{formatDateTime(details.completedAt)}</DetailRow>
-                  )}
-                  {details.cancelledAt && (
-                    <DetailRow label="Cancelled At">{formatDateTime(details.cancelledAt)}</DetailRow>
-                  )}
-                  {details.cancelReason && (
-                    <div className="sm:col-span-2">
-                      <DetailRow label="Cancel Reason">{details.cancelReason}</DetailRow>
+              
+              {/* Left Column: Info & Parties & Items */}
+              <div className="lg:col-span-2 space-y-6">
+                
+                {/* Order Information Card */}
+                <div className="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-violet-500" />
+                  
+                  <div className="flex items-center gap-2 mb-5">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                      <Info className="w-4 h-4" />
                     </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Pricing breakdown */}
-              <div className="bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="material-symbols-outlined text-slate-400 text-[20px]">payments</span>
-                  <span className="text-sm font-semibold text-slate-600 uppercase tracking-wider">Pricing</span>
-                </div>
-
-                <div className="space-y-2.5">
-                  <div className="flex justify-between text-sm text-slate-600">
-                    <span>Subtotal</span>
-                    <span className="font-semibold text-slate-800">${details.subtotal.toFixed(2)}</span>
+                    <span className="text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">Order Information</span>
                   </div>
-                  <div className="flex justify-between text-sm text-slate-600">
-                    <span>Delivery Fee</span>
-                    <span className="font-semibold text-slate-800">${details.deliveryFee.toFixed(2)}</span>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <DetailBox 
+                      icon={<Info className="w-4 h-4" />}
+                      label="Order ID" 
+                      value={`#${details.orderId}`}
+                    />
+                    <DetailBox 
+                      icon={<Calendar className="w-4 h-4" />}
+                      label="Created At" 
+                      value={formatDateTime(details.createdAt)}
+                    />
+                    <DetailBox 
+                      icon={<CreditCard className="w-4 h-4" />}
+                      label="Payment Method" 
+                      value={details.paymentMethod || "—"}
+                    />
+                    <DetailBox 
+                      icon={<CreditCard className="w-4 h-4" />}
+                      label="Payment Status" 
+                      value={details.paymentStatus || "—"}
+                    />
+                    
+                    {details.deliveredAt && (
+                      <DetailBox 
+                        icon={<Calendar className="w-4 h-4" />}
+                        label="Delivered At" 
+                        value={formatDateTime(details.deliveredAt)}
+                      />
+                    )}
+                    {details.completedAt && (
+                      <DetailBox 
+                        icon={<Calendar className="w-4 h-4" />}
+                        label="Completed At" 
+                        value={formatDateTime(details.completedAt)}
+                      />
+                    )}
+                    {details.cancelledAt && (
+                      <DetailBox 
+                        icon={<Calendar className="w-4 h-4" />}
+                        label="Cancelled At" 
+                        value={formatDateTime(details.cancelledAt)}
+                      />
+                    )}
+                    {details.cancelReason && (
+                      <div className="sm:col-span-2">
+                        <DetailBox 
+                          icon={<Info className="w-4 h-4" />}
+                          label="Cancel Reason" 
+                          value={details.cancelReason}
+                        />
+                      </div>
+                    )}
                   </div>
-                  {details.discountAmount > 0 && (
-                    <div className="flex justify-between text-sm text-rose-600">
-                      <span>Discount</span>
-                      <span className="font-semibold">-${details.discountAmount.toFixed(2)}</span>
+                </div>
+
+                {/* Parties & Delivery */}
+                <div className="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-400 to-blue-500" />
+                  
+                  <div className="flex items-center gap-2 mb-5">
+                    <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                      <User className="w-4 h-4" />
                     </div>
-                  )}
-                  <div className="border-t border-slate-100 pt-3 flex justify-between items-center">
-                    <span className="text-base font-bold text-slate-800">Total Amount</span>
-<span className="text-xl font-bold text-primary">
-  ${details.amount.toFixed(2)}
-</span>                  </div>
+                    <span className="text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">Parties & Delivery</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DetailBox 
+                      icon={<User className="w-4 h-4" />}
+                      label="Patient Name" 
+                      value={details.patientName || "—"}
+                    />
+                    <DetailBox 
+                      icon={<Phone className="w-4 h-4" />}
+                      label="Patient Phone" 
+                      value={details.patientPhone || "—"}
+                    />
+                    <DetailBox 
+                      icon={<Store className="w-4 h-4" />}
+                      label="Pharmacy Name" 
+                      value={details.pharmacyName || "—"}
+                    />
+                    <DetailBox 
+                      icon={<Phone className="w-4 h-4" />}
+                      label="Pharmacy Phone" 
+                      value={details.pharmacyPhone || "—"}
+                    />
+                    <div className="md:col-span-2">
+                      <DetailBox 
+                        icon={<MapPin className="w-4 h-4" />}
+                        label="Delivery Address" 
+                        value={details.deliveryAddress || "—"}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Order Items */}
+                <div className="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-500" />
+                  
+                  <div className="flex items-center gap-2 mb-5">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                      <ShoppingBag className="w-4 h-4" />
+                    </div>
+                    <span className="text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">Order Items ({details.items.length})</span>
+                  </div>
+
+                  <OrderItemsTable items={details.items} />
                 </div>
               </div>
-            </div>
 
-            {/* Patient & Pharmacy & Delivery Info Card */}
-            <div className="bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm space-y-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="material-symbols-outlined text-slate-400 text-[20px]">handshake</span>
-                <span className="text-sm font-semibold text-slate-600 uppercase tracking-wider">Parties & Delivery</span>
-              </div>
+              {/* Right Column: Pricing */}
+              <div className="space-y-6">
+                {/* Pricing Card */}
+                <div className="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 to-orange-500" />
+                  
+                  <div className="flex items-center gap-2 mb-6">
+                    <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                      <Wallet className="w-4 h-4" />
+                    </div>
+                    <span className="text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">Pricing Breakdown</span>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                <DetailRow label="Patient Name">{details.patientName || "—"}</DetailRow>
-                <DetailRow label="Patient Phone">{details.patientPhone || "—"}</DetailRow>
-                <DetailRow label="Pharmacy Name">{details.pharmacyName || "—"}</DetailRow>
-                <DetailRow label="Pharmacy Phone">{details.pharmacyPhone || "—"}</DetailRow>
-                <div className="md:col-span-2">
-                  <DetailRow label="Delivery Address">{details.deliveryAddress || "—"}</DetailRow>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-500 dark:text-slate-400 font-medium">Subtotal</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">${details.subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-500 dark:text-slate-400 font-medium">Delivery Fee</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">${details.deliveryFee.toFixed(2)}</span>
+                    </div>
+                    
+                    {details.discountAmount > 0 && (
+                      <div className="flex justify-between items-center text-sm p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-100 dark:border-rose-800/30">
+                        <span className="text-rose-600 dark:text-rose-400 font-bold flex items-center gap-1.5">
+                          Discount
+                        </span>
+                        <span className="font-bold text-rose-700 dark:text-rose-300">-${details.discountAmount.toFixed(2)}</span>
+                      </div>
+                    )}
+                    
+                    <div className="border-t border-slate-100 dark:border-slate-800 pt-4 mt-2">
+                      <div className="flex justify-between items-end">
+                        <div>
+                          <span className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Total Amount</span>
+                          <span className="text-3xl font-black text-slate-800 dark:text-slate-200 tabular-nums">
+                            ${details.amount.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            {/* Order Items Table Card */}
-            <div className="bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm space-y-4">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="material-symbols-outlined text-slate-400 text-[20px]">vaccines</span>
-                <span className="text-sm font-semibold text-slate-600 uppercase tracking-wider">Order Items</span>
-              </div>
-
-              <OrderItemsTable items={details.items} />
+              
             </div>
           </>
         )}

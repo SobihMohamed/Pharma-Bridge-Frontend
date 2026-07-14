@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
 import { Pill, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, CheckCircle2, ShieldCheck, Sparkles, Building } from 'lucide-react';
 import { useRegisterMutation } from '../hooks/useAuthMutations';
+import logo from '@/assets/logo.png';
 import { useGoogleAuthMutation } from '../hooks/useGoogleAuthMutation';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useAuthStore } from '../store/authStore';
@@ -165,9 +166,7 @@ export default function RegisterPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="flex items-center gap-2.5"
           >
-            <div className="w-10 h-10 bg-white/10 border border-white/20 rounded-xl flex items-center justify-center shadow-lg backdrop-blur-md">
-              <Pill className="w-5 h-5 text-[#bae6fd]" />
-            </div>
+            <img src={logo} alt="PharmaBridge Logo" className="w-12 h-12 rounded-full object-contain shadow-lg" />
             <span className="text-xl font-bold tracking-tight text-white font-sans">PharmaBridge</span>
           </motion.div>
 
@@ -277,9 +276,7 @@ export default function RegisterPage() {
           {/* Brand Logo for Mobile */}
           <div className="flex lg:hidden justify-center mb-8">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-[#0284c7] rounded-xl flex items-center justify-center shadow-md">
-                <Pill className="w-5 h-5 text-white" />
-              </div>
+              <img src={logo} alt="PharmaBridge Logo" className="w-10 h-10 rounded-full object-contain shadow-md" />
               <span className="text-xl font-bold tracking-tight text-[#0369a1] font-sans">PharmaBridge</span>
             </div>
           </div>

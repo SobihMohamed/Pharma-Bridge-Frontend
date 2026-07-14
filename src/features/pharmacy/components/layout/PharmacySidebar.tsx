@@ -4,6 +4,7 @@ import {
   LayoutDashboard, Radio, Gavel, Package, Settings, LogOut, Lock, AlertTriangle, Plus, ChevronLeft, ChevronRight, ClipboardList,
 } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/store/authStore';
+import logo from '@/assets/logo.png';
 import { usePharmaOwnerProfileQuery } from '../../hooks/useOwnerProfile';
 import { useMyPharmacyProfileQuery } from '../../hooks/usePharmacyProfile';
 
@@ -129,12 +130,7 @@ export const PharmacySidebar: React.FC<PharmacySidebarProps> = ({ isOpen, onClos
         className={`h-16 flex items-center shrink-0 border-b border-gray-200 dark:border-slate-800 ${isCollapsed ? 'justify-center px-0' : 'px-6'}`}
       >
         <div className="flex items-center gap-2.5">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: 'linear-gradient(135deg,#0284c7,#0369a1)' }}
-          >
-            <Plus className="w-5 h-5 text-white" strokeWidth={3} />
-          </div>
+          <img src={logo} alt="PharmaBridge Logo" className="w-10 h-10 rounded-full object-contain shadow-sm shrink-0" />
           {!isCollapsed && (
             <h1 className="text-lg font-extrabold tracking-tight whitespace-nowrap text-gray-900 dark:text-white">
               Pharma<span className="text-teal-600 dark:text-teal-400">Bridge</span>

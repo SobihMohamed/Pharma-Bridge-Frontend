@@ -23,7 +23,7 @@ import {
 
 // ─── Inline Skeleton ────────────────────────────────────────────────────────
 const Skeleton = ({ className = '' }: { className?: string }) => (
-  <div className={`animate-pulse rounded-md bg-gray-200 ${className}`} />
+  <div className={`animate-pulse rounded-md bg-gray-200 dark:bg-slate-700 ${className}`} />
 );
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -66,7 +66,7 @@ function getRequestStatusBadge(status: string) {
   if (s.includes('bid')) return <span className="bg-[#C8E6FF] text-[#006591] px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold">Has Bids</span>;
   if (s === 'completed' || s === 'accepted') return <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold">Completed</span>;
   if (s === 'closed') return <span className="bg-gray-500 text-white px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold">Closed</span>;
-  return <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold">{status}</span>;
+  return <span className="bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold">{status}</span>;
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -80,7 +80,7 @@ export default function PatientHomePage() {
   const recentOrders = data?.recentOrders ?? [];
 
   return (
-    <div className="space-y-8 max-w-[1440px] mx-auto pb-12">
+    <div className="space-y-8 max-w-[1440px] mx-auto pb-12 transition-colors duration-300">
       {/* ── Hero Banner Section ── */}
       <section className="relative pb-10">
         {/* Main hero content container */}
@@ -190,7 +190,7 @@ export default function PatientHomePage() {
               <div className="p-2 bg-[#C8E6FF] rounded-xl text-[#009ADA]">
                 <Stethoscope className="w-5 h-5" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Recent Requests</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Recent Requests</h2>
             </div>
             <button
               onClick={() => navigate('/requests')}
@@ -205,7 +205,7 @@ export default function PatientHomePage() {
           <div className="space-y-4">
             {isLoading ? (
               [1, 2, 3].map(i => (
-                <div key={i} className="bg-white border border-gray-200 p-6 rounded-2xl animate-pulse">
+                <div key={i} className="bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-slate-800 p-6 rounded-2xl animate-pulse transition-colors duration-300">
                   <div className="flex gap-4">
                     <Skeleton className="h-5 w-48" />
                     <Skeleton className="h-5 w-16 rounded-full" />
@@ -217,12 +217,12 @@ export default function PatientHomePage() {
                 </div>
               ))
             ) : latestRequests.length === 0 ? (
-              <div className="bg-white border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center py-16 text-center min-h-[300px]">
-                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 shadow-sm">
-                  <Stethoscope className="w-8 h-8 text-gray-300" />
+              <div className="bg-white dark:bg-[#0f172a] border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-2xl flex flex-col items-center justify-center py-16 text-center min-h-[300px] transition-colors duration-300">
+                <div className="w-16 h-16 bg-gray-50 dark:bg-[#0b0f19] rounded-full flex items-center justify-center mb-4 shadow-sm">
+                  <Stethoscope className="w-8 h-8 text-gray-300 dark:text-slate-600" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-700 mb-1">No Active Requests</h3>
-                <p className="text-gray-500 text-sm max-w-[250px] mb-6 leading-relaxed">
+                <h3 className="text-lg font-bold text-gray-700 dark:text-slate-300 mb-1">No Active Requests</h3>
+                <p className="text-gray-500 dark:text-slate-400 text-sm max-w-[250px] mb-6 leading-relaxed">
                   Upload a prescription image to start receiving competitive offers.
                 </p>
                 <button
@@ -237,16 +237,16 @@ export default function PatientHomePage() {
                 <div
                   key={req.id}
                   onClick={() => navigate(`/requests/${req.id}`)}
-                  className="bg-white border border-gray-200 p-6 rounded-2xl flex flex-col md:flex-row justify-between gap-4 hover:border-[#009ADA] transition-all cursor-pointer group hover:shadow-md"
+                  className="bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-slate-800 p-6 rounded-2xl flex flex-col md:flex-row justify-between gap-4 hover:border-[#009ADA] transition-all cursor-pointer group hover:shadow-md"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-[#006591] transition-colors">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-[#006591] dark:group-hover:text-[#009ADA] transition-colors">
                         {req.medicineName || 'Prescription Document'}
                       </h3>
                       {getRequestStatusBadge(req.status)}
                     </div>
-                    <div className="flex flex-col gap-1 text-gray-500">
+                    <div className="flex flex-col gap-1 text-gray-500 dark:text-slate-400">
                       <div className="flex items-center gap-2 text-sm">
                         <Clock className="w-4 h-4" />
                         {formatRelativeTime(req.createdAt)}
@@ -264,7 +264,7 @@ export default function PatientHomePage() {
                         {req.bidsCount} Bids Available
                       </div>
                     ) : (
-                      <div className="bg-gray-100 text-gray-500 px-6 py-3 rounded-xl text-sm font-semibold text-center w-full md:w-auto">
+                      <div className="bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 px-6 py-3 rounded-xl text-sm font-semibold text-center w-full md:w-auto">
                         Awaiting Bids
                       </div>
                     )}
@@ -282,7 +282,7 @@ export default function PatientHomePage() {
               <div className="p-2 bg-[#85CBFD] rounded-xl text-[#00567C]">
                 <ShoppingBag className="w-5 h-5" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Recent Orders</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Recent Orders</h2>
             </div>
             <button
               onClick={() => navigate('/orders')}
@@ -297,7 +297,7 @@ export default function PatientHomePage() {
           <div className="space-y-4">
             {isLoading ? (
               [1, 2, 3].map(i => (
-                <div key={i} className="bg-white border border-gray-200 rounded-2xl overflow-hidden animate-pulse">
+                <div key={i} className="bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-slate-800 rounded-2xl overflow-hidden animate-pulse transition-colors duration-300">
                   <div className="p-6 space-y-3">
                     <div className="flex justify-between">
                       <Skeleton className="h-4 w-40" />
@@ -305,18 +305,18 @@ export default function PatientHomePage() {
                     </div>
                     <Skeleton className="h-6 w-48" />
                   </div>
-                  <div className="p-6 bg-gray-50">
+                  <div className="p-6 bg-gray-50 dark:bg-[#0b0f19]">
                     <Skeleton className="h-12 w-full rounded-xl" />
                   </div>
                 </div>
               ))
             ) : recentOrders.length === 0 ? (
-              <div className="bg-white border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center py-16 text-center min-h-[300px]">
-                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 shadow-sm">
-                  <PackageX className="w-8 h-8 text-gray-300" />
+              <div className="bg-white dark:bg-[#0f172a] border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-2xl flex flex-col items-center justify-center py-16 text-center min-h-[300px] transition-colors duration-300">
+                <div className="w-16 h-16 bg-gray-50 dark:bg-[#0b0f19] rounded-full flex items-center justify-center mb-4 shadow-sm">
+                  <PackageX className="w-8 h-8 text-gray-300 dark:text-slate-600" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-700 mb-1">No Recent Orders</h3>
-                <p className="text-gray-500 text-sm max-w-[250px] mb-6 leading-relaxed">
+                <h3 className="text-lg font-bold text-gray-700 dark:text-slate-300 mb-1">No Recent Orders</h3>
+                <p className="text-gray-500 dark:text-slate-400 text-sm max-w-[250px] mb-6 leading-relaxed">
                   When you accept an offer from a pharmacy, tracking information will appear here.
                 </p>
               </div>
@@ -327,12 +327,12 @@ export default function PatientHomePage() {
                   <div
                     key={order.id}
                     onClick={() => navigate(`/orders/${order.id}`)}
-                    className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-md transition-all cursor-pointer group"
+                    className="bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-slate-800 rounded-2xl overflow-hidden hover:shadow-md transition-all cursor-pointer group"
                   >
                     {/* Order Header */}
-                    <div className="p-6 border-b border-gray-200 flex justify-between items-start">
+                    <div className="p-6 border-b border-gray-200 dark:border-slate-800 flex justify-between items-start">
                       <div className="space-y-1">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                        <p className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">
                           Order #{order.id} • {formatRelativeTime(order.createdAt)}
                         </p>
                         <h3 className="text-xl font-bold text-[#009ADA] group-hover:text-[#006591] transition-colors">
@@ -346,13 +346,13 @@ export default function PatientHomePage() {
                     </div>
 
                     {/* Order Details */}
-                    <div className="p-6 bg-gray-50 grid grid-cols-2 gap-6">
+                    <div className="p-6 bg-gray-50 dark:bg-[#0b0f19] grid grid-cols-2 gap-6">
                       <div className="space-y-1">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Amount</p>
-                        <p className="text-xl font-bold text-gray-900">EGP {order.amount?.toFixed(2) || '0.00'}</p>
+                        <p className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">Amount</p>
+                        <p className="text-xl font-bold text-gray-900 dark:text-white">EGP {order.amount?.toFixed(2) || '0.00'}</p>
                       </div>
                       <div className="text-right space-y-1">
-                        <div className="flex items-center justify-end gap-1 text-gray-400">
+                        <div className="flex items-center justify-end gap-1 text-gray-400 dark:text-slate-500">
                           <CreditCard className="w-3.5 h-3.5" />
                           <p className="text-xs font-bold uppercase tracking-widest">{order.paymentMethod}</p>
                         </div>
@@ -364,7 +364,7 @@ export default function PatientHomePage() {
 
                     {/* Click to view hint */}
                     <div className="p-6 flex justify-center">
-                      <div className="w-full h-20 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center text-gray-400 opacity-60">
+                      <div className="w-full h-20 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 opacity-60">
                         <Receipt className="w-5 h-5 mb-1" />
                         <p className="text-sm">Click to view prescription details</p>
                       </div>
@@ -379,13 +379,13 @@ export default function PatientHomePage() {
 
       {/* ── Featured Section (Bento Style) ── */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 bg-white border border-gray-200 rounded-2xl p-6 flex items-center gap-6">
+        <div className="md:col-span-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-slate-800 rounded-2xl p-6 flex items-center gap-6 transition-colors duration-300">
           <div className="w-24 h-24 shrink-0 bg-[#C8E6FF] rounded-2xl flex items-center justify-center text-[#009ADA]">
             <Shield className="w-12 h-12" />
           </div>
           <div className="space-y-2">
-            <h4 className="text-lg font-bold text-gray-900">Health Shield Protection</h4>
-            <p className="text-sm text-gray-500 leading-relaxed">
+            <h4 className="text-lg font-bold text-gray-900 dark:text-white">Health Shield Protection</h4>
+            <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">
               Your prescriptions are verified by licensed pharmacists before every bid is placed. Ensuring precision in every drop.
             </p>
           </div>

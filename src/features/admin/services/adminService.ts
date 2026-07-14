@@ -70,14 +70,17 @@ export interface AdminBidDto {
   status: string;
   totalPrice: number;
   submittedAt: string;
-  items: AdminBidItemDto[];
+  bidItems: AdminBidItemDto[];
 }
 
 export interface AdminHistoryEntryDto {
-  action: string;
-  performedBy: string;
-  performedAt: string;
+  id: number;
   notes: string | null;
+  oldStatus: string | null;
+  newStatus: string;
+  changedAt: string;
+  changedByName: string | null;
+  prescriptionRequestId: number;
 }
 
 export interface AdminPrescriptionRequestDetailsDto {
@@ -171,17 +174,6 @@ export interface AdminOrderDetailsDto {
 
 // ---------- Admin Bids (Real API) ----------
 
-export interface AdminBidListItemDto {
-  id: number;
-  pharmacyName: string;
-  prescriptionRequestId: number | null;
-  totalPrice: number;
-  deliveryFee: number;
-  status: string;
-  submittedAt: string;
-  deliveryTime: string | null;
-}
-
 export interface AdminBidDetailItemDto {
   itemName: string;
   quantity: number;
@@ -189,6 +181,20 @@ export interface AdminBidDetailItemDto {
   lineTotal: number;
   isAlternative: boolean;
   alternativeNote: string | null;
+}
+
+export interface AdminBidListItemDto {
+  id: number;
+  pharmacyName: string;
+  pharmacyRating: number;
+  totalPrice: number;
+  deliveryFee: number;
+  status: string;
+  notes: string | null;
+  submittedAt: string;
+  deliveryTimeInMinutes: number;
+  bidItems: AdminBidDetailItemDto[];
+  prescriptionRequestId?: number | null;
 }
 
 export interface AdminBidDetailsDto {
