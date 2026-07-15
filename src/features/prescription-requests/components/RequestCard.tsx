@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Calendar, ChevronRight, MapPin, Store, FileText, Image as ImageIcon } from 'lucide-react';
 import { PrescriptionRequestDto } from '../types';
+import { formatLocalDate } from '@/utils/formatTime';
 
 interface RequestCardProps {
   request: PrescriptionRequestDto;
@@ -61,7 +62,7 @@ export default function RequestCard({ request }: RequestCardProps) {
         
         <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400 text-sm font-medium mb-3">
           <Calendar className="w-4 h-4" />
-          {new Date(request.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+          {formatLocalDate(request.createdAt)}
         </div>
         
         <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400 text-sm font-medium mb-4">

@@ -37,12 +37,15 @@ export default function RegisterPage() {
     role: 'Patient' as UserRole
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+    setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleRoleSelect = (role: UserRole) => {
@@ -54,6 +57,24 @@ export default function RegisterPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+    let newErrors: Record<string, string> = {};
+
+    if (!formData.displayName.trim()) newErrors.displayName = "Full name cannot be empty";
+    else if (/^\d+$/.test(formData.displayName.trim())) newErrors.displayName = "Full name cannot contain only numbers";
+
+    if (!formData.email.trim()) newErrors.email = "Email cannot be empty";
+    else if (!/^\S+@\S+\.\S+$/.test(formData.email.trim())) newErrors.email = "Invalid email format";
+
+    if (!formData.password.trim()) newErrors.password = "Password cannot be empty spaces";
+    
+    if (!/^\d{11}$/.test(formData.phoneNumber.trim())) newErrors.phoneNumber = "Phone number must be exactly 11 digits";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     regularRegister(formData);
   };
 
@@ -376,12 +397,13 @@ export default function RegisterPage() {
                     name="displayName"
                     type="text"
                     required
-                    className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-[#bae6fd] rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#0284c7]/10 focus:border-[#0284c7] sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]"
+                    className={`appearance-none block w-full pl-10 pr-3 py-2.5 border ${errors.displayName ? 'border-red-500 ring-1 ring-red-500' : 'border-[#bae6fd] focus:ring-[#0284c7]/10 focus:border-[#0284c7]'} rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]`}
                     placeholder="John Doe"
                     value={formData.displayName}
                     onChange={handleChange}
                   />
                 </div>
+                {errors.displayName && <p className="text-red-500 text-xs mt-1">{errors.displayName}</p>}
               </div>
 
               {/* Email */}
@@ -398,12 +420,13 @@ export default function RegisterPage() {
                     name="email"
                     type="email"
                     required
-                    className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-[#bae6fd] rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#0284c7]/10 focus:border-[#0284c7] sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]"
+                    className={`appearance-none block w-full pl-10 pr-3 py-2.5 border ${errors.email ? 'border-red-500 ring-1 ring-red-500' : 'border-[#bae6fd] focus:ring-[#0284c7]/10 focus:border-[#0284c7]'} rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]`}
                     placeholder="you@example.com"
                     value={formData.email}
                     onChange={handleChange}
                   />
                 </div>
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </div>
 
               {/* Phone Number */}
@@ -420,12 +443,13 @@ export default function RegisterPage() {
                     name="phoneNumber"
                     type="tel"
                     required
-                    className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-[#bae6fd] rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#0284c7]/10 focus:border-[#0284c7] sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]"
+                    className={`appearance-none block w-full pl-10 pr-3 py-2.5 border ${errors.phoneNumber ? 'border-red-500 ring-1 ring-red-500' : 'border-[#bae6fd] focus:ring-[#0284c7]/10 focus:border-[#0284c7]'} rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]`}
                     placeholder="+1 (555) 000-0000"
                     value={formData.phoneNumber}
                     onChange={handleChange}
                   />
                 </div>
+                {errors.phoneNumber && <p className="text-red-500 text-xs mt-1">{errors.phoneNumber}</p>}
               </div>
 
               {/* Password */}
@@ -442,7 +466,7 @@ export default function RegisterPage() {
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     required
-                    className="appearance-none block w-full pl-10 pr-10 py-2.5 border border-[#bae6fd] rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#0284c7]/10 focus:border-[#0284c7] sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]"
+                    className={`appearance-none block w-full pl-10 pr-10 py-2.5 border ${errors.password ? 'border-red-500 ring-1 ring-red-500' : 'border-[#bae6fd] focus:ring-[#0284c7]/10 focus:border-[#0284c7]'} rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]`}
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={handleChange}
@@ -455,6 +479,7 @@ export default function RegisterPage() {
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
+                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
               </div>
             </div>
 

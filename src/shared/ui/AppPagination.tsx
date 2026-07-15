@@ -16,7 +16,7 @@ export function AppPagination({
 }: AppPaginationProps) {
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  if (totalPages <= 1) return null;
+  if (totalCount === 0) return null; // Only hide if absolutely empty
 
   const handlePrevious = () => {
     if (currentPage > 1) onPageChange(currentPage - 1);

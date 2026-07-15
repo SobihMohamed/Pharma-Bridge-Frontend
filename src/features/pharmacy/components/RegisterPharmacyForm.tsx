@@ -1,24 +1,31 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { UploadCloud, Building2, MapPin, Phone, Clock, FileBadge, X, Loader2 } from 'lucide-react';
-import { useRegisterPharmacyMutation, useMyPharmacyProfileQuery } from '../hooks/usePharmacyProfile';
+import { useRegisterPharmacyMutation, useUpdatePharmacyMutation, useMyPharmacyProfileQuery } from '../hooks/usePharmacyProfile';
 import MapLocationPicker from '@/shared/components/MapLocationPicker';
 import { toast } from 'sonner';
 
-interface PharmacyFormValues {
-  pharmacyName: string;
-  licenseNumber: string;
-  contactPhone: string;
-  area: string;
-  textAddress: string;
-  openTime: string;
-  closeTime: string;
-  is24Hours: boolean;
-}
+const pharmacyFormSchema = z.object({
+  pharmacyName: z.string().trim().min(1, 'Pharmacy name is required').refine(val => !/^\d+$/.test(val), 'Pharmacy name cannot be only numbers'),
+  licenseNumber: z.string().trim().min(1, 'License number is required'),
+  contactPhone: z.string().trim().regex(/^\d{11}$/, 'Phone number must be exactly 11 digits'),
+  area: z.string().trim().min(1, 'Area is required'),
+  textAddress: z.string().trim().min(1, 'Address is required'),
+  openTime: z.string().min(1, 'Opening time is required'),
+  closeTime: z.string().min(1, 'Closing time is required'),
+  is24Hours: z.boolean(),
+});
+
+type PharmacyFormValues = z.infer<typeof pharmacyFormSchema>;
 
 export default function RegisterPharmacyForm() {
   const { data: pharmacyProfile, isLoading: isProfileLoading } = useMyPharmacyProfileQuery();
-  const { mutate: registerPharmacy, isPending } = useRegisterPharmacyMutation();
+  const { mutate: registerPharmacy, isPending: isRegistering } = useRegisterPharmacyMutation();
+  const { mutate: updatePharmacy, isPending: isUpdating } = useUpdatePharmacyMutation();
+  
+  const isPending = isRegistering || isUpdating;
   
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [licenseImage, setLicenseImage] = useState<File | null>(null);
@@ -26,6 +33,7 @@ export default function RegisterPharmacyForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<PharmacyFormValues>({
+    resolver: zodResolver(pharmacyFormSchema),
     defaultValues: {
       pharmacyName: '',
       licenseNumber: '',
@@ -35,10 +43,11 @@ export default function RegisterPharmacyForm() {
       openTime: '08:00',
       closeTime: '22:00',
       is24Hours: false,
-    }
+    },
+    mode: 'onChange'
   });
 
-  const { register, handleSubmit, watch, reset } = form;
+  const { register, handleSubmit, watch, reset, formState: { errors } } = form;
   const is24Hours = watch('is24Hours');
 
   useEffect(() => {
@@ -69,7 +78,9 @@ export default function RegisterPharmacyForm() {
   const actualProfileStatus = (pharmacyProfile as any)?.data || pharmacyProfile;
   const isPendingStatus = actualProfileStatus?.status === 'Pending';
   const isApprovedStatus = actualProfileStatus?.status === 'Approved' || actualProfileStatus?.isApproved;
-  const isReadOnly = isPendingStatus || isApprovedStatus;
+  const isExisting = !!pharmacyProfile;
+  // Make form read-only ONLY if it is currently pending review. Approved profiles can be edited.
+  const isReadOnly = isPendingStatus;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -93,13 +104,14 @@ export default function RegisterPharmacyForm() {
       toast.error('Please select your pharmacy location on the map.');
       return;
     }
-    if (!licenseImage) {
+    // License image is strictly required for registration, but optional for updates
+    if (!isExisting && !licenseImage) {
       toast.error('Please upload your pharmacy license image.');
       return;
     }
     
     // Map camelCase form values back to PascalCase for the backend DTO
-    registerPharmacy({
+    const payload = {
       PharmacyName: values.pharmacyName,
       LicenseNumber: values.licenseNumber,
       ContactPhone: values.contactPhone,
@@ -111,7 +123,13 @@ export default function RegisterPharmacyForm() {
       Latitude: location.lat,
       Longitude: location.lng,
       LicenseImage: licenseImage,
-    });
+    };
+
+    if (isExisting) {
+      updatePharmacy(payload);
+    } else {
+      registerPharmacy(payload);
+    }
   };
 
   if (isProfileLoading) {
@@ -151,18 +169,20 @@ export default function RegisterPharmacyForm() {
               <input
                 {...register('pharmacyName', { required: true })}
                 disabled={isReadOnly}
-                className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500"
+                className={`block w-full rounded-lg border ${errors.pharmacyName ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'} px-4 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500`}
                 placeholder="e.g. El-Ezaby Pharmacy"
               />
+              {errors.pharmacyName && <p className="text-red-500 text-xs mt-1">{errors.pharmacyName.message}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">License Number</label>
               <input
                 {...register('licenseNumber', { required: true })}
                 disabled={isReadOnly}
-                className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500"
+                className={`block w-full rounded-lg border ${errors.licenseNumber ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'} px-4 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500`}
                 placeholder="e.g. L-12345678"
               />
+              {errors.licenseNumber && <p className="text-red-500 text-xs mt-1">{errors.licenseNumber.message}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Contact Phone</label>
@@ -173,10 +193,11 @@ export default function RegisterPharmacyForm() {
                 <input
                   {...register('contactPhone', { required: true })}
                   disabled={isReadOnly}
-                  className="block w-full pl-10 rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500"
+                  className={`block w-full pl-10 rounded-lg border ${errors.contactPhone ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'} px-4 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500`}
                   placeholder="010XXXXXXXX"
                 />
               </div>
+              {errors.contactPhone && <p className="text-red-500 text-xs mt-1">{errors.contactPhone.message}</p>}
             </div>
           </div>
         </div>
@@ -232,16 +253,18 @@ export default function RegisterPharmacyForm() {
               <input
                 {...register('textAddress', { required: true })}
                 disabled={isReadOnly}
-                className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500"
+                className={`block w-full rounded-lg border ${errors.textAddress ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'} px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500`}
               />
+              {errors.textAddress && <p className="text-red-500 text-xs mt-1">{errors.textAddress.message}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Area</label>
               <input
                 {...register('area', { required: true })}
                 disabled={isReadOnly}
-                className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500"
+                className={`block w-full rounded-lg border ${errors.area ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'} px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-900/50 dark:disabled:text-slate-500`}
               />
+              {errors.area && <p className="text-red-500 text-xs mt-1">{errors.area.message}</p>}
             </div>
           </div>
 
@@ -305,7 +328,7 @@ export default function RegisterPharmacyForm() {
               disabled={isPending}
               className="px-8 py-3 rounded-xl text-white bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 font-semibold disabled:opacity-60 transition-all min-w-[200px]"
             >
-              {isPending ? 'Submitting...' : 'Register Pharmacy'}
+              {isPending ? 'Submitting...' : isExisting ? 'Save Changes' : 'Register Pharmacy'}
             </button>
           )}
         </div>

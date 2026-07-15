@@ -1,5 +1,6 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import AdminLayout from "../components/layout/AdminLayout";
+import { formatLocalDateTime } from '@/utils/formatTime';
 import { useAdminBidDetailsQuery } from "../hooks/useAdminBidsQuery";
 import { AdminBidDetailItemDto } from "../services/adminService";
 import { Gavel, CircleDollarSign, PackageSearch, ArrowLeft, Pill, AlertTriangle } from "lucide-react";
@@ -26,17 +27,7 @@ const STATUS_DOT: Record<string, string> = {
 
 const formatDateTime = (iso: string | null | undefined) => {
   if (!iso) return "—";
-  try {
-    return new Date(iso).toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
+  return formatLocalDateTime(iso);
 };
 
 // ---------- Sub-components ----------
@@ -198,8 +189,20 @@ export default function BidDetailsPage() {
                   <DetailRow label="Status">
                     <StatusBadge status={details.status} />
                   </DetailRow>
-                  <DetailRow label="Pharmacy Name">{details.pharmacyName || "—"}</DetailRow>
-                  <DetailRow label="Pharmacy ID">{details.pharmacyId != null ? `#${details.pharmacyId}` : "—"}</DetailRow>
+                  <DetailRow label="Pharmacy Name">
+                    {details.pharmacyId ? (
+                      <Link 
+                        to={`/admin/pharmacies/${details.pharmacyId}`}
+                        className="text-primary dark:text-blue-400 hover:underline inline-flex items-center gap-1 transition-colors duration-300"
+                      >
+                        {details.pharmacyName || "—"}
+                        <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                      </Link>
+                    ) : (
+                      details.pharmacyName || "—"
+                    )}
+                  </DetailRow>
+
                   <DetailRow label="Request ID">
                     {details.prescriptionRequestId != null ? `#${details.prescriptionRequestId}` : "—"}
                   </DetailRow>

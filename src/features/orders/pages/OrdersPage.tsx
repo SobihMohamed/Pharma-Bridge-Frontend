@@ -4,6 +4,7 @@ import { usePagination } from '@/shared/hooks/usePagination';
 import { AppPagination } from '@/shared/ui/AppPagination';
 import { useGetMyOrdersQuery } from '../api/orders';
 import { useNavigate } from 'react-router-dom';
+import { formatLocalDateTime } from '@/utils/formatTime';
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -18,9 +19,12 @@ function useDebounce<T>(value: T, delay: number): T {
 
 const STATUS_OPTIONS = [
   { value: 'All', label: 'All Statuses', icon: LayoutGrid },
-  { value: 'Accepted', label: 'Accepted', icon: BadgeCheck },
   { value: 'Pending', label: 'Pending', icon: ClipboardList },
-  { value: 'Delivered', label: 'Delivered', icon: Truck },
+  { value: 'Accepted', label: 'Accepted', icon: BadgeCheck },
+  { value: 'Preparing', label: 'Preparing', icon: Package },
+  { value: 'InTransit', label: 'In Transit', icon: Truck },
+  { value: 'Completed', label: 'Completed', icon: CheckCircle },
+  { value: 'Delivered', label: 'Delivered', icon: CheckCircle },
   { value: 'Cancelled', label: 'Cancelled', icon: XCircle },
 ];
 
@@ -233,7 +237,7 @@ export default function OrdersPage() {
                     <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-slate-600"></span>
                     <div className="flex items-center gap-1 text-gray-500 dark:text-slate-400">
                       <Calendar className="w-4 h-4" />
-                      <span className="text-sm">{new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(order.createdAt))}</span>
+                      <span className="text-sm">{formatLocalDateTime(order.createdAt)}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -274,16 +278,14 @@ export default function OrdersPage() {
       )}
 
       {/* Pagination */}
-      {totalCount > pageSize && (
-        <div className="pt-8 flex justify-center">
-          <AppPagination 
-            totalCount={totalCount} 
-            currentPage={pageIndex} 
-            pageSize={pageSize} 
-            onPageChange={setPageIndex} 
-          />
-        </div>
-      )}
+      <div className="pt-8 flex justify-center">
+        <AppPagination 
+          totalCount={totalCount} 
+          currentPage={pageIndex} 
+          pageSize={pageSize} 
+          onPageChange={setPageIndex} 
+        />
+      </div>
     </div>
   );
 }

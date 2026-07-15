@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import AdminLayout from '../components/layout/AdminLayout';
+import { getRelativeTime } from '@/utils/formatTime';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import api from '@/lib/api';
@@ -129,20 +130,7 @@ const FALLBACK_MODULES: DashboardModule[] = [
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatTimestamp(ts: string): string {
-  try {
-    const d = new Date(ts);
-    const now = new Date();
-    const isToday =
-      d.getDate() === now.getDate() &&
-      d.getMonth() === now.getMonth() &&
-      d.getFullYear() === now.getFullYear();
-    const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    return isToday
-      ? `Today, ${time}`
-      : `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${time}`;
-  } catch {
-    return ts;
-  }
+  return getRelativeTime(ts);
 }
 
 function initials(name: string) {
@@ -434,7 +422,7 @@ export default function DashboardPage() {
 
                     return (
                       <div
-                        key={`${item.id}-${item.performedBy ?? index}`}
+                        key={`${index}-${item.performedBy ?? 'unknown'}`}
                         className={`w-9 h-9 rounded-full border-2 border-white dark:border-[#0f172a] shadow-sm flex items-center justify-center overflow-hidden ${paletteClass}`}
                         title={item.performedBy ?? item.category}
                       >

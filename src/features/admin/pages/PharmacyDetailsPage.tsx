@@ -1,5 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import AdminLayout from "../components/layout/AdminLayout";
+import { formatLocalDate } from '@/utils/formatTime';
+import MapLocationPicker from '@/shared/components/MapLocationPicker';
 import { usePharmacyDetailsQuery, useUpdatePharmacyStatusMutation } from "../hooks/useAdminPharmaciesQuery";
 import { useToast } from "@/hooks/useToast";
 
@@ -90,15 +92,7 @@ function ImageThumbnail({ label, src }: { label: string; src: string | null | un
 
 const formatDate = (isoString: string | null | undefined) => {
   if (!isoString) return "—";
-  try {
-    return new Date(isoString).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
-  } catch {
-    return isoString;
-  }
+  return formatLocalDate(isoString);
 };
 
 export default function PharmacyDetailsPage() {
@@ -238,17 +232,38 @@ export default function PharmacyDetailsPage() {
                   </div>
                 </div>
 
-                {/* Documents Card */}
-                <div className="bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-slate-800 rounded-xl p-6 shadow-sm space-y-6 transition-colors duration-300">
-                  <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
-                    <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-[20px]">assignment</span>
-                    <span className="text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
-                      Verification Documents
-                    </span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Documents Card */}
+                  <div className="bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-slate-800 rounded-xl p-6 shadow-sm space-y-6 transition-colors duration-300">
+                    <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                      <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-[20px]">assignment</span>
+                      <span className="text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                        Verification Documents
+                      </span>
+                    </div>
+                    <div>
+                      <ImageThumbnail label="License Image" src={details.licenseImageUrl} />
+                    </div>
                   </div>
-                  <div>
-                    <ImageThumbnail label="License Image" src={details.licenseImageUrl} />
-                  </div>
+
+                  {/* Location Map Card */}
+                  {details.latitude != null && details.longitude != null && (
+                    <div className="bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-slate-800 rounded-xl p-6 shadow-sm space-y-6 transition-colors duration-300">
+                      <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-[20px]">map</span>
+                        <span className="text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                          Location
+                        </span>
+                      </div>
+                      <div>
+                        <MapLocationPicker 
+                          initialLat={details.latitude} 
+                          initialLng={details.longitude} 
+                          readOnly={true} 
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -45,6 +45,10 @@ export interface OrderDetailsDto {
   patientPhone: string;
   bidId: number;
   prescriptionRequestId: number;
+  pharmacyRating?: {
+    ratingValue: number;
+    comment: string;
+  };
   items: OrderItemDto[];
 }
 
@@ -81,6 +85,22 @@ export const ordersApi = {
 export const useCreateOrderFromBidMutation = () => {
   return useMutation({
     mutationFn: (bidId: number) => ordersApi.createOrderFromBid(bidId),
+  });
+};
+
+export interface RatingPayload {
+  ratingValue: number;
+  comment: string;
+  pharmacyId: number;
+  orderId: number;
+}
+
+export const useSubmitPharmacyRatingMutation = () => {
+  return useMutation({
+    mutationFn: async (payload: RatingPayload) => {
+      const response = await api.post('/api/pharmacy-rating/submit', payload);
+      return response;
+    }
   });
 };
 

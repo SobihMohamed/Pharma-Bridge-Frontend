@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FileText, Calendar, MapPin, ImageIcon, X } from 'lucide-react';
 import { PrescriptionRequestDetailsDto } from '../types';
+import { formatLocalDate } from '@/utils/formatTime';
 
 interface RequestSummaryBoxProps {
   request: PrescriptionRequestDetailsDto;
@@ -32,7 +33,7 @@ export default function RequestSummaryBox({ request }: RequestSummaryBoxProps) {
         <div className="p-5 space-y-6">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <Calendar className="w-4 h-4" />
-            <span className="font-medium">Requested on {new Date(request.createdAt).toLocaleDateString()}</span>
+            <span className="font-medium">Requested on {formatLocalDate(request.createdAt)}</span>
           </div>
 
           {request.imageUrl && (

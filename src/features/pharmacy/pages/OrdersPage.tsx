@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { formatLocalDateTime } from '@/utils/formatTime';
 import {
   Search, Clock, User, ChevronLeft, ChevronRight,
   PackageOpen, ArrowRight, ShoppingBag, SlidersHorizontal
 } from 'lucide-react';
 import { useGetPharmacyOrdersQuery } from '../api/orders';
+import { usePagination } from '@/shared/hooks/usePagination';
+import { AppPagination } from '@/shared/ui/AppPagination';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { OrderSummaryDto } from '@/features/orders/api/orders';
@@ -37,12 +40,7 @@ const PAYMENT_CONFIG: Record<string, string> = {
 const ACCENT_COLORS = ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ec4899','#8b5cf6','#14b8a6','#f97316'];
 
 function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  const today = new Date();
-  if (date.toDateString() === today.toDateString()) {
-    return `Today at ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
-  }
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  return formatLocalDateTime(dateString);
 }
 
 function getStatusLabel(status: string): string {

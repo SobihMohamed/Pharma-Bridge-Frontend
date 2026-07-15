@@ -1,7 +1,9 @@
+import { parseUtcDate, formatLocalDate } from './formatTime';
+
+/**
+ * @deprecated Use `formatLocalDate` or `formatLocalDateTime` from `@/utils/formatTime` instead.
+ * This wrapper exists for backward compatibility.
+ */
 export const formatDate = (date: string | Date): string => {
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  }).format(new Date(date));
+  return formatLocalDate(date);
 };

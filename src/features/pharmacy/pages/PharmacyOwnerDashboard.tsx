@@ -17,6 +17,7 @@ import {
   BarChart3,
   Clock,
   Sparkles,
+  Star,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -27,6 +28,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { getRelativeTime } from '@/utils/formatTime';
 
 /* ─── Helpers ───────────────────────────────────────────────────────────── */
 function formatCurrency(amount: number): string {
@@ -39,20 +41,7 @@ function formatCurrency(amount: number): string {
 }
 
 function formatTimeAgo(isoString: string): string {
-  try {
-    const date = new Date(isoString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays === 1) return 'Yesterday';
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  } catch {
-    return isoString;
-  }
+  return getRelativeTime(isoString);
 }
 
 /* ─── Animation ─────────────────────────────────────────────────────────── */
@@ -107,6 +96,17 @@ const kpiDefs = [
     iconClass: 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/20',
     topBarClass: 'bg-indigo-500 dark:bg-indigo-400',
     badgeClass: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400',
+  },
+  {
+    key: 'averageRating' as const,
+    growthKey: 'averageRating' as const, // We don't have growth for this, but can just use it
+    label: 'Avg Rating',
+    growthLabel: 'out of 5.0',
+    icon: Star,
+    iconClass: 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-950/20',
+    topBarClass: 'bg-yellow-500 dark:bg-yellow-400',
+    badgeClass: 'bg-yellow-50 text-yellow-700 dark:bg-yellow-950/30 dark:text-yellow-400',
+    format: (val: number) => (val ? Number(val).toFixed(1) : 'N/A'),
   },
 ];
 
@@ -248,7 +248,7 @@ export default function PharmacyOwnerDashboard() {
       </motion.div>
 
       {/* ── KPI Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
         {kpiDefs.map((kpi) => {
           const value = dashboard[kpi.key];
           const growth = dashboard[kpi.growthKey];
@@ -284,7 +284,18 @@ export default function PharmacyOwnerDashboard() {
                   </h3>
                 </div>
 
-                <GrowthBadge value={growth} label={kpi.growthLabel} />
+                {/* Growth/Sublabel */}
+                {kpi.key === 'averageRating' ? (
+                  <div className="flex items-center gap-1.5 mt-3">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-700 dark:bg-yellow-950/30 dark:text-yellow-400 text-[10px] font-bold">
+                      <Star className="w-3 h-3 fill-current" />
+                      Rating
+                    </span>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">{kpi.growthLabel}</span>
+                  </div>
+                ) : (
+                  <GrowthBadge value={growth} label={kpi.growthLabel} />
+                )}
               </div>
             </motion.div>
           );

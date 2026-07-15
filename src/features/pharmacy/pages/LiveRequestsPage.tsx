@@ -7,6 +7,7 @@ import { ImageModal } from '@/shared/ui/ImageModal';
 import { TimeAgoText } from '@/shared/ui/TimeAgoText';
 import { usePagination } from '@/shared/hooks/usePagination';
 import { AppPagination } from '@/shared/ui/AppPagination';
+import { parseUtcDate } from '@/utils/formatTime';
 
 export default function LiveRequestsPage() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export default function LiveRequestsPage() {
 
   const formatExpiry = (dateString: string) => {
     try {
-      const date = new Date(dateString);
+      const date = parseUtcDate(dateString);
       const now = new Date();
       const diffMs = date.getTime() - now.getTime();
       if (diffMs <= 0) return 'Expired';

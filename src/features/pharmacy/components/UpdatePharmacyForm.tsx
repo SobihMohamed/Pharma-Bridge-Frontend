@@ -22,6 +22,8 @@ export default function UpdatePharmacyForm({ initialData, onCancel }: UpdatePhar
     Is24Hours: initialData.is24Hours || false,
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>({
     lat: initialData.latitude,
     lng: initialData.longitude,
@@ -45,6 +47,7 @@ export default function UpdatePharmacyForm({ initialData, onCancel }: UpdatePhar
       }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
+      setErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
@@ -70,6 +73,24 @@ export default function UpdatePharmacyForm({ initialData, onCancel }: UpdatePhar
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    setErrors({});
+    let newErrors: Record<string, string> = {};
+
+    if (!formData.PharmacyName.trim()) newErrors.PharmacyName = "Pharmacy Name cannot be empty";
+    else if (/^\d+$/.test(formData.PharmacyName.trim())) newErrors.PharmacyName = "Pharmacy Name cannot contain only numbers";
+
+    if (!formData.LicenseNumber.trim()) newErrors.LicenseNumber = "License Number cannot be empty";
+    
+    if (!/^\d{11}$/.test(formData.ContactPhone.trim())) newErrors.ContactPhone = "Contact Phone must be exactly 11 digits";
+
+    if (!formData.TextAddress.trim()) newErrors.TextAddress = "Address cannot be empty";
+    if (!formData.Area.trim()) newErrors.Area = "Area cannot be empty";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
     if (!location) {
       toast.error('Please select your pharmacy location on the map.');
@@ -126,8 +147,9 @@ export default function UpdatePharmacyForm({ initialData, onCancel }: UpdatePhar
                 name="PharmacyName"
                 value={formData.PharmacyName}
                 onChange={handleInputChange}
-                className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:ring-teal-500 sm:text-sm"
+                className={`block w-full rounded-lg border ${errors.PharmacyName ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'} px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:ring-teal-500 sm:text-sm`}
               />
+              {errors.PharmacyName && <p className="text-red-500 text-xs mt-1">{errors.PharmacyName}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">License Number</label>
@@ -137,8 +159,9 @@ export default function UpdatePharmacyForm({ initialData, onCancel }: UpdatePhar
                 name="LicenseNumber"
                 value={formData.LicenseNumber}
                 onChange={handleInputChange}
-                className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:ring-teal-500 sm:text-sm"
+                className={`block w-full rounded-lg border ${errors.LicenseNumber ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'} px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:ring-teal-500 sm:text-sm`}
               />
+              {errors.LicenseNumber && <p className="text-red-500 text-xs mt-1">{errors.LicenseNumber}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Contact Phone</label>
@@ -148,8 +171,9 @@ export default function UpdatePharmacyForm({ initialData, onCancel }: UpdatePhar
                 name="ContactPhone"
                 value={formData.ContactPhone}
                 onChange={handleInputChange}
-                className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:ring-teal-500 sm:text-sm"
+                className={`block w-full rounded-lg border ${errors.ContactPhone ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'} px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:ring-teal-500 sm:text-sm`}
               />
+              {errors.ContactPhone && <p className="text-red-500 text-xs mt-1">{errors.ContactPhone}</p>}
             </div>
           </div>
         </div>
@@ -216,8 +240,9 @@ export default function UpdatePharmacyForm({ initialData, onCancel }: UpdatePhar
                 name="TextAddress"
                 value={formData.TextAddress}
                 onChange={handleInputChange}
-                className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:ring-teal-500 sm:text-sm"
+                className={`block w-full rounded-lg border ${errors.TextAddress ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'} px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:ring-teal-500 sm:text-sm`}
               />
+              {errors.TextAddress && <p className="text-red-500 text-xs mt-1">{errors.TextAddress}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Area</label>
@@ -227,8 +252,9 @@ export default function UpdatePharmacyForm({ initialData, onCancel }: UpdatePhar
                 name="Area"
                 value={formData.Area}
                 onChange={handleInputChange}
-                className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:ring-teal-500 sm:text-sm"
+                className={`block w-full rounded-lg border ${errors.Area ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'} px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 focus:ring-teal-500 sm:text-sm`}
               />
+              {errors.Area && <p className="text-red-500 text-xs mt-1">{errors.Area}</p>}
             </div>
           </div>
 

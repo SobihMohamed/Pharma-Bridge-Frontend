@@ -79,13 +79,15 @@ export const useAdminSignalR = () => {
               });
             }
 
-            // Invalidate the EXACT query keys to trigger the bell icon counter update
-            queryClient.invalidateQueries({ queryKey: ['adminUnreadCount'] });
-            queryClient.invalidateQueries({ queryKey: ['adminRecentNotifications'] });
-            
-            // Also invalidate general complaints/orders if needed
-            queryClient.invalidateQueries({ queryKey: ['adminComplaints'] });
-            queryClient.invalidateQueries({ queryKey: ['complaints'] });
+            // Add a small delay to prevent DB transaction race conditions
+            setTimeout(() => {
+              // Invalidate React Query caches for consistency
+              queryClient.invalidateQueries({ queryKey: ['notifications'] });
+              queryClient.invalidateQueries({ queryKey: ['adminUnreadCount'] });
+              queryClient.invalidateQueries({ queryKey: ['adminRecentNotifications'] });
+              queryClient.invalidateQueries({ queryKey: ['adminComplaints'] });
+              queryClient.invalidateQueries({ queryKey: ['complaints'] });
+            }, 1000); // 1 second delay ensures DB is completely updated
           });
         })
         .catch(e => {

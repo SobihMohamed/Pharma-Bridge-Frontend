@@ -4,6 +4,8 @@ import {
   AlertCircle, ChevronLeft, ChevronRight, Pill,
   SlidersHorizontal, ArrowRight
 } from 'lucide-react';
+import { AppPagination } from '@/shared/ui/AppPagination';
+import { formatLocalDateTime } from '@/utils/formatTime';
 import { usePagination } from '@/shared/hooks/usePagination';
 import { useGetPharmacyBidsQuery, BidDto } from '../api/bidding';
 import { useMyPharmacyProfileQuery } from '../hooks/usePharmacyProfile';
@@ -33,10 +35,7 @@ const STATUS_CONFIG: Record<string, { badgeClass: string; dotClass: string }> = 
 const ACCENT_COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316'];
 
 function formatDate(dateStr: string): string {
-  return new Intl.DateTimeFormat('en-EG', {
-    month: 'short', day: 'numeric',
-    hour: 'numeric', minute: '2-digit',
-  }).format(new Date(dateStr));
+  return formatLocalDateTime(dateStr);
 }
 
 export default function MyBidsPage() {
