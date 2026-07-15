@@ -13,9 +13,12 @@ import {
   Banknote,
   Star,
   AlertTriangle,
+  MessageSquare,
 } from 'lucide-react';
 import { useGetOrderDetailsQuery } from '../api/orders';
 import { ReportIssueDialog } from '@/features/complaints/components/ReportIssueDialog';
+import { PharmacyRatingCard } from '../components/PharmacyRatingCard';
+import { formatLocalDateTime, formatLocalDate } from '@/utils/formatTime';
 
 const STEPS = [
   { key: 'Accepted',   label: 'Accepted',   Icon: CheckCircle2 },
@@ -69,11 +72,7 @@ export default function PatientOrderDetailsPage() {
     : currentStepIndex === 2 ? 66
     : 100;
 
-  const formatDate = (dateString: string) =>
-    new Intl.DateTimeFormat('en-US', {
-      month: 'long', day: 'numeric', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
-    }).format(new Date(dateString));
+  const formatDate = (dateString: string) => formatLocalDateTime(dateString);
 
   return (
     <div
@@ -129,7 +128,7 @@ export default function PatientOrderDetailsPage() {
                 </h2>
                 {order.orderStatus === 'Delivered' && (
                   <span className="px-4 py-1 rounded-full font-bold text-xs text-[#006590] bg-[#009ada]/15">
-                    Arrived {order.deliveredAt ? new Date(order.deliveredAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : ''}
+                    Arrived {order.deliveredAt ? formatLocalDate(order.deliveredAt) : ''}
                   </span>
                 )}
               </div>
@@ -291,7 +290,7 @@ export default function PatientOrderDetailsPage() {
         <div className="lg:col-span-4 flex flex-col gap-6">
 
           {/* Payment Summary */}
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-[#bec8d1] dark:border-slate-800 shadow-lg shadow-[#eceef0]/50 dark:shadow-black/20 sticky top-24 transition-colors duration-300">
+          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-[#bec8d1] dark:border-slate-800 shadow-lg shadow-[#eceef0]/50 dark:shadow-black/20 transition-colors duration-300">
             <h2 className="text-2xl font-bold text-[#191c1e] dark:text-white mb-6">Payment Summary</h2>
 
             {/* Line items */}
@@ -363,19 +362,34 @@ export default function PatientOrderDetailsPage() {
             </div>
           )}
 
-          {/* Rate order (Delivered orders only) */}
-          {order.orderStatus === 'Delivered' && (
-            <div className="bg-[#f7f9fb] dark:bg-[#0b0f19] rounded-2xl p-6 border border-[#e0e3e5] dark:border-slate-800 text-center transition-colors duration-300">
-              <p className="text-sm text-[#3e4850] dark:text-slate-400 font-medium mb-4">
-                How was your experience?
-              </p>
-              <button
-                className="w-full py-3 rounded-xl font-bold text-sm text-[#895100] dark:text-amber-400 flex items-center justify-center gap-2 bg-white dark:bg-[#0f172a] hover:bg-[#ffdcbc]/20 dark:hover:bg-amber-900/20 border border-[#ffdcbc] dark:border-amber-700/50 transition-colors"
-              >
-                <Star className="w-4 h-4" />
-                Rate This Order
-              </button>
-            </div>
+          {/* Rate order (Completed orders only) */}
+          {order.orderStatus === 'Completed' && (
+            order.pharmacyRating ? (
+              <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-[#bec8d1] dark:border-slate-800 shadow-sm transition-colors duration-300 relative overflow-hidden">
+                <div style={{ height: '3px', background: 'linear-gradient(90deg, #facc15, #f59e0b)' }} className="absolute top-0 left-0 right-0" />
+                <h3 className="text-lg font-bold text-[#191c1e] dark:text-white mb-4">Your Rating</h3>
+                <div className="flex gap-1.5 mb-4">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star 
+                      key={star} 
+                      className={`w-6 h-6 ${star <= order.pharmacyRating!.ratingValue ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200 dark:text-slate-700'}`} 
+                    />
+                  ))}
+                </div>
+                {order.pharmacyRating.comment && (
+                  <div className="bg-[#f7f9fb] dark:bg-slate-800/50 p-4 rounded-xl border border-[#bec8d1]/50 dark:border-slate-800 flex gap-3 text-sm text-[#3e4850] dark:text-slate-300 mt-4">
+                    <MessageSquare className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="leading-relaxed font-medium break-words">
+                        {order.pharmacyRating.comment}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <PharmacyRatingCard orderId={order.id} pharmacyId={order.pharmacyId} />
+            )
           )}
         </div>
       </div>

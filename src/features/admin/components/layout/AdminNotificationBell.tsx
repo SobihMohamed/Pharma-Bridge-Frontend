@@ -13,17 +13,8 @@ import {
   useMarkNotificationAsReadMutation,
   useMarkAllAsReadMutation
 } from '@/features/notifications/api/notifications';
-
-function getRelativeTime(dateString: string) {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
-  if (diffInSeconds < 60) return 'Just now';
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} mins ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-  return `${Math.floor(diffInSeconds / 86400)} days ago`;
-}
+import { useNotificationStore } from '@/features/admin/store/useNotificationStore';
+import { getRelativeTime } from '@/utils/formatTime';
 
 export function AdminNotificationBell() {
   const [open, setOpen] = useState(false);
@@ -31,39 +22,61 @@ export function AdminNotificationBell() {
   const { data: countData } = useGetUnreadNotificationsCountQuery();
   const { data: recentData, isLoading } = useGetRecentNotificationsQuery();
 
-  const unreadCount = countData?.totalCount || 0;
-  const notifications = recentData?.data || [];
+  // Zustand Store
+  const { 
+    notifications, 
+    unreadCount, 
+    hasNewNotification, 
+    setNotifications, 
+    resetNewNotificationFlag,
+    markAsRead: storeMarkAsRead,
+    markAllAsRead: storeMarkAllAsRead
+  } = useNotificationStore();
+
+  // Initialize store when React Query finishes fetching initial data
+  React.useEffect(() => {
+    if (recentData?.data && countData !== undefined) {
+      setNotifications(recentData.data, countData.totalCount);
+    }
+  }, [recentData, countData, setNotifications]);
+
+  // Reset animation flag after 3 seconds
+  React.useEffect(() => {
+    if (hasNewNotification) {
+      const timer = setTimeout(() => {
+        resetNewNotificationFlag();
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [hasNewNotification, resetNewNotificationFlag]);
 
   const markReadMutation = useMarkNotificationAsReadMutation();
   const markAllMutation = useMarkAllAsReadMutation();
 
   const handleMarkAllAsRead = () => {
     markAllMutation.mutate();
+    storeMarkAllAsRead(); // Optimistic local update
   };
 
   const handleNotificationClick = (notification: any) => {
     if (!notification.isRead) {
       markReadMutation.mutate(notification.id);
+      storeMarkAsRead(notification.id); // Optimistic local update
     }
-    // Set open false if we want to dismiss or leave open. We'll leave open for multiple clicks or close it if routing.
-    // setOpen(false);
-    // navigate('/admin/notifications');
   };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        render={
-          <button className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 outline-none focus-visible:ring-2 focus-visible:ring-slate-300 dark:focus-visible:ring-slate-700">
-            <Bell className="w-5 h-5" />
-            {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-[#0b0f19] animate-in zoom-in-0 fade-in-0">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            )}
-          </button>
-        }
-      />
+        className={`relative p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-all rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 outline-none focus-visible:ring-2 focus-visible:ring-slate-300 dark:focus-visible:ring-slate-700 ${hasNewNotification ? 'animate-bounce text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800' : ''}`}
+      >
+        <Bell className="w-5 h-5" />
+        {unreadCount > 0 && (
+          <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-[#0b0f19] animate-in zoom-in-0 fade-in-0">
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </span>
+        )}
+      </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0f172a] z-50 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-[#0f172a]">

@@ -15,6 +15,7 @@ export default function NewRequestForm({ onSubmit, isLoading }: NewRequestFormPr
   const [medicineName, setMedicineName] = useState('');
   const [notes, setNotes] = useState('');
   const [deliveryAddressId, setDeliveryAddressId] = useState<number | ''>('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -66,14 +67,31 @@ export default function NewRequestForm({ onSubmit, isLoading }: NewRequestFormPr
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+    let newErrors: Record<string, string> = {};
 
     if (!medicineName.trim() && !imageFile) {
       toast.error('Please provide at least a medicine name or upload an image.');
       return;
     }
 
+    if (medicineName && !medicineName.trim()) {
+      newErrors.medicineName = "Medicine name cannot be only spaces";
+    } else if (medicineName && /^\d+$/.test(medicineName.trim())) {
+      newErrors.medicineName = "Medicine name cannot be only numbers";
+    }
+
+    if (notes && !notes.trim()) {
+      newErrors.notes = "Notes cannot be only spaces";
+    }
+
     if (!deliveryAddressId) {
+      newErrors.address = "Please select a delivery address.";
       toast.error('Please select a delivery address.');
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
@@ -98,10 +116,11 @@ export default function NewRequestForm({ onSubmit, isLoading }: NewRequestFormPr
           <input
             type="text"
             value={medicineName}
-            onChange={(e) => setMedicineName(e.target.value)}
-            className="w-full h-14 px-4 bg-[#f7f9fb] dark:bg-[#131b2e] border border-[#bec8d1] dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#006590] dark:focus:ring-sky-500 focus:border-[#006590] dark:focus:border-sky-500 transition-all text-base outline-none text-gray-900 dark:text-white dark:placeholder-slate-500"
+            onChange={(e) => { setMedicineName(e.target.value); setErrors(prev => ({...prev, medicineName: ''})); }}
+            className={`w-full h-14 px-4 bg-[#f7f9fb] dark:bg-[#131b2e] border ${errors.medicineName ? 'border-red-500 ring-2 ring-red-500/50' : 'border-[#bec8d1] dark:border-slate-700 focus:ring-[#006590] dark:focus:ring-sky-500 focus:border-[#006590] dark:focus:border-sky-500'} rounded-2xl focus:ring-2 transition-all text-base outline-none text-gray-900 dark:text-white dark:placeholder-slate-500`}
             placeholder="e.g. Panadol Extra"
           />
+          {errors.medicineName && <p className="text-red-500 text-xs mt-1">{errors.medicineName}</p>}
         </div>
 
         {/* Upload Zone */}
@@ -157,10 +176,11 @@ export default function NewRequestForm({ onSubmit, isLoading }: NewRequestFormPr
           id="notes"
           rows={4}
           value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="w-full p-4 bg-[#f7f9fb] dark:bg-[#131b2e] border border-[#bec8d1] dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#006590] dark:focus:ring-sky-500 focus:border-[#006590] dark:focus:border-sky-500 transition-all text-base outline-none resize-none text-gray-900 dark:text-white dark:placeholder-slate-500"
+          onChange={(e) => { setNotes(e.target.value); setErrors(prev => ({...prev, notes: ''})); }}
+          className={`w-full p-4 bg-[#f7f9fb] dark:bg-[#131b2e] border ${errors.notes ? 'border-red-500 ring-2 ring-red-500/50' : 'border-[#bec8d1] dark:border-slate-700 focus:ring-[#006590] dark:focus:ring-sky-500 focus:border-[#006590] dark:focus:border-sky-500'} rounded-2xl focus:ring-2 transition-all text-base outline-none resize-none text-gray-900 dark:text-white dark:placeholder-slate-500`}
           placeholder="Any specific instructions for the pharmacy..."
         />
+        {errors.notes && <p className="text-red-500 text-xs mt-1">{errors.notes}</p>}
       </div>
 
       {/* Delivery Address Dropdown */}
@@ -173,9 +193,9 @@ export default function NewRequestForm({ onSubmit, isLoading }: NewRequestFormPr
           <select
             id="address"
             value={deliveryAddressId}
-            onChange={(e) => setDeliveryAddressId(Number(e.target.value))}
+            onChange={(e) => { setDeliveryAddressId(Number(e.target.value)); setErrors(prev => ({...prev, address: ''})); }}
             disabled={isAddressesLoading || !addresses || addresses.length === 0}
-            className="w-full h-14 pl-4 pr-10 bg-[#f7f9fb] dark:bg-[#131b2e] border border-[#bec8d1] dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#006590] dark:focus:ring-sky-500 focus:border-[#006590] dark:focus:border-sky-500 transition-all text-base outline-none appearance-none disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 text-gray-900 dark:text-white"
+            className={`w-full h-14 pl-4 pr-10 bg-[#f7f9fb] dark:bg-[#131b2e] border ${errors.address ? 'border-red-500 ring-2 ring-red-500/50' : 'border-[#bec8d1] dark:border-slate-700 focus:ring-[#006590] dark:focus:ring-sky-500 focus:border-[#006590] dark:focus:border-sky-500'} rounded-2xl focus:ring-2 transition-all text-base outline-none appearance-none disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 text-gray-900 dark:text-white`}
           >
             {isAddressesLoading ? (
               <option value="" disabled>Loading addresses...</option>

@@ -19,12 +19,8 @@ import {
 import { useSubmitComplaintMutation } from '../api/complaints';
 
 const complaintSchema = z.object({
-  title: z.string().default('').check(
-    z.minLength(5, 'Title must be at least 5 characters.')
-  ),
-  description: z.string().default('').check(
-    z.minLength(15, 'Description must be at least 15 characters.')
-  ),
+  title: z.string().trim().min(5, 'Title must be at least 5 characters.').refine(val => !/^\d+$/.test(val), 'Title cannot be only numbers'),
+  description: z.string().trim().min(15, 'Description must be at least 15 characters.'),
 });
 
 type ComplaintFormInput = z.input<typeof complaintSchema>;

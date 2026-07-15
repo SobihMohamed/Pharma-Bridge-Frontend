@@ -6,9 +6,21 @@ import { useForgetPasswordMutation } from '../hooks/useAuthMutations';
 export default function ForgetPasswordPage() {
   const { mutate, isPending } = useForgetPasswordMutation();
   const [email, setEmail] = useState('');
+  const [error, setError] = useState<string>('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
+    if (!email.trim()) {
+      setError('Email cannot be empty');
+      return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+      setError('Invalid email format');
+      return;
+    }
+
     if (email) {
       mutate({ email });
     }
@@ -68,17 +80,19 @@ export default function ForgetPasswordPage() {
               required
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-14 pr-4 py-3 border border-[#bae6fd]
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setError('');
+              }}
+              className={`w-full pl-14 pr-4 py-3 border ${error ? 'border-red-500 ring-1 ring-red-500' : 'border-[#bae6fd] focus:ring-[#0284c7]/10 focus:border-[#0284c7]'}
               rounded-xl bg-[#F8FAFC]
               focus:outline-none
               focus:ring-4
-              focus:ring-[#0284c7]/10
-              focus:border-[#0284c7]
               focus:bg-white
-              transition-all"
+              transition-all`}
             />
           </div>
+          {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
         </div>
 
         <button

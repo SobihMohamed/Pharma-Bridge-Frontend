@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import AdminLayout from "../components/layout/AdminLayout";
+import { formatLocalDateTime } from "@/utils/formatTime";
 import { useAdminOrderDetailsQuery } from "../hooks/useAdminOrdersQuery";
 import { AdminOrderDetailsDto, AdminOrderItemDto } from "../services/adminService";
 import {
@@ -15,6 +16,8 @@ import {
   Wallet,
   ShoppingBag,
   CheckCircle,
+  Star,
+  MessageSquare,
 } from "lucide-react";
 
 // ---------- Constants ----------
@@ -39,17 +42,7 @@ const STATUS_DOT: Record<string, string> = {
 
 const formatDateTime = (iso: string | null | undefined) => {
   if (!iso) return "—";
-  try {
-    return new Date(iso).toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
+  return formatLocalDateTime(iso);
 };
 
 // ---------- Sub-components ----------
@@ -180,7 +173,7 @@ export default function OrderDetailsPage() {
               <div>
                 <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Order Details</h1>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
-                  Viewing detailed information for Order #{details.orderId}
+                  Viewing detailed information for Order #{details.id}
                 </p>
               </div>
               <StatusBadge status={details.orderStatus} />
@@ -206,7 +199,7 @@ export default function OrderDetailsPage() {
                     <DetailBox 
                       icon={<Info className="w-4 h-4" />}
                       label="Order ID" 
-                      value={`#${details.orderId}`}
+                      value={`#${details.id}`}
                     />
                     <DetailBox 
                       icon={<Calendar className="w-4 h-4" />}
@@ -358,6 +351,48 @@ export default function OrderDetailsPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Pharmacy Rating */}
+                {details.pharmacyRating && (
+                  <div className="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 to-amber-500" />
+                    
+                    <div className="flex items-center gap-2 mb-5">
+                      <div className="w-8 h-8 rounded-lg bg-yellow-50 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 flex items-center justify-center">
+                        <Star className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">Pharmacy Rating</span>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <span className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Rating Given</span>
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star 
+                              key={star} 
+                              className={`w-5 h-5 ${star <= details.pharmacyRating!.ratingValue ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200 dark:text-slate-700'}`} 
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      {details.pharmacyRating.comment && (
+                        <div>
+                          <span className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Comment</span>
+                          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 flex gap-3 text-sm text-slate-600 dark:text-slate-300">
+                            <MessageSquare className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <p className="leading-relaxed break-words">
+                                {details.pharmacyRating.comment}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
               
             </div>

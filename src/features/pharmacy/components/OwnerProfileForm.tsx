@@ -146,6 +146,9 @@ export default function OwnerProfileForm() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [nationalId, setNationalId] = useState('');
 
+  // Validation errors
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   // File fields
   const [nationalIdFront, setNationalIdFront] = useState<File | null>(null);
   const [nationalIdBack, setNationalIdBack] = useState<File | null>(null);
@@ -161,6 +164,22 @@ export default function OwnerProfileForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+    let newErrors: Record<string, string> = {};
+
+    if (isExistingProfile) {
+      if (!fullName.trim()) newErrors.fullName = "Full name cannot be empty";
+      else if (/^\d+$/.test(fullName.trim())) newErrors.fullName = "Full name cannot contain only numbers";
+      
+      if (!/^\d{11}$/.test(phoneNumber.trim())) newErrors.phoneNumber = "Phone number must be exactly 11 digits";
+    }
+
+    if (!/^\d{14}$/.test(nationalId.trim())) newErrors.nationalId = "National ID must be exactly 14 digits";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
     if (isExistingProfile) {
       updateProfile({
@@ -276,10 +295,11 @@ export default function OwnerProfileForm() {
                   required
                   type="text"
                   value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                  onChange={(e) => { setFullName(e.target.value); setErrors(prev => ({...prev, fullName: ''})); }}
+                  className={`block w-full rounded-lg border ${errors.fullName ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'} px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm`}
                   placeholder="Your full legal name"
                 />
+                {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>}
               </div>
               <div>
                 <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Phone Number</label>
@@ -288,10 +308,11 @@ export default function OwnerProfileForm() {
                   required
                   type="tel"
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                  onChange={(e) => { setPhoneNumber(e.target.value); setErrors(prev => ({...prev, phoneNumber: ''})); }}
+                  className={`block w-full rounded-lg border ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'} px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm`}
                   placeholder="010XXXXXXXX"
                 />
+                {errors.phoneNumber && <p className="text-red-500 text-xs mt-1">{errors.phoneNumber}</p>}
               </div>
             </div>
           </div>
@@ -311,10 +332,11 @@ export default function OwnerProfileForm() {
                 required
                 type="text"
                 value={nationalId}
-                onChange={(e) => setNationalId(e.target.value)}
-                className="block w-full rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                onChange={(e) => { setNationalId(e.target.value); setErrors(prev => ({...prev, nationalId: ''})); }}
+                className={`block w-full rounded-lg border ${errors.nationalId ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'} px-4 py-2.5 text-gray-900 dark:text-white dark:bg-slate-950 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 sm:text-sm`}
                 placeholder="14-digit National ID"
               />
+              {errors.nationalId && <p className="text-red-500 text-xs mt-1">{errors.nationalId}</p>}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
               <FileUploadField

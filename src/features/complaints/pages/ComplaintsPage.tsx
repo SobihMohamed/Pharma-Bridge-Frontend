@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquareOff, ChevronLeft, ChevronRight, AlertCircle, Clock, CheckCircle2 } from 'lucide-react';
 import { useGetMyComplaintsQuery } from '../api/complaints';
+import { formatLocalDateTime } from '@/utils/formatTime';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,13 +18,7 @@ export default function ComplaintsPage() {
   const totalPages = Math.ceil(totalCount / pageSize);
 
   const formatDate = (dateStr: string) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    }).format(new Date(dateStr));
+    return formatLocalDateTime(dateStr);
   };
 
   const getStatusConfig = (status: string) => {

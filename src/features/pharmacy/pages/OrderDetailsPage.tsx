@@ -4,10 +4,12 @@ import { motion } from 'framer-motion';
 import { 
   ArrowLeft, Phone, MapPin, Receipt, AlertTriangle, 
   CreditCard, Package, CheckCircle, AlertCircle, 
-  Clock, Truck, ChefHat, CircleDot, Copy, Check
+  Clock, Truck, ChefHat, CircleDot, Copy, Check, Star, MessageSquare
 } from 'lucide-react';
 import { useGetPharmacyOrderDetailsQuery, useUpdateOrderStatusMutation } from '../api/orders';
 import { Button } from '@/components/ui/button';
+import { usePagination } from '@/shared/hooks/usePagination';
+import { formatLocalDateTime } from '@/utils/formatTime';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
@@ -115,7 +117,7 @@ export default function OrderDetailsPage() {
   const isCashOnDelivery = order.paymentMethod?.toLowerCase().includes('cash');
 
   const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(dateString));
+    return formatLocalDateTime(dateString);
   };
 
   const handleAction = (status: string) => {
@@ -294,14 +296,14 @@ export default function OrderDetailsPage() {
         {/* ─── Main Grid ─── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
           
-          {/* ── Left Column: Packing Checklist ── */}
-          <motion.div 
-            custom={2} 
-            variants={fadeUp} 
-            initial="hidden" 
-            animate="visible" 
-            className="lg:col-span-8"
-          >
+          {/* ── Left Column: Packing Checklist & Customer Details ── */}
+          <div className="lg:col-span-8 space-y-6">
+            <motion.div 
+              custom={2} 
+              variants={fadeUp} 
+              initial="hidden" 
+              animate="visible" 
+            >
             <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
               {/* Thin top accent */}
               <div style={{ height: '3px', background: 'linear-gradient(90deg, #0ea5e9, #10b981)' }} />
@@ -387,70 +389,71 @@ export default function OrderDetailsPage() {
             </div>
           </motion.div>
 
-          {/* ── Right Column: Customer & Financials ── */}
-          <div className="lg:col-span-4 space-y-6">
-            
-            {/* Customer Details Card */}
-            <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible">
-              <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
-                <div style={{ height: '3px', background: 'linear-gradient(90deg, #6366f1, #8b5cf6)' }} />
-                
-                <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
-                  <div 
-                    className="w-9 h-9 rounded-xl flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900/30"
-                  >
-                    <Phone className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
-                  </div>
-                  <h3 className="text-sm font-black text-slate-900 dark:text-white">Customer Details</h3>
+          {/* Customer Details Card */}
+          <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible">
+            <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+              <div style={{ height: '3px', background: 'linear-gradient(90deg, #6366f1, #8b5cf6)' }} />
+              
+              <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                <div 
+                  className="w-9 h-9 rounded-xl flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900/30"
+                >
+                  <Phone className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
                 </div>
+                <h3 className="text-sm font-black text-slate-900 dark:text-white">Customer Details</h3>
+              </div>
 
-                <div className="p-5 space-y-5">
-                  {/* Patient Name */}
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Patient Name</p>
-                    <p className="text-base font-black text-slate-900 dark:text-white">{order.patientName}</p>
-                  </div>
-                  
-                  <div className="h-px bg-slate-100 dark:bg-slate-800" />
+              <div className="p-5 space-y-5">
+                {/* Patient Name */}
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Patient Name</p>
+                  <p className="text-base font-black text-slate-900 dark:text-white">{order.patientName}</p>
+                </div>
+                
+                <div className="h-px bg-slate-100 dark:bg-slate-800" />
 
-                  {/* Contact */}
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Contact</p>
-                    <a 
-                      href={`tel:${order.patientPhone}`} 
-                      className="inline-flex items-center gap-2 text-xs font-bold px-3 py-2 rounded-xl transition-all bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-950/30"
-                    >
-                      <Phone className="w-3.5 h-3.5" />
-                      {order.patientPhone}
-                    </a>
-                  </div>
-                  
-                  <div className="h-px bg-slate-100 dark:bg-slate-800" />
+                {/* Contact */}
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Contact</p>
+                  <a 
+                    href={`tel:${order.patientPhone}`} 
+                    className="inline-flex items-center gap-2 text-xs font-bold px-3 py-2 rounded-xl transition-all bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-950/30"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    {order.patientPhone}
+                  </a>
+                </div>
+                
+                <div className="h-px bg-slate-100 dark:bg-slate-800" />
 
-                  {/* Delivery Address */}
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Delivery Address</p>
-                    <div 
-                      className="rounded-xl p-3.5 flex items-start gap-3 bg-orange-50 dark:bg-orange-950/10 border border-orange-200/30 dark:border-orange-900/20"
-                    >
-                      <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-orange-600 dark:text-orange-400" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-slate-700 dark:text-slate-200 leading-relaxed">
-                          {order.deliveryAddress || "Address not provided"}
-                        </p>
-                        <button 
-                          onClick={handleCopyAddress}
-                          className={`mt-2 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors ${copiedAddress ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}`}
-                        >
-                          {copiedAddress ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                          {copiedAddress ? 'Copied!' : 'Copy Address'}
-                        </button>
-                      </div>
+                {/* Delivery Address */}
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Delivery Address</p>
+                  <div 
+                    className="rounded-xl p-3.5 flex items-start gap-3 bg-orange-50 dark:bg-orange-950/10 border border-orange-200/30 dark:border-orange-900/20"
+                  >
+                    <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-orange-600 dark:text-orange-400" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-slate-700 dark:text-slate-200 leading-relaxed">
+                        {order.deliveryAddress || "Address not provided"}
+                      </p>
+                      <button 
+                        onClick={handleCopyAddress}
+                        className={`mt-2 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors ${copiedAddress ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}`}
+                      >
+                        {copiedAddress ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                        {copiedAddress ? 'Copied!' : 'Copy Address'}
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* ── Right Column: Financials & Rating ── */}
+        <div className="lg:col-span-4 space-y-6">
 
             {/* Financial Summary Card */}
             <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible">
@@ -531,6 +534,52 @@ export default function OrderDetailsPage() {
                 </div>
               </div>
             </motion.div>
+
+            {/* Rich Pharmacy Rating Card */}
+            {order.pharmacyRating && (
+              <motion.div custom={4.5} variants={fadeUp} initial="hidden" animate="visible">
+                <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                  <div style={{ height: '3px', background: 'linear-gradient(90deg, #facc15, #f59e0b)' }} />
+                  
+                  <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                    <div 
+                      className="w-9 h-9 rounded-xl flex items-center justify-center bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900/30"
+                    >
+                      <Star className="w-4 h-4 text-yellow-500 dark:text-yellow-400" />
+                    </div>
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white">Patient Rating</h3>
+                  </div>
+
+                  <div className="p-5 space-y-4">
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Rating Given</p>
+                      <div className="flex gap-1.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star 
+                            key={star} 
+                            className={`w-5 h-5 ${star <= order.pharmacyRating!.ratingValue ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200 dark:text-slate-700'}`} 
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {order.pharmacyRating.comment && (
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 mt-4">Comment</p>
+                        <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 flex gap-3 text-sm text-slate-600 dark:text-slate-300">
+                          <MessageSquare className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <p className="leading-relaxed font-medium break-words">
+                              {order.pharmacyRating.comment}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
 
           </div>
         </div>

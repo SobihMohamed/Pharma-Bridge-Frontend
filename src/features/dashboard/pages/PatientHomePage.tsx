@@ -20,6 +20,7 @@ import {
   PlusCircle,
   Receipt
 } from 'lucide-react';
+import { getRelativeTime } from '@/utils/formatTime';
 
 // ─── Inline Skeleton ────────────────────────────────────────────────────────
 const Skeleton = ({ className = '' }: { className?: string }) => (
@@ -28,28 +29,7 @@ const Skeleton = ({ className = '' }: { className?: string }) => (
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function formatRelativeTime(isoString: string): string {
-  try {
-    const d = new Date(isoString);
-    const now = new Date();
-    const isToday =
-      d.getDate() === now.getDate() &&
-      d.getMonth() === now.getMonth() &&
-      d.getFullYear() === now.getFullYear();
-
-    const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-    if (isToday) return `Today at ${time}`;
-
-    // Check if yesterday
-    const yesterday = new Date(now);
-    yesterday.setDate(yesterday.getDate() - 1);
-    if (d.getDate() === yesterday.getDate() && d.getMonth() === yesterday.getMonth() && d.getFullYear() === yesterday.getFullYear()) {
-      return `Yesterday at ${time}`;
-    }
-
-    return `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at ${time}`;
-  } catch {
-    return isoString;
-  }
+  return getRelativeTime(isoString);
 }
 
 function getOrderStatusStyle(status: string) {

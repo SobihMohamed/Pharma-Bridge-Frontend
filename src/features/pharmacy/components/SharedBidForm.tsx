@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 const bidItemSchema = z.object({
   id: z.number().optional().default(0),
-  itemName: z.string().min(1, 'Item name is required'),
+  itemName: z.string().trim().min(1, 'Item name is required').refine(val => !/^\d+$/.test(val), 'Item name cannot be only numbers'),
   unitPrice: z.coerce.number().min(0, 'Price cannot be negative').default(0),
   quantity: z.coerce.number().min(1, 'Quantity must be at least 1').default(1),
   isAlternative: z.boolean().default(false),

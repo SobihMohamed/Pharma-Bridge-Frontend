@@ -26,6 +26,10 @@ export interface PharmacyOrderDetailsDto {
   deliveryAddress: string;
   patientName: string;
   patientPhone: string;
+  pharmacyRating?: {
+    ratingValue: number;
+    comment: string;
+  } | null;
   items: PharmacyOrderItemDto[];
 }
 

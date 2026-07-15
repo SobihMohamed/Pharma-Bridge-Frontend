@@ -24,24 +24,27 @@ L.Marker.prototype.options.icon = DefaultIcon;
 export interface MapLocationPickerProps {
   initialLat?: number;
   initialLng?: number;
-  onLocationChange: (lat: number, lng: number) => void;
+  onLocationChange?: (lat: number, lng: number) => void;
+  readOnly?: boolean;
 }
 
 const DEFAULT_CENTER = { lat: 30.0444, lng: 31.2357 }; // Cairo
 
-function LocationMarker({ location, onLocationChange }: { location: {lat: number, lng: number} | null, onLocationChange: (lat: number, lng: number) => void }) {
+function LocationMarker({ location, onLocationChange, readOnly }: { location: {lat: number, lng: number} | null, onLocationChange?: (lat: number, lng: number) => void, readOnly?: boolean }) {
   const markerRef = useRef<L.Marker>(null);
 
   useMapEvents({
     click(e) {
-      onLocationChange(e.latlng.lat, e.latlng.lng);
+      if (!readOnly && onLocationChange) {
+        onLocationChange(e.latlng.lat, e.latlng.lng);
+      }
     },
   });
 
   const eventHandlers = {
     dragend() {
       const marker = markerRef.current;
-      if (marker != null) {
+      if (marker != null && !readOnly && onLocationChange) {
         const latlng = marker.getLatLng();
         onLocationChange(latlng.lat, latlng.lng);
       }
@@ -50,7 +53,7 @@ function LocationMarker({ location, onLocationChange }: { location: {lat: number
 
   return location === null ? null : (
     <Marker
-      draggable={true}
+      draggable={!readOnly}
       eventHandlers={eventHandlers}
       position={location}
       ref={markerRef}
@@ -58,7 +61,7 @@ function LocationMarker({ location, onLocationChange }: { location: {lat: number
   );
 }
 
-export default function MapLocationPicker({ initialLat, initialLng, onLocationChange }: MapLocationPickerProps) {
+export default function MapLocationPicker({ initialLat, initialLng, onLocationChange, readOnly }: MapLocationPickerProps) {
   const [center, setCenter] = useState({ 
     lat: initialLat || DEFAULT_CENTER.lat, 
     lng: initialLng || DEFAULT_CENTER.lng 
@@ -77,24 +80,24 @@ export default function MapLocationPicker({ initialLat, initialLng, onLocationCh
             const lng = position.coords.longitude;
             setCenter({ lat, lng });
             setCurrentLocation({ lat, lng });
-            onLocationChange(lat, lng);
+            if (onLocationChange) onLocationChange(lat, lng);
           },
           () => {
             // Permission denied or error, keep default
             setCurrentLocation({ lat: DEFAULT_CENTER.lat, lng: DEFAULT_CENTER.lng });
-            onLocationChange(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng);
+            if (onLocationChange) onLocationChange(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng);
           }
         );
       } else {
         setCurrentLocation({ lat: DEFAULT_CENTER.lat, lng: DEFAULT_CENTER.lng });
-        onLocationChange(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng);
+        if (onLocationChange) onLocationChange(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng);
       }
     }
   }, [initialLat, initialLng]);
 
   const handleLocationChange = (lat: number, lng: number) => {
     setCurrentLocation({ lat, lng });
-    onLocationChange(lat, lng);
+    if (onLocationChange) onLocationChange(lat, lng);
   };
 
   return (
@@ -109,11 +112,13 @@ export default function MapLocationPicker({ initialLat, initialLng, onLocationCh
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <LocationMarker location={currentLocation || center} onLocationChange={handleLocationChange} />
+        <LocationMarker location={currentLocation || center} onLocationChange={handleLocationChange} readOnly={readOnly} />
       </MapContainer>
-      <div className="absolute top-2 right-2 bg-white/90 backdrop-blur px-3 py-1.5 rounded-md shadow-sm border border-gray-100 z-[400] text-xs font-medium text-gray-700 pointer-events-none">
-        Drag marker or tap map
-      </div>
+      {!readOnly && (
+        <div className="absolute top-2 right-2 bg-white/90 backdrop-blur px-3 py-1.5 rounded-md shadow-sm border border-gray-100 z-[400] text-xs font-medium text-gray-700 pointer-events-none">
+          Drag marker or tap map
+        </div>
+      )}
     </div>
   );
 }

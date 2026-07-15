@@ -4,6 +4,7 @@ import { ArrowLeft, Store, MapPin, Receipt, Star, AlertCircle } from 'lucide-rea
 import { MOCK_ORDERS } from '../data/mockOrders';
 import { OrderDto } from '../types';
 
+import { formatLocalDateTime } from '@/utils/formatTime';
 import OrderProgress from '../components/OrderProgress';
 import RatePharmacyModal from '../components/RatePharmacyModal';
 import CreateComplaintModal from '../components/CreateComplaintModal';
@@ -66,7 +67,7 @@ export default function OrderDetailsPage() {
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Order #{order.id.split('_')[1]}</h1>
-            <p className="text-sm text-gray-500">Placed on {new Date(order.createdAt).toLocaleString()}</p>
+            <p className="text-sm text-gray-500">Placed on {formatLocalDateTime(order.createdAt)}</p>
           </div>
         </div>
         

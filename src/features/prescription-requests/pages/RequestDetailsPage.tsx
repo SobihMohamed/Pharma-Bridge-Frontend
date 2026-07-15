@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { ArrowLeft, MapPin, AlertTriangle, Clock, Activity, FileText, ImageIcon, Store, Star, Receipt, Info, PackageOpen, Trash2, Loader2, XCircle, CheckCircle } from 'lucide-react';
+import { parseUtcDate, formatLocalDateTime, formatLocalTime } from '@/utils/formatTime';
 
 import { useGetPatientRequestDetailsQuery } from '../hooks/usePrescriptionRequestQueries';
 import { useCancelRequestMutation, useRespondToBidMutation } from '../hooks/usePrescriptionRequestMutations';
@@ -123,7 +124,7 @@ export default function RequestDetailsPage() {
   };
 
   const getUrgencyText = (expiresAt: string) => {
-    const diffMs = new Date(expiresAt).getTime() - new Date().getTime();
+    const diffMs = parseUtcDate(expiresAt).getTime() - Date.now();
     const mins = Math.floor(diffMs / (1000 * 60));
     
     if (mins <= 0) return "Expired";
@@ -132,11 +133,7 @@ export default function RequestDetailsPage() {
     return `Expires in ${hours} hr ${mins % 60} min`;
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' - ' + 
-           date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-  };
+  const formatDate = (dateString: string) => formatLocalDateTime(dateString);
 
   const canCancel = request.status === 'Pending' || request.status === 'HasBids';
   const bids = request.bids || [];
@@ -306,7 +303,7 @@ export default function RequestDetailsPage() {
                                 <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] uppercase tracking-wider py-0 px-1.5 h-5">New</Badge>
                               )}
                               <span className="text-slate-300 dark:text-slate-600 mx-1">•</span>
-                              <span className="text-slate-500 dark:text-slate-400 font-medium">Offered at {new Date(bid.submittedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+                              <span className="text-slate-500 dark:text-slate-400 font-medium">Offered at {formatLocalTime(bid.submittedAt)}</span>
                             </div>
                           </div>
                           
@@ -434,20 +431,29 @@ export default function RequestDetailsPage() {
                               >
                                 {isBusy && activeBidId === bid.id ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Accept Offer'}
                               </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Confirm Order Acceptance</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to accept this offer from {bid.pharmacyName} for {bid.totalPrice.toFixed(2)} EGP? This will close your request and cancel other pending offers.
+                              <AlertDialogContent className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl max-w-md w-[95%] gap-6">
+                                <AlertDialogHeader className="space-y-3">
+                                  <div className="w-12 h-12 bg-teal-50 dark:bg-teal-500/10 rounded-full flex items-center justify-center mb-2 mx-auto sm:mx-0">
+                                    <CheckCircle className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                                  </div>
+                                  <AlertDialogTitle className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white">
+                                    Confirm Order Acceptance
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-medium leading-relaxed">
+                                    Are you sure you want to accept this offer from <span className="font-bold text-slate-700 dark:text-slate-300">{bid.pharmacyName}</span> for <span className="font-black text-teal-600 dark:text-teal-400">{bid.totalPrice.toFixed(2)} EGP</span>? 
+                                    <br/><br/>
+                                    This will close your request and cancel other pending offers automatically.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogFooter className="mt-6 sm:mt-8 gap-3 sm:gap-2">
+                                  <AlertDialogCancel className="w-full sm:w-auto h-12 px-6 rounded-xl font-bold border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 mt-0 sm:mt-0">
+                                    Cancel
+                                  </AlertDialogCancel>
                                   <AlertDialogAction 
                                     onClick={() => respondToBid({ bidId: bid.id, status: 'Accepted', requestId })}
-                                    className="bg-teal-600 hover:bg-teal-700"
+                                    className="w-full sm:w-auto h-12 px-8 rounded-xl font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-sm shadow-teal-600/20"
                                   >
-                                    Confirm
+                                    Confirm Order
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>

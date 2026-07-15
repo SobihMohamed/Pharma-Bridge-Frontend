@@ -1,5 +1,6 @@
 import { FileText, Clock, Building2, ChevronDown, CheckCircle2, AlertCircle } from 'lucide-react';
 import { ComplaintDto } from '../types';
+import { formatLocalDate } from '@/utils/formatTime';
 
 interface ComplaintCardProps {
   complaint: ComplaintDto;
@@ -29,7 +30,7 @@ export default function ComplaintCard({ complaint }: ComplaintCardProps) {
               <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
                 <span className="font-medium text-gray-700">{complaint.orderReference}</span>
                 <span>•</span>
-                <span>{new Date(complaint.date).toLocaleDateString()}</span>
+                <span>{formatLocalDate(complaint.date)}</span>
               </div>
             </div>
           </div>

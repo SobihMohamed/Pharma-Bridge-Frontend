@@ -30,6 +30,7 @@ export default function LoginPage() {
     email: '',
     password: '',
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -37,10 +38,24 @@ export default function LoginPage() {
       ...prev,
       [name]: value
     }));
+    setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+    let newErrors: Record<string, string> = {};
+
+    if (!formData.email.trim()) newErrors.email = "Email cannot be empty";
+    else if (!/^\S+@\S+\.\S+$/.test(formData.email.trim())) newErrors.email = "Invalid email format";
+
+    if (!formData.password.trim()) newErrors.password = "Password cannot be empty spaces";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     regularLogin(formData);
   };
 
@@ -321,12 +336,13 @@ export default function LoginPage() {
                     name="email"
                     type="email"
                     required
-                    className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-[#bae6fd] rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#0284c7]/10 focus:border-[#0284c7] sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]"
+                    className={`appearance-none block w-full pl-10 pr-3 py-2.5 border ${errors.email ? 'border-red-500 ring-1 ring-red-500' : 'border-[#bae6fd] focus:ring-[#0284c7]/10 focus:border-[#0284c7]'} rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]`}
                     placeholder="you@example.com"
                     value={formData.email}
                     onChange={handleChange}
                   />
                 </div>
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </div>
 
               {/* Password */}
@@ -348,7 +364,7 @@ export default function LoginPage() {
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     required
-                    className="appearance-none block w-full pl-10 pr-10 py-2.5 border border-[#bae6fd] rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#0284c7]/10 focus:border-[#0284c7] sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]"
+                    className={`appearance-none block w-full pl-10 pr-10 py-2.5 border ${errors.password ? 'border-red-500 ring-1 ring-red-500' : 'border-[#bae6fd] focus:ring-[#0284c7]/10 focus:border-[#0284c7]'} rounded-xl placeholder-slate-400 focus:outline-none focus:ring-4 sm:text-sm transition-all bg-[#F8FAFC] focus:bg-white text-[#0369a1]`}
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={handleChange}
@@ -361,6 +377,7 @@ export default function LoginPage() {
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
+                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
               </div>
             </div>
 

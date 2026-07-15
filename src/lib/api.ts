@@ -50,10 +50,17 @@ apiInstance.interceptors.response.use(
         errors: null,
       };
     } else if (status === 400 && responseData) {
+      let parsedErrors: string[] | null = null;
+      if (Array.isArray(responseData.errors)) {
+        parsedErrors = responseData.errors;
+      } else if (responseData.errors && typeof responseData.errors === 'object') {
+        parsedErrors = Object.values(responseData.errors).flat() as string[];
+      }
+
       apiError = {
         statusCode: 400,
-        message: responseData.message || "Bad Request",
-        errors: responseData.errors || null,
+        message: responseData.message || (responseData as any).title || "Bad Request",
+        errors: parsedErrors,
       };
     } else if (status === 404 && responseData) {
       apiError = {

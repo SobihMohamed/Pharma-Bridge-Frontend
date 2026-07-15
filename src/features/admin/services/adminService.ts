@@ -151,7 +151,7 @@ export interface AdminOrderItemDto {
 }
 
 export interface AdminOrderDetailsDto {
-  orderId: number;
+  id: number;
   orderStatus: string;
   paymentMethod: string;
   paymentStatus: string;
@@ -169,6 +169,10 @@ export interface AdminOrderDetailsDto {
   pharmacyName: string;
   pharmacyPhone: string | null;
   deliveryAddress: string | null;
+  pharmacyRating?: {
+    ratingValue: number;
+    comment: string;
+  } | null;
   items: AdminOrderItemDto[];
 }
 
@@ -201,17 +205,18 @@ export interface AdminBidDetailsDto {
   id: number;
   status: string;
   pharmacyName: string;
+  pharmacyId?: number;
   prescriptionRequestId: number | null;
   submittedAt: string;
   respondedAt: string | null;
-  deliveryTime: string | null;
+  deliveryTimeInMinutes: number;
   notes: string | null;
   subtotal: number;
   discountAmount: number;
   deliveryFee: number;
   platformFee: number;
   totalPrice: number;
-  items: AdminBidDetailItemDto[];
+  bidItems: AdminBidDetailItemDto[];
 }
 
 

@@ -6,6 +6,10 @@ export interface PatientProfileDto {
   totalPrescriptionRequests: number;
   ordersCount: number;
   complaintsSubmitted: number;
+  totalPharmacyRatings: number;
+  pendingOrders: number;
+  completedOrders: number;
+  cancelledOrders: number;
   addresses: PatientAddressDto[];
 }
 

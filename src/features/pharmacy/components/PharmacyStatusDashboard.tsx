@@ -14,8 +14,9 @@ export default function PharmacyStatusDashboard({ data }: PharmacyStatusDashboar
     return <UpdatePharmacyForm initialData={data} onCancel={() => setIsEditing(false)} />;
   }
 
+  const status = data.status || (data.isApproved ? 'Approved' : 'Pending');
+
   const getStatusBadge = () => {
-    const status = data.status || (data.isApproved ? 'Approved' : 'Pending');
     
     if (status === 'Active' || status === 'Approved') {
       return (
@@ -59,7 +60,8 @@ export default function PharmacyStatusDashboard({ data }: PharmacyStatusDashboar
           {getStatusBadge()}
           <button
             onClick={() => setIsEditing(true)}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-900/50 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/20 transition-colors"
+            disabled={status === 'Pending'}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-900/50 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-teal-50 dark:disabled:hover:bg-teal-950/30"
           >
             <Edit className="w-4 h-4" />
             Edit Info

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useGetBidDetailsQuery, BidItemDto } from '../api/bidding';
 import { useGetPharmacyRequestDetailsQuery } from '../api/requests';
 import { EditBidDialog } from '../components/EditBidDialog';
+import { formatLocalDateTime, parseUtcDate } from '@/utils/formatTime';
 
 export default function BidDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -48,8 +49,8 @@ export default function BidDetailsPage() {
   const calculateUrgency = (expiresAt: string) => {
     if (!expiresAt) return { text: "No deadline", color: "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700" };
     
-    const expires = new Date(expiresAt).getTime();
-    const now = new Date().getTime();
+    const expires = parseUtcDate(expiresAt).getTime();
+    const now = Date.now();
     const diff = expires - now;
 
     if (diff <= 0) return { text: "Expired", color: "text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/30" };
@@ -127,7 +128,7 @@ export default function BidDetailsPage() {
           </h1>
           <p className="text-gray-500 dark:text-slate-400 mt-2 flex items-center gap-2 text-sm">
             <CalendarDays className="w-4 h-4" />
-            Submitted on {new Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'short' }).format(new Date(bid.submittedAt))}
+            Submitted on {formatLocalDateTime(bid.submittedAt)}
           </p>
         </div>
 
@@ -221,7 +222,7 @@ export default function BidDetailsPage() {
                   <div className="bg-white dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center text-center">
                     <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Created At</span>
                     <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                      {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(requestData.createdAt))}
+                      {formatLocalDateTime(requestData.createdAt)}
                     </span>
                   </div>
                   <div className={`p-3 rounded-xl border shadow-sm flex flex-col items-center justify-center text-center ${calculateUrgency(requestData.expiresAt).color}`}>

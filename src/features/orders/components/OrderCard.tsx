@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Package, Clock, ChevronRight, Store, MapPin } from 'lucide-react';
 import { OrderDto } from '../types';
+import { formatLocalDate } from '@/utils/formatTime';
 
 interface OrderCardProps {
   order: OrderDto;
@@ -28,7 +29,7 @@ export default function OrderCard({ order }: OrderCardProps) {
               </h3>
               <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-0.5">
                 <Clock className="w-3.5 h-3.5" />
-                <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                <span>{formatLocalDate(order.createdAt)}</span>
               </div>
             </div>
           </div>

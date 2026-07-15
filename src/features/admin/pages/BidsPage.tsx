@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AdminLayout from "../components/layout/AdminLayout";
+import { formatLocalDateTime } from "@/utils/formatTime";
 import { useAdminBidsQuery, AdminBidsParams } from "../hooks/useAdminBidsQuery";
 import { AdminBidListItemDto } from "../services/adminService";
 import {
@@ -62,17 +63,7 @@ const getPaginationRange = (current: number, total: number) => {
 
 const formatDateTime = (iso: string | null | undefined) => {
   if (!iso) return "—";
-  try {
-    return new Date(iso).toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
+  return formatLocalDateTime(iso);
 };
 
 // ---------- Sub-components ----------

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useGetComplaintByIdQuery } from '../api/complaints';
+import { formatLocalDateTime } from '@/utils/formatTime';
 import { 
   ArrowLeft, 
   AlertCircle, 
@@ -21,13 +22,7 @@ export default function ComplaintDetailsPage() {
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return '';
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    }).format(new Date(dateStr));
+    return formatLocalDateTime(dateStr);
   };
 
   const getStatusConfig = (status?: string) => {

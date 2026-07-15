@@ -22,6 +22,7 @@ export interface PharmacyDashboardData {
   revenueGrowth: number;
   newPatientsGrowth: number;
   completedOrdersGrowth: number;
+  averageRating: number;
   revenueChart: RevenueChartDto[];
   recentActivities: RecentActivityDto[];
 }

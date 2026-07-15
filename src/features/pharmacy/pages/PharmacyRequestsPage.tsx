@@ -17,6 +17,9 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { AppPagination } from '@/shared/ui/AppPagination';
+import { usePagination } from '@/shared/hooks/usePagination';
+import { formatLocalDateTime, parseUtcDate } from '@/utils/formatTime';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -63,7 +66,7 @@ const STATUS_CONFIG: Record<string, { badgeClass: string; dotClass: string }> = 
 const ACCENT_COLORS = ['#0ea5e9', '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316'];
 
 function getRelativeTime(dateString: string): string {
-  const date = new Date(dateString);
+  const date = parseUtcDate(dateString);
   const now = new Date();
   const diffInSeconds = Math.floor((date.getTime() - now.getTime()) / 1000);
 
@@ -74,12 +77,7 @@ function getRelativeTime(dateString: string): string {
 }
 
 function formatDate(dateStr: string): string {
-  return new Intl.DateTimeFormat('en-EG', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(new Date(dateStr));
+  return formatLocalDateTime(dateStr);
 }
 
 // ---------- Sub-components ----------
@@ -121,7 +119,7 @@ function RequestDetailsSheetContent({ id, onClose }: RequestDetailsSheetContentP
     );
   }
 
-  const isExpired = new Date(request.expiresAt).getTime() < new Date().getTime();
+  const isExpired = parseUtcDate(request.expiresAt).getTime() < new Date().getTime();
   const canBid = !isExpired && (request.status === 'Pending' || request.status === 'HasBids');
   const cfg = STATUS_CONFIG[request.status] || STATUS_CONFIG.Pending;
   const accent = ACCENT_COLORS[request.id % ACCENT_COLORS.length];
@@ -423,7 +421,7 @@ export default function PharmacyRequestsPage() {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {requests.map((request, i) => {
-                  const isExpired = new Date(request.expiresAt).getTime() < new Date().getTime();
+                  const isExpired = parseUtcDate(request.expiresAt).getTime() < new Date().getTime();
                   const canBid = !isExpired && (request.status === 'Pending' || request.status === 'HasBids');
                   const cfg = STATUS_CONFIG[request.status] || STATUS_CONFIG.Pending;
                   const accent = ACCENT_COLORS[i % ACCENT_COLORS.length];
