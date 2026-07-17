@@ -2,7 +2,6 @@ import ProfileDetailsCard from '../components/ProfileDetailsCard';
 import AddressList from '../components/AddressList';
 import StatsGrid from '../components/StatsGrid';
 import AccountControls from '../components/AccountControls';
-import RecentActivity from '../components/RecentActivity';
 import { usePatientProfileQuery } from '../hooks/useProfileQueries';
 
 export default function ProfilePage() {
@@ -24,7 +23,7 @@ export default function ProfilePage() {
           <div className="hidden lg:block">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">My Dashboard</h2>
             <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
-              Welcome back{profile?.fullName ? `, ${profile.fullName.split(' ')[0]}` : ''}. Here's an overview of your recent activity.
+              Welcome back{profile?.fullName ? `, ${profile.fullName.split(' ')[0]}` : ''}. Here's an overview of your profile.
             </p>
           </div>
 
@@ -34,8 +33,6 @@ export default function ProfilePage() {
           {/* Addresses Section */}
           <AddressList />
 
-          {/* Recent Activity */}
-          <RecentActivity />
         </div>
       </div>
     </div>
